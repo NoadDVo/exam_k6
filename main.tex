@@ -1,0 +1,167 @@
+\documentclass[11pt,a4paper,twoside]{book}
+\usepackage[utf8]{vietnam} 
+%\usepackage{extsizes}
+%\usepackage{amssymb,yhmath,mathrsfs,fontawesome}
+%,amsmath,amssymb,fontawesome,txfonts,,txfonts}
+\usepackage{amsmath,amssymb,yhmath,mathrsfs,fontawesome5,tcolorbox}
+%Đổi font
+\def\mautheme{green!40!black}
+%\usepackage{bbm}
+\let\widering\relax
+%\usepackage[poorman]{fourier}
+%\usepackage[T5]{fontenc}
+%\usepackage{fouriernc}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+\usepackage{tkz-euclide}
+\usepackage{tikz-3dplot}
+\usepackage{array}
+\usepackage{tikz,tkz-tab}
+\usetikzlibrary{shapes.geometric,arrows,calc,intersections,angles,quotes,patterns,positioning}
+\usepackage{pgfplots}
+\usepgfplotslibrary{fillbetween}
+\pgfplotsset{compat=1.4}
+\usepackage[top=1.5cm, bottom=1.5cm, left=1.5cm, right=1.5cm] {geometry}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{currfile}
+\usepackage{hyperref}
+\usepackage{eso-pic}
+
+%\usepackage[dethi]{ex_test}
+%\usepackage[loigiai]{ex_test}
+%\usepackage[color]{ex_test}
+\usepackage[solcolor,book]{ex_test}
+%CÁC GÓI, LỆNH VIẾT TẮT CẦN THÊM
+%\usepackage[poorman]{fourier}
+%\usepackage[T5]{fontenc}
+%\let\widering\relax % phu hợp font fourier
+%\renewcommand{\baselinestretch}{1.1}
+%CẤU TRÚC TỰ LUẬN
+\usepackage{framed}
+
+
+\newtheorem{bt}{\textbf{Câu}}
+\newtheorem{vd}{\textbf{Ví dụ}}
+\setcounter{bt}{0}
+\setcounter{vd}{0}
+\setcounter{subsubsection}{0}
+
+\theorembodyfont{\rm}
+\newtheorem{dl}{\fontfamily{ptm}\selectfont Định lí}
+\theoremseparator{.}
+\theorembodyfont{\rm}
+\newtheorem{hq}{\fontfamily{ptm}\selectfont Hệ quả}
+\newtheorem{tc}{\fontfamily{ptm}\selectfont Tính chất}
+\newtheorem{dn}{\fontfamily{ptm}\selectfont Định nghĩa}
+\theoremstyle{nonumberplain}
+\newtheorem{kn}{\fontfamily{ptm}\selectfont Khái niệm}
+\theoremseparator{}
+\theorembodyfont{\it}
+\usepackage{stackengine}
+\usepackage{scalerel}
+\newcommand\dangersign[1][2ex]{%
+\renewcommand\stacktype{L}%
+\scaleto{\stackon[1.3pt]{\color{red}$\triangle$}{\fontsize{4}{0}\selectfont !}}{#1}%
+}
+\newtheorem{note}{{\dangersign[3ex]}}
+\newtheorem{nx}{Nhận xét.}
+\input{KhaiBao-theorems}
+
+%Tiêu đề chương
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{2}
+\usepackage{titlesec}
+\usepackage{titletoc}
+%Làm mục lục
+%\patchcmd{\tableofcontents}{\contentsname}{\color{black}MỤC LỤC}{}{}
+\usepackage{ifoddpage}
+\titlecontents{section}
+[4em]{\sffamily}
+{\color{black}\contentslabel{2.3em}\color{black}}{}
+{\titlerule*[1000pc]{.}\contentspage\\\hspace*{-3em}\vspace*{2pt}%
+\color{black}\rule{\dimexpr\textwidth-16pt\relax}{1pt}}
+
+\titlecontents{lsection}
+[5.8em]{\sffamily}
+{\color{black}\contentslabel{2.3em}\color{black}}{}
+{\titlerule*[1000pc]{.}\contentspage\\\hspace*{-5.8em}\vspace*{2pt}%
+\color{black}\rule{\dimexpr\textwidth\relax}{1pt}}
+
+\renewcommand\thesection{\@arabic\c@section}
+\renewcommand\thesubsection{\@Alph\c@subsection}
+\renewcommand\thesubsubsection{\@arabic\c@subsubsection}
+
+
+\usepackage{esvect}
+\def\vec{\vv}
+\def\overrightarrow{\vv}
+
+\usepackage{lastpage}
+\pagestyle{fancy}
+\fancyhf{} 
+\renewcommand{\headrulewidth}{0pt}
+%\lfoot{\it\sf\fontsize{12pt}{1pt}\selectfont\faMortarBoard\, \nouppercase{\color{red!70!black}NoadDVo}}
+%\rfoot{\sf\fontsize{12pt}{1pt}\selectfont\faClockO\, \color{red!70!black}Trang~\thepage/\pageref{LastPage}}
+%\newpage
+%\chead{\empty}
+%\rhead{\it\sf\nouppercase{\fontsize{10pt}{1pt}\selectfont\faIcon{envelope}\color{red!70!black}\ dangnguyen402042@gmail.com}}
+%\lhead{\sf\fontsize{10pt}{1pt}\selectfont\faFileText\,\color{red!70!black}~ĐỀ THI TỐT NGHIỆP THPT 2026 -- LẦN 2}
+%HẾT CẤU TRÚC TỰ LUẬN
+\newcommand{\hoac}[1]{\left[\begin{aligned}#1\end{aligned}\right.}
+\newcommand{\heva}[1]{\left\{\begin{aligned}#1\end{aligned}\right.}
+\renewcommand\loigiaiEX {\color{black} Lời giải}
+\renewcommand{\baselinestretch}{1.25}
+\renewcommand{\labelenumi}{\alph{enumi})}
+%dấu chấm đậm
+\renewcommand{\TrueEX}{\stepcounter{dapan}{\textbf{\color{black}\Alph{dapan}.}} \ignorespaces}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\textbf{\color{black}\Alph{dapan}.}} \ignorespaces}
+
+\newcommand{\caulc}{
+	\begin{flushleft}
+		{\color{\mautheme} \textbf{PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn.} Thí sinh trả lời từ câu 1 đến câu 12. Mỗi câu hỏi thí sinh chỉ chọn một phương án.}
+	\end{flushleft}
+	\setcounter{ex}{0}
+}
+\newcommand{\cauds}{
+	{\color{\mautheme} \noindent\textbf{PHẦN II. Câu trắc nghiệm đúng sai.} Thí sinh trả lời từ câu 1 đến câu 4. Trong mỗi ý \textbf{a)}, \textbf{b)}, \textbf{c)}, \textbf{d)} ở mỗi câu, thí sinh chọn đúng hoặc sai.}
+	\setcounter{ex}{0}
+}
+\newcommand{\caukq}{
+	\begin{flushleft}
+		{\color{\mautheme} \noindent\textbf{PHẦN III. Câu trắc nghiệm trả lời ngắn.} Thí sinh trả lời từ câu 1 đến câu 6.}
+	\end{flushleft}
+	\setcounter{ex}{0}
+}
+\newcommand{\tl}{
+	\begin{flushleft}
+		{\color{\mautheme} \noindent\textbf{PHẦN IV. Tự luận.}}
+	\end{flushleft}
+	\setcounter{bt}{0}
+}
+\makeatother
+\newcommand{\indapan}[2]{
+\inputansbox{#1}{#2}
+}
+\newcommand{\AnBangdapan}{
+\renewcommand{\indapan}[2]{}
+}
+% ==========================
+% PDF FINGERPRINT
+% ==========================
+\newcommand{\PDFFingerprint}{NDV-402042}
+
+\hypersetup{
+	pdfkeywords={NoadD,\PDFFingerprint}
+}
+%\printEX[1,...,5,8,,23,...,29]{ex}
+
+\begin{document}
+\def\tacgia{\bf KIỂM TRA THƯỜNG XUYÊN}
+
+\everymath{\displaystyle}
+
+\input{de1}
+\clearpage
+\setcounter{page}{1}
+\input{de2}
+\end{document}

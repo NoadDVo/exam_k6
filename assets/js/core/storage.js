@@ -1,0 +1,420 @@
+/**
+ * storage.js — Quản lý lưu trữ cục bộ (LocalStorage)
+ * NoadD.Vo LMS & Exam System 3.0
+ * 
+ * Thay thế Firebase bằng LocalStorage + JSON tĩnh
+ * Phù hợp với deploy GitHub Pages
+ */
+
+const Storage = (() => {
+    // ============================================================
+    // KEYS
+    // ============================================================
+    const KEYS = {
+        AUTH_USER: 'noadd_auth_user',
+        EXAMS: 'noadd_exams',
+        SUBMISSIONS: 'noadd_submissions',
+        SETTINGS: 'noadd_settings',
+        CURRENT_SESSION: 'noadd_session',
+    };
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+
+    /**
+     * Lấy dữ liệu từ LocalStorage, parse JSON
+     * @param {string} key - Tên key
+     * @param {*} defaultValue - Giá trị mặc định nếu không có
+     */
+    const get = (key, defaultValue = null) => {
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (e) {
+            console.error(`[Storage] Lỗi đọc key "${key}":`, e);
+            return defaultValue;
+        }
+    };
+
+    /**
+     * Lưu dữ liệu vào LocalStorage dưới dạng JSON
+     * @param {string} key - Tên key
+     * @param {*} value - Giá trị cần lưu
+     */
+    const set = (key, value) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch (e) {
+            console.error(`[Storage] Lỗi ghi key "${key}":`, e);
+            return false;
+        }
+    };
+
+    /**
+     * Xóa một key
+     */
+    const remove = (key) => {
+        localStorage.removeItem(key);
+    };
+
+    /**
+     * Tạo mã đề thi gồm 6 chữ số ngẫu nhiên (chỉ gồm các số)
+     */
+    const generateExamCode = () => {
+        return String(Math.floor(100000 + Math.random() * 900000));
+    };
+
+    /**
+     * Tạo UUID đơn giản
+     */
+    const generateId = () => {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    };
+
+    // ============================================================
+    // AUTH & BẢO MẬT BĂM SHA-256 (CHỐNG LỘ QUA F12)
+    // ============================================================
+
+    /**
+     * Băm chuỗi bằng thuật toán SHA-256 chuẩn Web Crypto
+     */
+    const sha256 = async (message) => {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
+    // Danh sách tài khoản mặc định được băm SHA-256 (khớp với data/teachers.json)
+    // Dù mở F12 cũng chỉ thấy chuỗi mã hóa, không thể dịch ngược ra mật khẩu gốc
+    const DEFAULT_TEACHER_ACCOUNTS = {
+        "giaovien@gmail.com": {
+            email: "giaovien@gmail.com",
+            name: "Giáo Viên Bộ Môn",
+            passwordHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9", // admin123
+            role: "teacher"
+        },
+        "thaynam@gmail.com": {
+            email: "thaynam@gmail.com",
+            name: "Thầy Võ Hoàng Nam",
+            passwordHash: "13172baa4590e81430c91b83fe152cf6ff6abb32f7f7f268fcdc86daa585fada", // toan6@2026
+            role: "teacher"
+        },
+        "admin@school.edu.vn": {
+            email: "admin@school.edu.vn",
+            name: "Quản Trị Viên Khảo Thí",
+            passwordHash: "e88d908c9e5872a47e8e4fdd686d7ed136b82f8c57f5a126fd8c5ab195f2e6d4", // giaovien123
+            role: "teacher"
+        }
+    };
+
+    const Auth = {
+        /**
+         * Lấy danh sách tài khoản giáo viên đã lưu
+         */
+        getTeachers: () => {
+            const stored = get('noadd_teachers', null);
+            if (!stored) {
+                // Khởi tạo từ danh sách cấu hình tự cấp mặc định
+                set('noadd_teachers', DEFAULT_TEACHER_ACCOUNTS);
+                return DEFAULT_TEACHER_ACCOUNTS;
+            }
+            return stored;
+        },
+
+        /**
+         * Nạp tài khoản từ file json nếu có
+         */
+        syncWithJson: async () => {
+            try {
+                const res = await fetch('/data/teachers.json');
+                if (res.ok) {
+                    const list = await res.json();
+                    const current = Auth.getTeachers();
+                    list.forEach(t => {
+                        current[t.email.toLowerCase()] = {
+                            email: t.email,
+                            name: t.name,
+                            passwordHash: t.passwordHash,
+                            role: t.role || 'teacher'
+                        };
+                    });
+                    set('noadd_teachers', current);
+                }
+            } catch (e) {
+                // Chạy offline/local fallback
+            }
+        },
+
+        /**
+         * Đăng nhập giáo viên có kiểm tra SHA-256 an toàn
+         */
+        login: async (email, password) => {
+            await Auth.syncWithJson();
+            const teachers = Auth.getTeachers();
+            const normalizedEmail = email.trim().toLowerCase();
+            const teacher = teachers[normalizedEmail];
+
+            if (!teacher) {
+                return { success: false, message: 'Tài khoản không tồn tại hoặc chưa được cấp quyền!' };
+            }
+
+            const inputHash = await sha256(password);
+            if (teacher.passwordHash !== inputHash) {
+                return { success: false, message: 'Mật khẩu không chính xác!' };
+            }
+
+            const userData = { email: teacher.email, name: teacher.name, role: 'teacher' };
+            set(KEYS.AUTH_USER, userData);
+            return { success: true, user: userData };
+        },
+
+        /**
+         * Đăng xuất
+         */
+        logout: () => {
+            remove(KEYS.AUTH_USER);
+            remove(KEYS.CURRENT_SESSION);
+        },
+
+        /**
+         * Lấy user hiện tại
+         */
+        getCurrentUser: () => get(KEYS.AUTH_USER, null),
+
+        /**
+         * Kiểm tra đã đăng nhập chưa
+         */
+        isLoggedIn: () => !!get(KEYS.AUTH_USER, null),
+    };
+
+    // ============================================================
+    // EXAMS (Đề thi)
+    // ============================================================
+
+    const Exams = {
+        /**
+         * Lấy tất cả đề thi
+         */
+        getAll: () => get(KEYS.EXAMS, {}),
+
+        /**
+         * Lấy đề thi theo mã
+         */
+        getByCode: (examCode) => {
+            const exams = Exams.getAll();
+            return exams[examCode] || null;
+        },
+
+        /**
+         * Lưu đề thi mới
+         * @param {Object} examData - Dữ liệu đề thi từ TexParser
+         * @param {Object} config - Cấu hình kỳ thi (thời gian, cho xem đáp án, v.v.)
+         */
+        save: (examData, config = {}) => {
+            const exams = Exams.getAll();
+            const examCode = examData.examCode || generateExamCode();
+            const cfg = config || examData.config || {};
+            const exam = {
+                ...examData,
+                examCode,
+                config: {
+                    duration: cfg.duration || 45,
+                    maxAttempts: cfg.maxAttempts || 1,
+                    showScore: cfg.showScore !== false,
+                    showAnswers: cfg.showAnswers !== false,
+                    shuffleQuestions: cfg.shuffleQuestions || false,
+                    title: cfg.title || examData.meta?.title || 'Đề thi',
+                    subject: cfg.subject || examData.meta?.subject || 'Toán',
+                    grade: cfg.grade || examData.meta?.grade || '',
+                },
+                createdAt: examData.createdAt || new Date().toISOString(),
+                createdBy: examData.createdBy || Auth.getCurrentUser()?.email || 'anonymous',
+                isActive: examData.isActive !== false,
+            };
+            exams[examCode] = exam;
+            set(KEYS.EXAMS, exams);
+            return { success: true, examCode, exam };
+        },
+
+        /**
+         * Cập nhật trạng thái đề thi
+         */
+        update: (examCode, updates) => {
+            const exams = Exams.getAll();
+            if (!exams[examCode]) return false;
+            exams[examCode] = { ...exams[examCode], ...updates };
+            set(KEYS.EXAMS, exams);
+            return true;
+        },
+
+        /**
+         * Xóa đề thi
+         */
+        delete: (examCode) => {
+            const exams = Exams.getAll();
+            delete exams[examCode];
+            set(KEYS.EXAMS, exams);
+        },
+
+        /**
+         * Lấy danh sách đề thi của giáo viên hiện tại
+         */
+        getMyExams: () => {
+            const user = Auth.getCurrentUser();
+            if (!user) return [];
+            const exams = Exams.getAll();
+            return Object.values(exams)
+                .filter(e => e.createdBy === user.email)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        },
+    };
+
+    // ============================================================
+    // SUBMISSIONS (Bài làm học sinh)
+    // ============================================================
+
+    const Submissions = {
+        /**
+         * Lấy tất cả bài nộp
+         */
+        getAll: () => get(KEYS.SUBMISSIONS, {}),
+
+        /**
+         * Lấy bài nộp theo mã đề thi
+         */
+        getByExam: (examCode) => {
+            const all = Submissions.getAll();
+            return Object.values(all).filter(s => s.examCode === examCode);
+        },
+        getByExamCode: (examCode) => Submissions.getByExam(examCode),
+
+        /**
+         * Lưu bài làm học sinh
+         */
+        save: (submissionData) => {
+            const all = Submissions.getAll();
+            const id = generateId();
+            const submission = {
+                id,
+                ...submissionData,
+                submittedAt: new Date().toISOString(),
+            };
+            all[id] = submission;
+            set(KEYS.SUBMISSIONS, all);
+            return { success: true, id, submission };
+        },
+
+        /**
+         * Tính điểm tự động cho câu TN, Đúng/Sai, Trả lời ngắn
+         */
+        calculateScore: (exam, answers) => {
+            let totalScore = 0;
+            let correctCount = 0;
+            let totalCount = 0;
+            const details = [];
+
+            exam.questions.forEach(q => {
+                if (q.type === 'essay') return; // tự luận không tính tự động
+
+                const studentAnswer = answers[q.id];
+                let isCorrect = false;
+
+                if (q.type === 'choice') {
+                    totalCount++;
+                    isCorrect = studentAnswer === q.options.find(o => o.isCorrect)?.letter;
+                    if (isCorrect) {
+                        correctCount++;
+                        totalScore += q.points || 0;
+                    }
+                } else if (q.type === 'truefalse') {
+                    totalCount++;
+                    const tfItems = q.tfItems || [];
+                    let numMatched = 0;
+                    if (studentAnswer && typeof studentAnswer === 'object') {
+                        tfItems.forEach(item => {
+                            const studentVal = studentAnswer[item.letter];
+                            if (studentVal !== undefined && Boolean(studentVal) === Boolean(item.isCorrect)) {
+                                numMatched++;
+                            }
+                        });
+                    }
+                    // Thang điểm Bộ GD&ĐT cho câu Đúng/Sai (1.0 điểm):
+                    // Đúng 1 ý = 0.1 đ, 2 ý = 0.25 đ, 3 ý = 0.5 đ, 4 ý = 1.0 đ
+                    const correctTable = { 0: 0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0 };
+                    const pointScale = (q.points || 1.0);
+                    const earnedPoints = (correctTable[numMatched] !== undefined ? correctTable[numMatched] : (numMatched / (tfItems.length || 4))) * pointScale;
+                    totalScore += earnedPoints;
+                    isCorrect = (numMatched === tfItems.length && tfItems.length > 0);
+                    if (isCorrect) correctCount++;
+                } else if (q.type === 'shortanswer') {
+                    totalCount++;
+                    const expected = String(q.shortAnswer || '').trim().toLowerCase();
+                    const given = String(studentAnswer || '').trim().toLowerCase();
+                    isCorrect = expected === given;
+                    if (isCorrect) {
+                        correctCount++;
+                        totalScore += q.points || 0;
+                    }
+                }
+
+                details.push({ questionId: q.id, studentAnswer, isCorrect, points: totalScore });
+            });
+
+            return {
+                totalScore: Math.round(totalScore * 100) / 100,
+                correctCount,
+                totalCount,
+                details,
+            };
+        },
+    };
+
+    // ============================================================
+    // SESSION (Phiên thi của học sinh)
+    // ============================================================
+
+    const Session = {
+        save: (data) => set(KEYS.CURRENT_SESSION, data),
+        get: () => get(KEYS.CURRENT_SESSION, null),
+        clear: () => remove(KEYS.CURRENT_SESSION),
+    };
+
+    // ============================================================
+    // SETTINGS
+    // ============================================================
+
+    const Settings = {
+        get: () => get(KEYS.SETTINGS, {
+            theme: 'light',
+            language: 'vi',
+            paperStyle: 'grid-oly',
+            fontClass: 'font-itim',
+        }),
+        save: (settings) => set(KEYS.SETTINGS, settings),
+    };
+
+    // ============================================================
+    // PUBLIC API
+    // ============================================================
+    return {
+        Auth,
+        Exams,
+        Submissions,
+        Session,
+        Settings,
+        generateExamCode,
+        generateId,
+    };
+
+})();
+
+// Export cho browser và Node.js
+if (typeof window !== 'undefined') {
+    window.Storage = Storage;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Storage;
+}

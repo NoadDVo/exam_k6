@@ -1,0 +1,17 @@
+# LaTeX temporary build files
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.thm
+*.toc
+*.fls
+*.fdb_latexmk
+ansbookTN.tex
+ansTN.tex
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
