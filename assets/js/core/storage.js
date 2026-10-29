@@ -205,7 +205,29 @@ const Storage = (() => {
          */
         getByCode: (examCode) => {
             const exams = Exams.getAll();
-            return exams[examCode] || null;
+            const codeStr = String(examCode || '').trim();
+            if (!codeStr) return null;
+
+            // 1. So khớp trực tiếp
+            if (exams[codeStr]) return exams[codeStr];
+
+            // 2. So khớp không phân biệt hoa thường hoặc khoảng trắng
+            for (const [key, ex] of Object.entries(exams)) {
+                if (String(key).trim().toLowerCase() === codeStr.toLowerCase()) {
+                    return ex;
+                }
+            }
+
+            // 3. Fallback đề mẫu mặc định (de1.tex) tích hợp sẵn
+            if (typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
+                const def = window.__DEFAULT_EXAM__;
+                // Nếu mã nhập là '123456' hoặc khớp mã đề gốc hoặc máy chưa có đề nào trong LocalStorage
+                if (codeStr === '123456' || codeStr === String(def.examCode) || Object.keys(exams).length === 0) {
+                    return { ...def, examCode: codeStr || '123456', isActive: true };
+                }
+            }
+
+            return null;
         },
 
         /**
@@ -215,8 +237,9 @@ const Storage = (() => {
          */
         save: (examData, config = {}) => {
             const exams = Exams.getAll();
-            const examCode = examData.examCode || generateExamCode();
             const cfg = config || examData.config || {};
+            // Ưu tiên mã do giáo viên nhập > mã từ examData > mã meta > tự sinh số ngẫu nhiên
+            const examCode = String(cfg.examCode || examData.examCode || examData.meta?.examCode || generateExamCode()).trim();
             const exam = {
                 ...examData,
                 examCode,
@@ -232,7 +255,7 @@ const Storage = (() => {
                 },
                 createdAt: examData.createdAt || new Date().toISOString(),
                 createdBy: examData.createdBy || Auth.getCurrentUser()?.email || 'anonymous',
-                isActive: examData.isActive !== false,
+                isActive: true,
             };
             exams[examCode] = exam;
             set(KEYS.EXAMS, exams);
@@ -373,13 +396,22 @@ const Storage = (() => {
     };
 
     // ============================================================
-    // SESSION (Phiên thi của học sinh)
+    // SESSION & STUDENT SESSION (Phiên thi & Bản nháp của học sinh)
     // ============================================================
 
-    const Session = {
+    const StudentSession = {
         save: (data) => set(KEYS.CURRENT_SESSION, data),
         get: () => get(KEYS.CURRENT_SESSION, null),
         clear: () => remove(KEYS.CURRENT_SESSION),
+        saveDraft: (examCode, studentId, draft) => {
+            set(`draft_${examCode}_${studentId || 'default'}`, draft);
+        },
+        getDraft: (examCode, studentId) => {
+            return get(`draft_${examCode}_${studentId || 'default'}`, null);
+        },
+        clearDraft: (examCode, studentId) => {
+            remove(`draft_${examCode}_${studentId || 'default'}`);
+        }
     };
 
     // ============================================================
@@ -403,7 +435,8 @@ const Storage = (() => {
         Auth,
         Exams,
         Submissions,
-        Session,
+        Session: StudentSession,
+        StudentSession,
         Settings,
         generateExamCode,
         generateId,

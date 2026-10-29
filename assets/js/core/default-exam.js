@@ -1,0 +1,633 @@
+window.__DEFAULT_EXAM__ = {
+  "meta": {
+    "examCode": "237200",
+    "title": "",
+    "subject": "",
+    "grade": "",
+    "year": "2026 -- 2027",
+    "duration": 90,
+    "school": "TRƯỜNG THCS \\dots\\dots\\dots\\dots\\dots\\dots",
+    "examNumber": "1",
+    "totalPages": 2
+  },
+  "sections": [
+    {
+      "id": "part1",
+      "title": "PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn (3,0 điểm).",
+      "instruction": "",
+      "type": "choice",
+      "totalPoints": 3
+    },
+    {
+      "id": "part2",
+      "title": "PHẦN II. Câu trắc nghiệm đúng sai (2,0 điểm).",
+      "instruction": "",
+      "type": "truefalse",
+      "totalPoints": 2
+    },
+    {
+      "id": "part3",
+      "title": "PHẦN III. Câu trắc nghiệm trả lời ngắn (2,0 điểm).",
+      "instruction": "",
+      "type": "shortanswer",
+      "totalPoints": 2
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Cho tập hợp $A = \\{2; 4; 6; 8\\}$. Khẳng định nào sau đây đúng?",
+      "image": null,
+      "solution": "Phần tử $6$ thuộc tập hợp $A$ nên khẳng định đúng là $6 \\in A$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$3 \\in A$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$8 \\notin A$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$6 \\in A$",
+          "isCorrect": true
+        },
+        {
+          "letter": "D",
+          "text": "$5 \\in A$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 2,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Trong số $4\\,527$, chữ số $5$ có giá trị là",
+      "image": null,
+      "solution": "Chữ số $5$ nằm ở hàng trăm nên có giá trị là $500$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$500$",
+          "isCorrect": true
+        },
+        {
+          "letter": "B",
+          "text": "$50$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$5$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$5\\,000$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 3,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Số tự nhiên liền sau của số $2\\,099$ là",
+      "image": null,
+      "solution": "Số tự nhiên liền sau của số $2\\,099$ là $2\\,099 + 1 = 2\\,100$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$2\\,098$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$2\\,009$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$3\\,000$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$2\\,100$",
+          "isCorrect": true
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 4,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Kết quả của phép tính $3^4 \\cdot 3^2$ viết dưới dạng một luỹ thừa là",
+      "image": null,
+      "solution": "Áp dụng quy tắc nhân hai luỹ thừa cùng cơ số: $3^4 \\cdot 3^2 = 3^{4+2} = 3^6$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$3^8$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$3^6$",
+          "isCorrect": true
+        },
+        {
+          "letter": "C",
+          "text": "$9^6$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$3^2$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 5,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Đối với biểu thức không có dấu ngoặc, gồm các phép tính cộng, trừ, nhân, chia, nâng lên luỹ thừa, thứ tự thực hiện phép tính là",
+      "image": null,
+      "solution": "Thứ tự thực hiện phép tính: Luỹ thừa $\\to$ Nhân và chia $\\to$ Cộng và trừ.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "Nhân và chia, rồi đến nâng lên luỹ thừa, cuối cùng đến cộng và trừ",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "Cộng và trừ, rồi đến nhân và chia, cuối cùng đến nâng lên luỹ thừa",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "Nâng lên luỹ thừa, rồi đến nhân và chia, cuối cùng đến cộng và trừ",
+          "isCorrect": true
+        },
+        {
+          "letter": "D",
+          "text": "Thực hiện lần lượt từ trái sang phải, không phân biệt loại phép tính",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 6,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Số nào sau đây là ước của $18$?",
+      "image": null,
+      "solution": "Vì $18 \\ \\vdots \\ 6$ nên $6$ là ước của $18$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$6$",
+          "isCorrect": true
+        },
+        {
+          "letter": "B",
+          "text": "$4$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$36$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$12$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 7,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Số nào sau đây chia hết cho cả $2$ và $5$?",
+      "image": null,
+      "solution": "Số chia hết cho cả $2$ và $5$ có chữ số tận cùng bằng $0$, do đó chọn $1\\,230$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$1\\,235$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$1\\,230$",
+          "isCorrect": true
+        },
+        {
+          "letter": "C",
+          "text": "$1\\,232$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$2\\,025$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 8,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Số nào sau đây là số nguyên tố?",
+      "image": null,
+      "solution": "Số $13$ chỉ có hai ước tự nhiên là $1$ và $13$ nên là số nguyên tố.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$15$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$21$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$1$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$13$",
+          "isCorrect": true
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 9,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Tập hợp $\\text{ƯC}(6, 9)$ là",
+      "image": null,
+      "solution": "Ta có $\\text{Ư}(6) = \\{1; 2; 3; 6\\}$ và $\\text{Ư}(9) = \\{1; 3; 9\\}$. Do đó $\\text{ƯC}(6, 9) = \\{1; 3\\}$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$\\{1; 3\\}$",
+          "isCorrect": true
+        },
+        {
+          "letter": "B",
+          "text": "$\\{1; 2; 3\\}$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$\\{3\\}$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$\\{1; 3; 6; 9\\}$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 10,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Kết quả phân tích số $120$ ra thừa số nguyên tố là",
+      "image": null,
+      "solution": "Ta có $120 = 8 \\cdot 15 = 2^3 \\cdot 3 \\cdot 5$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$2^2 \\cdot 3 \\cdot 10$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$2^3 \\cdot 15$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$2^3 \\cdot 3 \\cdot 5$",
+          "isCorrect": true
+        },
+        {
+          "letter": "D",
+          "text": "$2 \\cdot 3 \\cdot 4 \\cdot 5$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 11,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Cho hình chữ nhật $ABCD$ có hai đường chéo cắt nhau tại $O$ (hình bên). Khẳng định nào sau đây đúng?",
+      "image": "images/de1_cau11.png",
+      "solution": "Trong hình chữ nhật, hai đường chéo bằng nhau. Do đó khẳng định đúng là $AC = BD$.",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$AB = BC$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$AC = BD$",
+          "isCorrect": true
+        },
+        {
+          "letter": "C",
+          "text": "$AC \\perp BD$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$OA = AB$",
+          "isCorrect": false
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 12,
+      "sectionId": "part1",
+      "type": "choice",
+      "content": "Hình thoi $MNPQ$ ở hình bên có hai đường chéo $MP = 8\\text{ cm}$, $NQ = 6\\text{ cm}$. Diện tích hình thoi $MNPQ$ là",
+      "image": "images/de1_cau12.png",
+      "solution": "Diện tích hình thoi bằng nửa tích độ dài hai đường chéo:\n \\[ S = \\frac{1}{2} \\cdot 8 \\cdot 6 = 24\\text{ (cm}^2\\text{)}. \\]",
+      "points": 0.25,
+      "options": [
+        {
+          "letter": "A",
+          "text": "$48\\text{ cm}^2$",
+          "isCorrect": false
+        },
+        {
+          "letter": "B",
+          "text": "$14\\text{ cm}^2$",
+          "isCorrect": false
+        },
+        {
+          "letter": "C",
+          "text": "$28\\text{ cm}^2$",
+          "isCorrect": false
+        },
+        {
+          "letter": "D",
+          "text": "$24\\text{ cm}^2$",
+          "isCorrect": true
+        }
+      ],
+      "tfItems": null,
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 13,
+      "sectionId": "part2",
+      "type": "truefalse",
+      "content": "Cho hai số $a = 72$ và $b = 108$.",
+      "image": null,
+      "solution": "<div class=\"loigiai-itemchoice\"><div class=\"loigiai-row\">• Đúng: $7 + 2 = 9$ chia hết cho $9$ nên $72 \\ \\vdots \\ 9$.</div>\n<div class=\"loigiai-row\">• Sai: $108$ có chữ số tận cùng là $8$ nên chia hết cho $2$ (có các ước khác $1$ và chính nó), do đó $b$ là hợp số.</div>\n<div class=\"loigiai-row\">• Đúng: Phân tích ra thừa số nguyên tố: $72 = 2^3 \\cdot 3^2$ và $108 = 2^2 \\cdot 3^3$. Suy ra $\\text{ƯCLN}(a, b) = 2^2 \\cdot 3^2 = 36$.</div>\n<div class=\"loigiai-row\">• Sai: $\\text{BCNN}(a, b) = 2^3 \\cdot 3^3 = 216$. Các bội chung khác $0$ của $a$ và $b$ nhỏ hơn $700$ là: $216; 432; 648$, chỉ có $3$ số.</div></div>",
+      "points": 1,
+      "options": null,
+      "tfItems": [
+        {
+          "letter": "a",
+          "text": "$a$ chia hết cho $9$",
+          "isCorrect": true
+        },
+        {
+          "letter": "b",
+          "text": "$b$ là số nguyên tố",
+          "isCorrect": false
+        },
+        {
+          "letter": "c",
+          "text": "$\\text{ƯCLN}(a, b) = 36$",
+          "isCorrect": true
+        },
+        {
+          "letter": "d",
+          "text": "Có đúng $4$ bội chung khác $0$ của $a$ và $b$ nhỏ hơn $700$",
+          "isCorrect": false
+        }
+      ],
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 14,
+      "sectionId": "part2",
+      "type": "truefalse",
+      "content": "Một mảnh bìa hình chữ nhật $ABCD$ có $AB = 10\\text{ cm}$, $BC = 6\\text{ cm}$. Trên cạnh $AB$ lấy điểm $E$, trên cạnh $CD$ lấy điểm $F$ sao cho $AE = DF = 4\\text{ cm}$ (hình bên).",
+      "image": "images/de1_cau14.png",
+      "solution": "<div class=\"loigiai-itemchoice\"><div class=\"loigiai-row\">• Đúng: Trong hình chữ nhật, các cạnh đối bằng nhau nên $CD = AB = 10\\text{ cm}$.</div>\n<div class=\"loigiai-row\">• Sai: Hình chữ nhật có hai đường chéo bằng nhau; vì $AB \\neq BC$ nên hai đường chéo không vuông góc với nhau.</div>\n<div class=\"loigiai-row\">• Đúng: Ta có $EB = AB - AE = 10 - 4 = 6\\text{ cm}$ và $FC = CD - DF = 10 - 4 = 6\\text{ cm}$. Tứ giác $EBCF$ là hình vuông cạnh $6\\text{ cm}$ nên có diện tích $6 \\cdot 6 = 36\\text{ cm}^2$.</div>\n<div class=\"loigiai-row\">• Đúng: Chu vi hình chữ nhật $AEFD$ là $(4 + 6) \\cdot 2 = 20\\text{ cm}$; chu vi hình vuông $EBCF$ là $4 \\cdot 6 = 24\\text{ cm}$. Chu vi hình chữ nhật ban đầu $ABCD$ là $(10 + 6) \\cdot 2 = 32\\text{ cm}$. Tổng chu vi hai mảnh lớn hơn chu vi ban đầu là: $20 + 24 - 32 = 12\\text{ cm}$ (chính bằng $2 \\cdot EF = 2 \\cdot 6 = 12\\text{ cm}$).</div></div>",
+      "points": 1,
+      "options": null,
+      "tfItems": [
+        {
+          "letter": "a",
+          "text": "$CD = 10\\text{ cm}$",
+          "isCorrect": true
+        },
+        {
+          "letter": "b",
+          "text": "Hình chữ nhật $ABCD$ có hai đường chéo vuông góc với nhau",
+          "isCorrect": false
+        },
+        {
+          "letter": "c",
+          "text": "Diện tích tứ giác $EBCF$ bằng $36\\text{ cm}^2$",
+          "isCorrect": true
+        },
+        {
+          "letter": "d",
+          "text": "Cắt mảnh bìa theo đoạn thẳng $EF$ được hai mảnh. Tổng chu vi hai mảnh lớn hơn chu vi mảnh bìa ban đầu là $12\\text{ cm}$",
+          "isCorrect": true
+        }
+      ],
+      "shortAnswer": null,
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 15,
+      "sectionId": "part3",
+      "type": "shortanswer",
+      "content": "Tính giá trị của biểu thức $2^5 - 5^2$.",
+      "image": null,
+      "solution": "$2^5 - 5^2 = 32 - 25 = 7$.",
+      "points": 0.5,
+      "options": null,
+      "tfItems": null,
+      "shortAnswer": "7",
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 16,
+      "sectionId": "part3",
+      "type": "shortanswer",
+      "content": "Tìm chữ số $x$ để số $\\overline{25x}$ chia hết cho cả $3$ và $5$.",
+      "image": null,
+      "solution": "Vì $\\overline{25x}$ chia hết cho $5$ nên $x \\in \\{0; 5\\}$.\n <ul class=\"exam-bullet-list\"><li>Với $x = 0$, tổng các chữ số là $2 + 5 + 0 = 7$ không chia hết cho $3$.</li><li>Với $x = 5$, tổng các chữ số là $2 + 5 + 5 = 12$ chia hết cho $3$.</li></ul>\n Vậy chữ số cần tìm là $x = 5$.",
+      "points": 0.5,
+      "options": null,
+      "tfItems": null,
+      "shortAnswer": "5",
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 17,
+      "sectionId": "part3",
+      "type": "shortanswer",
+      "content": "Hình bình hành $ABCD$ ở hình bên có cạnh $CD = 9\\text{ cm}$, chiều cao $AH = 5\\text{ cm}$. Tính diện tích hình bình hành $ABCD$ (đơn vị: $\\text{cm}^2$).",
+      "image": "images/de1_cau17.png",
+      "solution": "Diện tích hình bình hành $ABCD$ là:\n \\[ S = CD \\cdot AH = 9 \\cdot 5 = 45\\text{ (cm}^2\\text{)}. \\]",
+      "points": 0.5,
+      "options": null,
+      "tfItems": null,
+      "shortAnswer": "45",
+      "essayParts": null,
+      "solutionParts": null
+    },
+    {
+      "id": 18,
+      "sectionId": "part3",
+      "type": "shortanswer",
+      "content": "Bạn Minh mua $5$ quyển vở, giá $12\\,000$ đồng một quyển và $3$ chiếc bút bi, giá $8\\,000$ đồng một chiếc. Minh đưa cho người bán tờ $100\\,000$ đồng. Hỏi người bán phải trả lại Minh bao nhiêu nghìn đồng?",
+      "image": null,
+      "solution": "Tổng số tiền Minh phải trả là:\n \\[ 5 \\cdot 12\\,000 + 3 \\cdot 8\\,000 = 60\\,000 + 24\\,000 = 84\\,000\\text{ (đồng)}. \\]\n Số tiền người bán phải trả lại cho Minh là:\n \\[ 100\\,000 - 84\\,000 = 16\\,000\\text{ (đồng)}, \\]\n tức là $16$ nghìn đồng.",
+      "points": 0.5,
+      "options": null,
+      "tfItems": null,
+      "shortAnswer": "16",
+      "essayParts": null,
+      "solutionParts": null
+    }
+  ],
+  "answerKey": {
+    "part1": [
+      "C",
+      "A",
+      "D",
+      "B",
+      "C",
+      "A",
+      "B",
+      "D",
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "part2": [
+      [
+        true,
+        false,
+        true,
+        false
+      ],
+      [
+        true,
+        false,
+        true,
+        true
+      ]
+    ],
+    "part3": [
+      "7",
+      "5",
+      "45",
+      "16"
+    ]
+  },
+  "examCode": "123456",
+  "config": {
+    "title": "Kiểm tra giữa học kỳ I - Toán 6",
+    "duration": 45,
+    "maxAttempts": 1,
+    "showScore": true,
+    "showAnswers": true,
+    "shuffleQuestions": false,
+    "subject": "Toán",
+    "grade": "Lớp 6"
+  },
+  "isActive": true,
+  "createdAt": "2026-10-29T18:30:45.951Z"
+}; if (typeof module !== 'undefined') module.exports = window.__DEFAULT_EXAM__;

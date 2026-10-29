@@ -15,6 +15,19 @@ const ExamRunner = (() => {
   const init = () => {
     // 1. Kiểm tra phiên đăng nhập
     session = Storage.StudentSession.get();
+
+    // Hỗ trợ lấy mã phòng thi từ URL query param (?code=123456)
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeFromUrl = urlParams.get('code');
+    if ((!session || !session.examCode) && codeFromUrl) {
+      session = {
+        examCode: codeFromUrl,
+        studentName: session?.studentName || 'Học sinh',
+        studentClass: session?.studentClass || ''
+      };
+      Storage.StudentSession.save(session);
+    }
+
     if (!session || !session.examCode) {
       alert('Không tìm thấy thông tin phòng thi. Vui lòng vào lại từ trang chủ!');
       window.location.href = 'index.html';

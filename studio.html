@@ -852,15 +852,20 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Môn học</label>
-                            <input type="text" id="cfgSubject" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
-                                placeholder="Toán Học">
+                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Mã phòng thi (6 số)</label>
+                            <input type="text" id="cfgCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-indigo-700 font-mono tracking-wider focus:outline-none focus:border-indigo-500"
+                                placeholder="123456" maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                         </div>
                         <div>
                             <label class="text-xs font-black text-slate-600 uppercase block mb-1">Khối lớp</label>
                             <input type="text" id="cfgGrade" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
                                 placeholder="Lớp 6">
                         </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-black text-slate-600 uppercase block mb-1">Môn học</label>
+                        <input type="text" id="cfgSubject" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            placeholder="Toán Học">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -939,6 +944,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="assets/js/core/default-exam.js"></script>
     <script src="assets/js/core/storage.js"></script>
     <script src="assets/js/utils/katex-render.js"></script>
     <script src="assets/js/tex/tex-parser.js"></script>
@@ -967,6 +973,12 @@
             document.getElementById('userNameDisplay').textContent = user.name || user.email;
             const initial = (user.name || user.email || '?').charAt(0).toUpperCase();
             document.getElementById('userAvatarBtn').textContent = initial;
+
+            // Nạp sẵn đề thi mẫu de1 nếu chưa tải đề nào
+            if (!currentParsedExam && typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
+                currentParsedExam = window.__DEFAULT_EXAM__;
+                setTimeout(updatePreview, 100);
+            }
 
             // Load danh sách đề thi
             loadExamList();
@@ -1089,27 +1101,26 @@
         }
 
         function updatePreview() {
-            const content = document.getElementById('latexInput').value.trim();
+            const content = document.getElementById('latexInput')?.value?.trim() || '';
             const previewEmpty = document.getElementById('previewEmpty');
             const previewContainer = document.getElementById('previewContainer');
 
-            if (!content) {
-                previewEmpty.classList.remove('hidden');
-                previewContainer.classList.add('hidden');
+            let examData = currentParsedExam;
+            if (!examData && content && typeof TexParser !== 'undefined') {
+                try {
+                    const parser = new TexParser();
+                    examData = parser.parse(content);
+                } catch (_) {}
+            }
+
+            if (!examData) {
+                if (previewEmpty) previewEmpty.classList.remove('hidden');
+                if (previewContainer) previewContainer.classList.add('hidden');
                 return;
             }
 
-            previewEmpty.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
-
-            if (typeof TexParser !== 'undefined' && typeof TexRenderer !== 'undefined') {
-                try {
-                    // Nếu đã có data parse từ file upload, dùng luôn
-                    let examData = currentParsedExam;
-                    if (!examData) {
-                        const parser = new TexParser();
-                        examData = parser.parse(content);
-                    }
+            if (previewEmpty) previewEmpty.classList.add('hidden');
+            if (previewContainer) previewContainer.classList.remove('hidden');
 
                     const fontClass = document.getElementById('fontSelect')?.value || 'font-itim';
                     const paperStyle = document.getElementById('paperStyleSelect')?.value || 'grid-oly';
@@ -1294,10 +1305,13 @@
             // Pre-fill từ dữ liệu đã parse
             if (currentParsedExam?.meta) {
                 const meta = currentParsedExam.meta;
-                document.getElementById('cfgTitle').value = meta.title || '';
-                document.getElementById('cfgSubject').value = meta.subject || '';
-                document.getElementById('cfgGrade').value = meta.grade || '';
-                document.getElementById('cfgDuration').value = meta.duration || 90;
+                document.getElementById('cfgTitle').value = meta.title || 'Đề kiểm tra giữa học kỳ I - Toán 6';
+                document.getElementById('cfgSubject').value = meta.subject || 'Toán';
+                document.getElementById('cfgGrade').value = meta.grade || 'Lớp 6';
+                document.getElementById('cfgDuration').value = meta.duration || 45;
+                document.getElementById('cfgCode').value = currentParsedExam.examCode || meta.examCode || Storage.generateExamCode();
+            } else {
+                document.getElementById('cfgCode').value = Storage.generateExamCode();
             }
 
             // Kiểm tra có data không
@@ -1330,15 +1344,17 @@
                 return;
             }
 
+            const customCode = document.getElementById('cfgCode')?.value.replace(/[^0-9]/g, '').trim();
             const config = {
-                title: document.getElementById('cfgTitle').value || 'Đề thi không tên',
-                subject: document.getElementById('cfgSubject').value,
-                grade: document.getElementById('cfgGrade').value,
-                duration: parseInt(document.getElementById('cfgDuration').value) || 90,
+                title: document.getElementById('cfgTitle').value || 'Đề kiểm tra giữa học kỳ I - Toán 6',
+                subject: document.getElementById('cfgSubject').value || 'Toán',
+                grade: document.getElementById('cfgGrade').value || 'Lớp 6',
+                duration: parseInt(document.getElementById('cfgDuration').value) || 45,
                 maxAttempts: parseInt(document.getElementById('cfgAttempts').value) || 1,
                 showScore: document.getElementById('cfgShowScore').checked,
                 showAnswers: document.getElementById('cfgShowAnswers').checked,
                 shuffleQuestions: document.getElementById('cfgShuffle').checked,
+                examCode: customCode || Storage.generateExamCode(),
             };
 
             const result = Storage.Exams.save(currentParsedExam, config);
@@ -1348,6 +1364,7 @@
                 document.getElementById('examCodeModal').classList.remove('hidden');
                 lucide.createIcons();
                 showToast(`Đã tạo đề thi: ${result.examCode}`, 'success');
+                loadExamList();
             }
         }
 
