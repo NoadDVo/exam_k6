@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Soạn Thảo — NoadD.Vo</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Itim&family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playpen+Sans:wght@300;500;700&family=Patrick+Hand&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/paper.css">
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --secondary: #8B5CF6;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #F8FAFC;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==== NAVBAR ==== */
+        .studio-navbar {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 50;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .nav-tab {
+            padding: 6px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #64748B;
+            transition: all 0.15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* ==== LAYOUT ==== */
+        .studio-layout {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ==== SIDEBAR ==== */
+        .studio-sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-shrink: 0;
+            transition: width 0.25s ease, min-width 0.25s ease, opacity 0.2s;
+        }
+
+        .studio-sidebar.collapsed {
+            width: 0;
+            min-width: 0;
+            opacity: 0;
+            pointer-events: none;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-section-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-select {
+            width: 100%;
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: border-color 0.15s;
+        }
+
+        .sidebar-select:focus { border-color: var(--primary); }
+
+        /* ==== EDITOR PANE ==== */
+        .editor-pane {
+            width: 42%;
+            min-width: 300px;
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.25s ease, min-width 0.25s ease, opacity 0.2s;
+        }
+
+        .editor-pane.collapsed {
+            width: 0;
+            min-width: 0;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .editor-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            background: #FAFAFA;
+        }
+
+        #latexInput {
+            flex: 1;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 16px;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 12.5px;
+            line-height: 1.7;
+            color: #1E293B;
+            background: #FAFBFC;
+        }
+
+        #latexInput::placeholder { color: #94A3B8; }
+
+        /* ==== DRAG SPLITTER ==== */
+        .drag-splitter {
+            width: 4px;
+            background: #E2E8F0;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background 0.15s;
+            position: relative;
+        }
+
+        .drag-splitter:hover, .drag-splitter.dragging {
+            background: var(--primary);
+        }
+
+        /* ==== PREVIEW PANE ==== */
+        .preview-pane {
+            flex: 1;
+            overflow-y: auto;
+            background: #F1F5F9;
+            padding: 24px;
+        }
+
+        .preview-empty {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94A3B8;
+            text-align: center;
+            gap: 12px;
+        }
+
+        /* ==== TEX UPLOAD ZONE (HERO FEATURE) ==== */
+        .tex-upload-zone {
+            border: 2px dashed #C7D2FE;
+            background: linear-gradient(135deg, #EEF2FF 0%, #F3E8FF 100%);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tex-upload-zone:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #E0E7FF 0%, #EDE9FE 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+        }
+
+        .tex-upload-zone.drag-over {
+            border-color: var(--primary);
+            background: #E0E7FF;
+            transform: scale(1.02);
+        }
+
+        .tex-upload-zone.success {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            border-style: solid;
+        }
+
+        /* ==== TOOLBAR ==== */
+        .editor-toolbar {
+            height: 50px;
+            background: white;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .toolbar-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid #E2E8F0;
+            background: white;
+            color: #475569;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .toolbar-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        .toolbar-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        .toolbar-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        /* ==== PAPER (Đề thi render) ==== */
+        .paper-a4 {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+            padding: 40px 48px;
+            margin-bottom: 24px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        /* ==== MODAL ==== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* ==== TOAST ==== */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1E293B;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { background: #065F46; }
+        #toast.error { background: #7F1D1D; }
+        #toast.info { background: #1E3A8A; }
+        #toast.warning { background: #78350F; }
+
+        /* ==== SCROLLBAR ==== */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* ==== PARSE STATUS ==== */
+        .parse-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .parse-status.success { background: #D1FAE5; color: #065F46; }
+        .parse-status.error { background: #FEE2E2; color: #7F1D1D; }
+        .parse-status.loading { background: #EEF2FF; color: #3730A3; }
+
+        /* ==== QUESTION BLOCKS ==== */
+        .question-block {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #E2E8F0;
+        }
+        .question-block:last-child { border-bottom: none; }
+
+        .question-number-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .choice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1.5px solid #E2E8F0;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 13px;
+        }
+
+        .choice-item:hover { border-color: var(--primary); background: #EEF2FF; }
+        .choice-item.correct { border-color: var(--success); background: #D1FAE5; }
+        .choice-item.selected { border-color: var(--primary); background: #EEF2FF; }
+
+        .choice-letter {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .choice-item.correct .choice-letter {
+            background: var(--success);
+            color: white;
+        }
+
+        .tf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .solution-box {
+            background: #FEFCE8;
+            border-left: 4px solid var(--warning);
+            border-radius: 0 10px 10px 0;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        /* ==== EXAM CODE BADGE ==== */
+        .exam-code-badge {
+            background: linear-gradient(135deg, #1E293B, #334155);
+            color: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .exam-code-value {
+            font-size: 28px;
+            font-weight: 900;
+            font-family: monospace;
+            letter-spacing: 4px;
+            color: #FCD34D;
+        }
+
+        /* User avatar in navbar */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div id="toast">
+        <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+        <span id="toastMsg"></span>
+    </div>
+
+    <!-- ====================================================
+         NAVBAR
+    ==================================================== -->
+    <header class="studio-navbar">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2 text-slate-900 hover:opacity-80 transition-opacity shrink-0">
+            <div class="w-7 h-7 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center">
+                <i data-lucide="book-open" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="font-black text-base tracking-tight">NoadD.Vo</span>
+        </a>
+
+        <!-- Nav Tabs -->
+        <div class="nav-tabs ml-4">
+            <button class="nav-tab active" onclick="switchView('studio')" id="tabStudio">
+                <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> Studio
+            </button>
+            <button class="nav-tab" onclick="switchView('exams')" id="tabExams">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i> Đề Thi
+            </button>
+            <button class="nav-tab" onclick="switchView('stats')" id="tabStats">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Thống Kê
+            </button>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <!-- User info & logout -->
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <div class="user-avatar" id="userAvatarBtn">?</div>
+                <span class="text-xs font-bold text-slate-600 hidden md:block" id="userNameDisplay">...</span>
+            </div>
+            <button onclick="handleLogout()"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-100">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Đăng xuất
+            </button>
+        </div>
+    </header>
+
+    <!-- ====================================================
+         MAIN WORKSPACE (Subviews)
+    ==================================================== -->
+    <div class="studio-layout">
+
+        <!-- ============================================================
+             SUBVIEW 1: STUDIO (Soạn thảo + Preview)
+        ============================================================ -->
+        <div id="subviewStudio" class="w-full h-full flex overflow-hidden">
+
+            <!-- SIDEBAR: Tùy chỉnh thẩm mỹ -->
+            <aside class="studio-sidebar" id="studiaSidebar">
+
+                <!-- Upload .tex (TÍNH NĂNG CHÍNH) -->
+                <div>
+                    <div class="sidebar-section-title">📄 Tải file LaTeX (.tex)</div>
+                    <div class="tex-upload-zone" id="texDropZone"
+                        onclick="document.getElementById('texFileInput').click()"
+                        ondragover="handleTexDragOver(event)"
+                        ondragleave="handleTexDragLeave(event)"
+                        ondrop="handleTexDrop(event)">
+                        <i data-lucide="file-text" class="w-8 h-8 text-indigo-400 mx-auto mb-2"></i>
+                        <p class="text-xs font-black text-indigo-700">Kéo thả hoặc nhấp để tải</p>
+                        <p class="text-[10px] text-indigo-500 mt-1">Hỗ trợ: de1.tex, de2.tex...</p>
+                        <span id="texFileName" class="text-[10px] font-bold text-emerald-600 mt-2 block"></span>
+                    </div>
+                    <input type="file" id="texFileInput" class="hidden" accept=".tex"
+                        onchange="handleTexFileSelect(this)">
+                    <div id="parseStatus" class="hidden"></div>
+                </div>
+
+                <!-- Chèn ảnh -->
+                <div>
+                    <div class="sidebar-section-title">🖼️ Chèn ảnh vào LaTeX</div>
+                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 rounded-xl p-3 text-center cursor-pointer transition-all"
+                        onclick="document.getElementById('imgInput').click()"
+                        ondragover="event.preventDefault()"
+                        ondrop="handleImgDrop(event)">
+                        <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-400 mx-auto mb-1"></i>
+                        <span class="text-[10px] font-bold text-slate-500">Kéo thả / Ctrl+V</span>
+                    </div>
+                    <input type="file" id="imgInput" class="hidden" accept="image/*"
+                        onchange="insertImageToEditor(this)">
+                </div>
+
+                <!-- Thẩm mỹ -->
+                <div>
+                    <div class="sidebar-section-title">🎨 Thẩm mỹ giấy thi</div>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Font chữ</label>
+                            <select class="sidebar-select" id="fontSelect" onchange="updatePreview()">
+                                <option value="font-itim">Itim</option>
+                                <option value="font-mali">Mali</option>
+                                <option value="font-playpen">Playpen Sans</option>
+                                <option value="font-patrick">Patrick Hand</option>
+                                <option value="font-caveat">Caveat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Kiểu giấy</label>
+                            <select class="sidebar-select" id="paperStyleSelect" onchange="updatePreview()">
+                                <option value="grid-oly">Ô ly (5 ô)</option>
+                                <option value="grid-squared">Caro toán</option>
+                                <option value="grid-dot">Chấm Dot</option>
+                                <option value="grid-lined">Kẻ ngang</option>
+                                <option value="grid-blank">Trơn (không kẻ)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Màu giấy</label>
+                            <select class="sidebar-select" id="paperColorSelect" onchange="updatePreview()">
+                                <option value="#FDFCF7">Trắng ngà</option>
+                                <option value="#F4ECD8">Sepia ấm</option>
+                                <option value="#FFFFFF">Trắng tinh</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates nhanh -->
+                <div>
+                    <div class="sidebar-section-title">⚡ Mẫu nhanh</div>
+                    <div class="space-y-1.5">
+                        <button onclick="insertTemplate('choice')"
+                            class="w-full text-left px-3 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i> Câu trắc nghiệm
+                        </button>
+                        <button onclick="insertTemplate('truefalse')"
+                            class="w-full text-left px-3 py-2 text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Câu đúng/sai
+                        </button>
+                        <button onclick="insertTemplate('short')"
+                            class="w-full text-left px-3 py-2 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="type" class="w-3.5 h-3.5"></i> Trả lời ngắn
+                        </button>
+                        <button onclick="insertTemplate('essay')"
+                            class="w-full text-left px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex items-center gap-2">
+                            <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Câu tự luận
+                        </button>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- EDITOR: Code LaTeX -->
+            <div class="editor-pane" id="editorPane">
+                <!-- Toolbar -->
+                <div class="editor-toolbar">
+                    <button onclick="toggleSidebar()" class="toolbar-btn" title="Ẩn/hiện sidebar">
+                        <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button onclick="toggleEditor()" class="toolbar-btn" title="Ẩn editor">
+                        <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">LaTeX Editor</span>
+                    <div class="flex-1"></div>
+                    <button onclick="clearEditor()" class="toolbar-btn text-rose-500 hover:bg-rose-50">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button onclick="updatePreview()" class="toolbar-btn primary">
+                        <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
+                    </button>
+                    <button onclick="openCreateExamModal()" class="toolbar-btn primary" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Tạo đề thi
+                    </button>
+                </div>
+
+                <!-- Code Area -->
+                <div class="editor-header">
+                    <span class="text-xs font-bold text-slate-500">📝 Soạn thảo LaTeX</span>
+                    <label for="texFileInputEditor" class="flex items-center gap-1 text-xs font-bold text-indigo-600 cursor-pointer hover:text-indigo-800">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i> Tải file .tex
+                    </label>
+                    <input type="file" id="texFileInputEditor" class="hidden" accept=".tex"
+                        onchange="handleTexFileSelect(this)">
+                </div>
+                <textarea id="latexInput" class="flex-1"
+                    placeholder="Gõ LaTeX ở đây hoặc kéo thả file .tex vào ô bên trái...&#10;&#10;Ví dụ:&#10;\begin{ex}&#10;Nội dung câu hỏi $f(x) = x^2$&#10;\choice&#10;{Đáp án A}&#10;{\True Đáp án B (đúng)}&#10;{Đáp án C}&#10;{Đáp án D}&#10;\end{ex}"
+                    oninput="debouncePreview()"
+                    onpaste="handlePaste(event)">
+                </textarea>
+            </div>
+
+            <!-- Drag Splitter -->
+            <div class="drag-splitter" id="dragSplitter" onmousedown="startDrag(event)"></div>
+
+            <!-- PREVIEW: Render đề thi -->
+            <div class="preview-pane" id="previewPane">
+                <div class="preview-empty" id="previewEmpty">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                        <i data-lucide="file-text" class="w-8 h-8 text-slate-300"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-400">Preview đề thi xuất hiện ở đây</p>
+                        <p class="text-xs text-slate-300 mt-1">Gõ LaTeX hoặc tải file .tex để bắt đầu</p>
+                    </div>
+                </div>
+                <div id="previewContainer" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             SUBVIEW 2: QUẢN LÝ ĐỀ THI
+        ============================================================ -->
+        <div id="subviewExams" class="w-full h-full overflow-y-auto bg-slate-50 p-6 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800">Đề Thi Đã Tạo</h2>
+                        <p class="text-sm text-slate-500 mt-1">Quản lý, chia sẻ và theo dõi các kỳ thi</p>
+                    </div>
+                    <button onclick="openCreateExamModal()"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Tạo Đề Mới
+                    </button>
+                </div>
+                <div id="examListGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Exam cards rendered here -->
+                    <div class="col-span-full text-center py-16 text-slate-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                        <p class="font-semibold">Chưa có đề thi nào</p>
+                        <p class="text-sm mt-1">Tạo đề đầu tiên bằng cách upload file .tex</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             SUBVIEW 3: THỐNG KÊ
+        ============================================================ -->
+        <div id="subviewStats" class="w-full h-full overflow-y-auto bg-slate-50 p-6 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800">Thống Kê Điểm Thi</h2>
+                        <p class="text-sm text-slate-500 mt-1">Phân tích kết quả và phổ điểm</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-slate-500">Đề thi:</span>
+                        <select id="statsExamSelect" onchange="loadStats(this.value)"
+                            class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Chọn đề thi --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Tổng bài nộp</div>
+                        <div class="text-3xl font-black text-slate-800 mt-2" id="statTotal">0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Điểm TB</div>
+                        <div class="text-3xl font-black text-indigo-600 mt-2" id="statAvg">0.0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Cao nhất / Thấp nhất</div>
+                        <div class="text-2xl font-black text-emerald-500 mt-2" id="statRange">0 / 0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Tỉ lệ đạt (≥5đ)</div>
+                        <div class="text-3xl font-black text-amber-500 mt-2" id="statPassRate">0%</div>
+                    </div>
+                </div>
+
+                <!-- Table + Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-black text-slate-700 uppercase text-xs tracking-wider">Chi tiết bài nộp</h3>
+                            <button onclick="exportResultsExcel()" class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Xuất Excel
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs" id="resultsTable">
+                                <thead>
+                                    <tr class="border-b-2 border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider">
+                                        <th class="pb-3">Học sinh</th>
+                                        <th class="pb-3">Lớp</th>
+                                        <th class="pb-3">Điểm</th>
+                                        <th class="pb-3">Đúng/Tổng</th>
+                                        <th class="pb-3">Tin cậy</th>
+                                        <th class="pb-3">Nộp lúc</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50 text-slate-700 font-medium" id="resultsTableBody">
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-slate-400 italic">
+                                            Chọn đề thi để xem kết quả
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                        <h3 class="font-black text-slate-700 uppercase text-xs tracking-wider mb-4">Phổ phân bố điểm</h3>
+                        <div id="gradeChart" class="h-48 flex items-end gap-1.5 border-b border-l border-slate-200 p-2">
+                            <!-- Bars rendered by JS -->
+                        </div>
+                        <div class="flex justify-between text-[9px] text-slate-400 font-bold mt-1">
+                            <span>Yếu</span><span>TB</span><span>Khá</span><span>Giỏi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end studio-layout -->
+
+    <!-- ====================================================
+         MODAL: TẠO ĐỀ THI ONLINE
+    ==================================================== -->
+    <div id="createExamModal" class="modal-overlay hidden" onclick="handleModalOutsideClick(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-5 pb-4 border-b border-slate-100">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">⚙️ Cấu hình Kỳ Thi</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Đặt cấu hình và phát hành đề thi</p>
+                </div>
+                <button onclick="closeCreateExamModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-400 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
+                        <label class="text-xs font-black text-slate-600 uppercase block mb-1">Tên kỳ thi / Bài kiểm tra</label>
+                        <input type="text" id="cfgTitle" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            placeholder="Kiểm tra giữa học kỳ I - Toán 6">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Môn học</label>
+                            <input type="text" id="cfgSubject" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                                placeholder="Toán Học">
+                        </div>
+                        <div>
+                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Khối lớp</label>
+                            <input type="text" id="cfgGrade" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                                placeholder="Lớp 6">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Thời gian (phút)</label>
+                            <input type="number" id="cfgDuration" value="90"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Số lần thi tối đa</label>
+                            <input type="number" id="cfgAttempts" value="1"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="cfgShowScore" checked class="w-4 h-4 accent-indigo-600 rounded">
+                        <span class="text-sm font-semibold text-slate-700">Cho học sinh xem điểm sau khi nộp</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="cfgShowAnswers" checked class="w-4 h-4 accent-indigo-600 rounded">
+                        <span class="text-sm font-semibold text-slate-700">Cho học sinh xem đáp án và lời giải</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="cfgShuffle" class="w-4 h-4 accent-indigo-600 rounded">
+                        <span class="text-sm font-semibold text-slate-700">Trộn thứ tự câu hỏi ngẫu nhiên</span>
+                    </label>
+                </div>
+
+                <!-- Cảnh báo nếu chưa có dữ liệu parse -->
+                <div id="noDataWarning" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 font-semibold">
+                    ⚠️ Chưa có nội dung đề thi. Vui lòng tải file .tex hoặc nhập LaTeX vào editor trước.
+                </div>
+
+                <button onclick="executeExamCreation()"
+                    class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wide transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2">
+                    <i data-lucide="cloud-upload" class="w-4 h-4"></i> Khởi Tạo Kỳ Thi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Mã đề thi thành công -->
+    <div id="examCodeModal" class="modal-overlay hidden" onclick="closeExamCodeModal()">
+        <div class="modal-card max-w-sm" onclick="event.stopPropagation()">
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-500"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800">Đề Thi Đã Được Tạo!</h3>
+                <p class="text-sm text-slate-500 mt-1">Chia sẻ mã này cho học sinh</p>
+            </div>
+
+            <div class="exam-code-badge mb-5">
+                <div class="text-xs font-bold text-slate-400 mb-1">MÃ ĐỀ THI</div>
+                <div class="exam-code-value" id="newExamCode">EX-XXXXX</div>
+                <button onclick="copyExamCode()"
+                    class="mt-2 text-xs font-bold text-yellow-200 hover:text-white flex items-center gap-1 mx-auto">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="closeExamCodeModal()"
+                    class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5">
+                    Quay về Studio
+                </button>
+                <button onclick="switchView('exams'); closeExamCodeModal()"
+                    class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-sm transition-colors">
+                    Xem danh sách đề thi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/core/storage.js"></script>
+    <script src="assets/js/utils/katex-render.js"></script>
+    <script src="assets/js/tex/tex-parser.js"></script>
+    <script src="assets/js/tex/tex-renderer.js"></script>
+    <script src="assets/js/utils/export.js"></script>
+    <script src="assets/js/teacher/studio.js"></script>
+
+    <script>
+        // ============================================================
+        // KHỞI TẠO
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initStudio();
+        });
+
+        function initStudio() {
+            // Kiểm tra đăng nhập
+            const user = Storage.Auth.getCurrentUser();
+            if (!user || user.role !== 'teacher') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Hiển thị tên user
+            document.getElementById('userNameDisplay').textContent = user.name || user.email;
+            const initial = (user.name || user.email || '?').charAt(0).toUpperCase();
+            document.getElementById('userAvatarBtn').textContent = initial;
+
+            // Load danh sách đề thi
+            loadExamList();
+            loadStatsExamOptions();
+        }
+
+        function handleLogout() {
+            Storage.Auth.logout();
+            window.location.href = 'index.html';
+        }
+
+        // ============================================================
+        // SUBVIEW SWITCHING
+        // ============================================================
+        function switchView(view) {
+            ['studio', 'exams', 'stats'].forEach(v => {
+                document.getElementById(`subview${v.charAt(0).toUpperCase() + v.slice(1)}`).classList.add('hidden');
+                document.getElementById(`tab${v.charAt(0).toUpperCase() + v.slice(1)}`).classList.remove('active');
+            });
+            const viewId = `subview${view.charAt(0).toUpperCase() + view.slice(1)}`;
+            document.getElementById(viewId).classList.remove('hidden');
+            document.getElementById(`tab${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+
+            if (view === 'exams') loadExamList();
+            if (view === 'stats') loadStatsExamOptions();
+        }
+
+        // ============================================================
+        // SIDEBAR & EDITOR TOGGLE
+        // ============================================================
+        function toggleSidebar() {
+            document.getElementById('studiaSidebar').classList.toggle('collapsed');
+        }
+
+        function toggleEditor() {
+            document.getElementById('editorPane').classList.toggle('collapsed');
+            document.getElementById('dragSplitter').classList.toggle('collapsed');
+        }
+
+        // ============================================================
+        // TEX FILE UPLOAD
+        // ============================================================
+        let currentParsedExam = null;
+
+        function handleTexDragOver(e) {
+            e.preventDefault();
+            document.getElementById('texDropZone').classList.add('drag-over');
+        }
+
+        function handleTexDragLeave(e) {
+            document.getElementById('texDropZone').classList.remove('drag-over');
+        }
+
+        function handleTexDrop(e) {
+            e.preventDefault();
+            document.getElementById('texDropZone').classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.tex')) processTexFile(file);
+            else showToast('Chỉ chấp nhận file .tex!', 'error');
+        }
+
+        function handleTexFileSelect(input) {
+            const file = input.files[0];
+            if (file) processTexFile(file);
+            input.value = '';
+        }
+
+        function processTexFile(file) {
+            const zone = document.getElementById('texDropZone');
+            const statusEl = document.getElementById('parseStatus');
+
+            showParseStatus('loading', `Đang phân tích ${file.name}...`);
+            document.getElementById('texFileName').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const texContent = e.target.result;
+
+                // Đưa vào editor
+                document.getElementById('latexInput').value = texContent;
+
+                // Parse nếu TexParser đã được tải
+                if (typeof TexParser !== 'undefined') {
+                    try {
+                        const parser = new TexParser();
+                        currentParsedExam = parser.parse(texContent);
+                        const qCount = currentParsedExam.questions?.length || 0;
+                        showParseStatus('success', `✅ Phân tích thành công! ${qCount} câu hỏi`);
+                        zone.classList.add('success');
+
+                        // Tự động preview
+                        updatePreview();
+                        showToast(`Tải thành công ${qCount} câu từ ${file.name}`, 'success');
+                    } catch (err) {
+                        showParseStatus('error', `❌ Lỗi: ${err.message}`);
+                        showToast('Có lỗi khi phân tích file .tex', 'error');
+                        console.error('[TexParser] Lỗi:', err);
+                    }
+                } else {
+                    showParseStatus('error', '❌ TexParser chưa sẵn sàng');
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function showParseStatus(type, msg) {
+            const el = document.getElementById('parseStatus');
+            el.className = `parse-status ${type}`;
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        // ============================================================
+        // PREVIEW
+        // ============================================================
+        let previewDebounce;
+        function debouncePreview() {
+            clearTimeout(previewDebounce);
+            previewDebounce = setTimeout(updatePreview, 800);
+        }
+
+        function updatePreview() {
+            const content = document.getElementById('latexInput').value.trim();
+            const previewEmpty = document.getElementById('previewEmpty');
+            const previewContainer = document.getElementById('previewContainer');
+
+            if (!content) {
+                previewEmpty.classList.remove('hidden');
+                previewContainer.classList.add('hidden');
+                return;
+            }
+
+            previewEmpty.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+
+            if (typeof TexParser !== 'undefined' && typeof TexRenderer !== 'undefined') {
+                try {
+                    // Nếu đã có data parse từ file upload, dùng luôn
+                    let examData = currentParsedExam;
+                    if (!examData) {
+                        const parser = new TexParser();
+                        examData = parser.parse(content);
+                    }
+
+                    const fontClass = document.getElementById('fontSelect')?.value || 'font-itim';
+                    const paperStyle = document.getElementById('paperStyleSelect')?.value || 'grid-oly';
+                    const paperColor = document.getElementById('paperColorSelect')?.value || '#FDFCF7';
+
+                    const renderer = new TexRenderer();
+                    const html = renderer.renderExam(examData, {
+                        mode: 'preview',
+                        showAnswers: true,
+                        showSolutions: false,
+                        fontClass,
+                        paperStyle,
+                        paperColor,
+                    });
+                    previewContainer.innerHTML = html;
+
+                    // Render KaTeX
+                    KatexRenderer.renderAll(previewContainer);
+                } catch(e) {
+                    // Fallback: hiển thị raw với KaTeX
+                    previewContainer.innerHTML = `<div class="paper-a4"><pre class="text-xs text-slate-500 whitespace-pre-wrap">${content}</pre></div>`;
+                    console.warn('[Preview] Lỗi render:', e);
+                }
+            } else {
+                // Fallback nếu parser chưa load
+                previewContainer.innerHTML = `<div class="paper-a4 text-sm text-slate-600 whitespace-pre-wrap font-mono">${content}</div>`;
+            }
+
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // CLEAR EDITOR
+        // ============================================================
+        function clearEditor() {
+            if (confirm('Xóa toàn bộ nội dung editor?')) {
+                document.getElementById('latexInput').value = '';
+                document.getElementById('previewEmpty').classList.remove('hidden');
+                document.getElementById('previewContainer').classList.add('hidden');
+                currentParsedExam = null;
+                document.getElementById('parseStatus').classList.add('hidden');
+                document.getElementById('texFileName').textContent = '';
+                document.getElementById('texDropZone').classList.remove('success');
+            }
+        }
+
+        // ============================================================
+        // TEMPLATES
+        // ============================================================
+        const TEMPLATES = {
+            choice: `\\begin{ex}%Câu hỏi mới
+\tNội dung câu hỏi trắc nghiệm $f(x) = x^2$
+\t\\choice
+\t{Đáp án A}
+\t{\\True Đáp án B (đúng)}
+\t{Đáp án C}
+\t{Đáp án D}
+\t\\loigiai{
+\t\tGiải thích đáp án ở đây.
+\t}
+\\end{ex}\n`,
+            truefalse: `\\begin{ex}%Câu đúng/sai
+\tNội dung câu hỏi đúng/sai.
+\t\\choiceTF
+\t{\\True Mệnh đề a (đúng)}
+\t{Mệnh đề b (sai)}
+\t{\\True Mệnh đề c (đúng)}
+\t{Mệnh đề d (sai)}
+\t\\loigiai{
+\t\tGiải thích từng ý.
+\t}
+\\end{ex}\n`,
+            short: `\\begin{ex}%Câu trả lời ngắn
+\tNội dung câu trả lời ngắn. Kết quả là bao nhiêu?
+\t\\shortans{42}
+\t\\loigiai{
+\t\tGiải thích cách tính.
+\t}
+\\end{ex}\n`,
+            essay: `\\begin{bt}%Câu tự luận
+\t(1,0 điểm).
+\t\\begin{enumerate}[a)]
+\t\t\\item Câu hỏi phần a.
+\t\t\\item Câu hỏi phần b.
+\t\\end{enumerate}
+\t\\begin{loigiai}
+\t\t\\begin{enumerate}[a)]
+\t\t\t\\item Lời giải phần a.
+\t\t\t\\item Lời giải phần b.
+\t\t\\end{enumerate}
+\t\\end{loigiai}
+\\end{bt}\n`,
+        };
+
+        function insertTemplate(type) {
+            const textarea = document.getElementById('latexInput');
+            const template = TEMPLATES[type] || '';
+            const start = textarea.selectionStart;
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(start);
+            textarea.value = before + '\n' + template + after;
+            textarea.focus();
+            debouncePreview();
+        }
+
+        // ============================================================
+        // IMAGE PASTE / DROP
+        // ============================================================
+        function handlePaste(event) {
+            const items = event.clipboardData?.items;
+            if (!items) return;
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    event.preventDefault();
+                    const file = item.getAsFile();
+                    uploadImageFile(file);
+                    break;
+                }
+            }
+        }
+
+        function handleImgDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) uploadImageFile(file);
+        }
+
+        function insertImageToEditor(input) {
+            const file = input.files[0];
+            if (file) uploadImageFile(file);
+        }
+
+        function uploadImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Lưu vào assets/images (không thể trong browser, dùng base64 gợi ý tên)
+                const suggestedName = `images/${file.name}`;
+                const latex = `\\includegraphics[width=0.4\\linewidth]{${suggestedName}}`;
+                const textarea = document.getElementById('latexInput');
+                const pos = textarea.selectionStart;
+                textarea.value = textarea.value.substring(0, pos) + latex + textarea.value.substring(pos);
+                showToast(`Đã chèn: ${suggestedName}. Hãy copy file vào thư mục assets/images/`, 'info');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ============================================================
+        // DRAG SPLIT
+        // ============================================================
+        let isDragging = false;
+        let startX, startWidth;
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startWidth = document.getElementById('editorPane').offsetWidth;
+            document.getElementById('dragSplitter').classList.add('dragging');
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const newWidth = Math.max(250, Math.min(startWidth + dx, window.innerWidth * 0.65));
+            document.getElementById('editorPane').style.width = newWidth + 'px';
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.getElementById('dragSplitter').classList.remove('dragging');
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // ============================================================
+        // CREATE EXAM MODAL
+        // ============================================================
+        function openCreateExamModal() {
+            document.getElementById('createExamModal').classList.remove('hidden');
+
+            // Pre-fill từ dữ liệu đã parse
+            if (currentParsedExam?.meta) {
+                const meta = currentParsedExam.meta;
+                document.getElementById('cfgTitle').value = meta.title || '';
+                document.getElementById('cfgSubject').value = meta.subject || '';
+                document.getElementById('cfgGrade').value = meta.grade || '';
+                document.getElementById('cfgDuration').value = meta.duration || 90;
+            }
+
+            // Kiểm tra có data không
+            const hasData = currentParsedExam && currentParsedExam.questions?.length > 0;
+            document.getElementById('noDataWarning').classList.toggle('hidden', hasData);
+        }
+
+        function closeCreateExamModal() {
+            document.getElementById('createExamModal').classList.add('hidden');
+        }
+
+        function handleModalOutsideClick(e) {
+            if (e.target === document.getElementById('createExamModal')) closeCreateExamModal();
+        }
+
+        function closeExamCodeModal() {
+            document.getElementById('examCodeModal').classList.add('hidden');
+        }
+
+        function copyExamCode() {
+            const code = document.getElementById('newExamCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`Đã sao chép mã: ${code}`, 'success');
+            });
+        }
+
+        function executeExamCreation() {
+            if (!currentParsedExam || !currentParsedExam.questions?.length) {
+                showToast('Chưa có nội dung đề thi! Hãy tải file .tex trước.', 'error');
+                return;
+            }
+
+            const config = {
+                title: document.getElementById('cfgTitle').value || 'Đề thi không tên',
+                subject: document.getElementById('cfgSubject').value,
+                grade: document.getElementById('cfgGrade').value,
+                duration: parseInt(document.getElementById('cfgDuration').value) || 90,
+                maxAttempts: parseInt(document.getElementById('cfgAttempts').value) || 1,
+                showScore: document.getElementById('cfgShowScore').checked,
+                showAnswers: document.getElementById('cfgShowAnswers').checked,
+                shuffleQuestions: document.getElementById('cfgShuffle').checked,
+            };
+
+            const result = Storage.Exams.save(currentParsedExam, config);
+            if (result.success) {
+                closeCreateExamModal();
+                document.getElementById('newExamCode').textContent = result.examCode;
+                document.getElementById('examCodeModal').classList.remove('hidden');
+                lucide.createIcons();
+                showToast(`Đã tạo đề thi: ${result.examCode}`, 'success');
+            }
+        }
+
+        // ============================================================
+        // EXAM LIST
+        // ============================================================
+        function loadExamList() {
+            const exams = Storage.Exams.getMyExams();
+            const grid = document.getElementById('examListGrid');
+
+            if (!exams.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                    <p class="font-semibold">Chưa có đề thi nào</p>
+                    <p class="text-sm mt-1">Tạo đề đầu tiên bằng cách upload file .tex</p>
+                </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = exams.map(exam => `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full font-mono">
+                            ${exam.examCode}
+                        </div>
+                        <button onclick="deleteExam('${exam.examCode}')" class="text-slate-300 hover:text-rose-400 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${exam.config.title}</h3>
+                    <p class="text-xs text-slate-400">${exam.config.subject} • ${exam.config.grade}</p>
+                    <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 font-medium">
+                        <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${exam.config.duration} phút</span>
+                        <span><i data-lucide="list" class="w-3 h-3 inline"></i> ${exam.questions?.length || 0} câu</span>
+                        <span class="ml-auto">${new Date(exam.createdAt).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <button onclick="copyCode('${exam.examCode}')"
+                        class="w-full mt-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã đề
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteExam(code) {
+            if (confirm(`Xóa đề thi ${code}?`)) {
+                Storage.Exams.delete(code);
+                loadExamList();
+                showToast(`Đã xóa đề thi ${code}`, 'success');
+            }
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => showToast(`Đã sao chép: ${code}`, 'success'));
+        }
+
+        // ============================================================
+        // STATS
+        // ============================================================
+        function loadStatsExamOptions() {
+            const exams = Storage.Exams.getMyExams();
+            const select = document.getElementById('statsExamSelect');
+            select.innerHTML = '<option value="">-- Chọn đề thi --</option>' +
+                exams.map(e => `<option value="${e.examCode}">${e.examCode}: ${e.config.title}</option>`).join('');
+        }
+
+        function loadStats(examCode) {
+            if (!examCode) return;
+            const submissions = Storage.Submissions.getByExam(examCode);
+
+            document.getElementById('statTotal').textContent = submissions.length;
+
+            if (submissions.length) {
+                const scores = submissions.map(s => s.score).filter(s => s != null);
+                const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+                document.getElementById('statAvg').textContent = avg;
+                document.getElementById('statRange').textContent = `${Math.max(...scores)} / ${Math.min(...scores)}`;
+                const pass = scores.filter(s => s >= 5).length;
+                document.getElementById('statPassRate').textContent = `${((pass / scores.length) * 100).toFixed(0)}%`;
+
+                // Table
+                const tbody = document.getElementById('resultsTableBody');
+                tbody.innerHTML = submissions.map(s => `
+                    <tr>
+                        <td class="py-2.5 font-semibold text-slate-800">${s.studentName}</td>
+                        <td class="py-2.5 text-slate-500">${s.studentClass || '-'}</td>
+                        <td class="py-2.5"><span class="font-black text-lg ${s.score >= 5 ? 'text-emerald-600' : 'text-rose-500'}">${s.score}</span></td>
+                        <td class="py-2.5 text-slate-500">${s.correctCount || 0}/${s.totalCount || 0}</td>
+                        <td class="py-2.5 text-slate-500">${s.integrity || 100}%</td>
+                        <td class="py-2.5 text-slate-400">${new Date(s.submittedAt).toLocaleTimeString('vi-VN')}</td>
+                    </tr>
+                `).join('');
+
+                // Chart
+                renderGradeChart(scores);
+            } else {
+                document.getElementById('statAvg').textContent = '0.0';
+                document.getElementById('statRange').textContent = '0 / 0';
+                document.getElementById('statPassRate').textContent = '0%';
+                document.getElementById('resultsTableBody').innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400 italic">Chưa có bài nộp nào</td></tr>';
+            }
+        }
+
+        function renderGradeChart(scores) {
+            const buckets = [0, 0, 0, 0]; // Yếu, TB, Khá, Giỏi
+            scores.forEach(s => {
+                if (s < 5) buckets[0]++;
+                else if (s < 7) buckets[1]++;
+                else if (s < 9) buckets[2]++;
+                else buckets[3]++;
+            });
+            const max = Math.max(...buckets, 1);
+            const colors = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981'];
+            const chart = document.getElementById('gradeChart');
+            chart.innerHTML = buckets.map((count, i) => `
+                <div class="flex flex-col items-center gap-1 flex-1">
+                    <span class="text-[10px] font-bold text-slate-500">${count}</span>
+                    <div style="height: ${(count / max * 100)}%; background: ${colors[i]}; min-height: 4px; width: 100%; border-radius: 6px 6px 0 0; transition: height 0.3s;"></div>
+                </div>
+            `).join('');
+        }
+
+        function exportResultsExcel() {
+            const examCode = document.getElementById('statsExamSelect').value;
+            if (!examCode) return showToast('Chọn đề thi trước!', 'error');
+            const submissions = Storage.Submissions.getByExam(examCode);
+            const exam = Storage.Exams.getByCode(examCode);
+            Exporter.exportToExcel(submissions, exam?.config?.title || examCode);
+        }
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        let toastTimeout;
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.className = `show ${type}`;
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+    </script>
+</body>
+</html>

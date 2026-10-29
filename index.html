@@ -448,7 +448,7 @@
         function checkAutoLogin() {
             const user = Storage.Auth.getCurrentUser();
             if (user && user.role === 'teacher') {
-                window.location.href = 'teacher/studio.html';
+                window.location.href = 'studio.html';
             }
         }
 
@@ -491,7 +491,7 @@
 
             showToast(`Xin chào, ${result.user.name || 'Giáo viên'}! Đang vào hệ thống...`, 'success');
             setTimeout(() => {
-                window.location.href = 'teacher/studio.html';
+                window.location.href = 'studio.html';
             }, 500);
         }
 
@@ -552,7 +552,7 @@
 
             showToast('Tìm thấy đề thi! Đang vào phòng thi...', 'success');
             setTimeout(() => {
-                window.location.href = `student/exam.html?code=${code}`;
+                window.location.href = `exam.html?code=${code}`;
             }, 600);
         }
 

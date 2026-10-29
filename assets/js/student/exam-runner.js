@@ -17,7 +17,7 @@ const ExamRunner = (() => {
     session = Storage.StudentSession.get();
     if (!session || !session.examCode) {
       alert('Không tìm thấy thông tin phòng thi. Vui lòng vào lại từ trang chủ!');
-      window.location.href = '../index.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -25,7 +25,7 @@ const ExamRunner = (() => {
     examData = Storage.Exams.getByCode(session.examCode);
     if (!examData) {
       alert(`Không tìm thấy đề thi với mã phòng [${session.examCode}]. Vui lòng kiểm tra lại!`);
-      window.location.href = '../index.html';
+      window.location.href = 'index.html';
       return;
     }
 
@@ -89,7 +89,7 @@ const ExamRunner = (() => {
       showAnswers: false,
       showSolutions: false,
       paperStyle: 'grid-oly',
-      imageBasePath: '..'
+      imageBasePath: 'images'
     });
 
     // Thêm hình mờ bảo mật chống chụp ảnh camera vật lý

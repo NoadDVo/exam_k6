@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Phòng Thi Trực Tuyến — NoadD.Vo</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Itim&display=swap" rel="stylesheet">
+
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/paper.css">
+    <link rel="stylesheet" href="assets/css/exam.css">
+
+    <style>
+        /* Tối ưu hiển thị cho thiết bị di động & máy tính */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* Chống in ấn đề thi & Lưu PDF */
+        @media print {
+            html, body {
+                display: none !important;
+                visibility: hidden !important;
+            }
+        }
+
+        /* Chống bôi đen, sao chép trên toàn trang thi */
+        body, .exam-paper, .student-portal {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+        }
+
+        /* Cho phép học sinh gõ chữ vào ô trả lời ngắn và tự luận */
+        input, textarea {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        /* Lớp phủ làm mờ chống chụp màn hình / Snipping Tool */
+        .privacy-blur {
+            filter: blur(28px) grayscale(90%) !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            transition: filter 0.15s ease;
+        }
+
+        .screen-shield-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #FFFFFF;
+        }
+
+        /* Watermark mờ chống chụp camera vật lý */
+        .exam-watermark {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+            opacity: 0.045;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: space-around;
+            justify-content: space-around;
+            user-select: none;
+        }
+
+        .exam-watermark-item {
+            font-size: 13px;
+            font-weight: 800;
+            color: #000000;
+            transform: rotate(-25deg);
+            white-space: nowrap;
+            padding: 24px;
+        }
+
+        /* Ngăn công thức toán học bị tràn màn hình điện thoại */
+        .katex-display {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            max-width: 100% !important;
+            padding: 6px 0 !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Animation cho mobile drawer */
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 student-portal min-h-screen flex flex-col antialiased">
+
+    <!-- EXAM HEADER (RESPONSIVE NAVBAR) -->
+    <header class="exam-navbar sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 shadow-sm">
+        <!-- Logo & Student Info -->
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-sm">
+                N
+            </div>
+            <div class="min-w-0">
+                <h1 class="text-xs font-black text-slate-800 uppercase tracking-wider truncate" id="examTitleBadge">BÀI THI TRỰC TUYẾN</h1>
+                <p class="text-[11px] font-bold text-slate-500 truncate">
+                    <span id="studentNameBadge">Học sinh</span> • <span id="studentClassBadge">Lớp</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Controls: Timer + Mobile Toggle + Submit Button -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+            <!-- Timer Pill -->
+            <div class="timer-pill px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-extrabold flex items-center gap-1.5 rounded-full" id="timerPill">
+                <i data-lucide="clock" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                <span id="timerDisplay">--:--</span>
+            </div>
+
+            <!-- Mobile Palette Toggle Button -->
+            <button onclick="ExamRunner.toggleMobilePalette()" class="lg:hidden btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-2.5 py-1.5 text-xs font-bold rounded-xl flex items-center gap-1">
+                <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+                <span class="hidden sm:inline">Câu hỏi</span>
+            </button>
+
+            <!-- Submit Button -->
+            <button onclick="ExamRunner.submitExam()" class="btn btn-success px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="send" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                <span>Nộp Bài</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN EXAM AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-2 py-3 sm:px-4 sm:py-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 min-w-0" id="examViewSection">
+        
+        <!-- Paper Container (Chiếm 100% trên điện thoại, không bao giờ bị cắt xén) -->
+        <div class="flex-1 w-full min-w-0">
+            <div id="examPaperContainer" class="paper-a4 relative">
+                <!-- Nội dung đề thi render động ở đây -->
+            </div>
+        </div>
+
+        <!-- Desktop Sticky Navigation Palette (Ẩn trên điện thoại để không chèn ép đề thi) -->
+        <aside class="palette-card shrink-0 sticky top-20 hidden lg:flex flex-col">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">Danh Sách Câu</span>
+                <span class="text-xs font-bold text-indigo-600" id="progressText">Đã làm: 0/0</span>
+            </div>
+            <div class="palette-grid flex-1 overflow-y-auto" id="paletteGrid">
+                <!-- Nút số câu render ở đây -->
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 font-medium">
+                💡 Nhấp vào số câu để chuyển nhanh tới câu hỏi tương ứng.
+            </div>
+        </aside>
+    </main>
+
+    <!-- MOBILE FLOATING ACTION BUTTON (DÀNH CHO ĐIỆN THOẠI) -->
+    <button id="mobilePaletteToggleBtn" onclick="ExamRunner.toggleMobilePalette()" class="lg:hidden fixed bottom-5 right-5 z-40 bg-indigo-600 text-white font-extrabold py-3 px-4 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white hover:bg-indigo-700 active:scale-95 transition-all text-xs">
+        <i data-lucide="list-checks" class="w-4 h-4"></i>
+        <span id="mobileFloatingProgress">0/0 câu</span>
+    </button>
+
+    <!-- MOBILE DRAWER (BẢNG CÂU HỎI TRÊN ĐIỆN THOẠI) -->
+    <div id="mobilePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex flex-col justify-end transition-opacity" onclick="if(event.target === this) ExamRunner.toggleMobilePalette(false)">
+        <div class="bg-white rounded-t-3xl p-5 max-h-[80vh] flex flex-col shadow-2xl animate-slide-up" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Danh Sách Câu Hỏi</h3>
+                    <span class="text-xs font-bold text-indigo-600" id="mobileProgressText">Đã làm: 0/0 câu</span>
+                </div>
+                <button onclick="ExamRunner.toggleMobilePalette(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-lg leading-none transition-colors">
+                    &times;
+                </button>
+            </div>
+            
+            <div class="palette-grid py-4 overflow-y-auto max-h-[50vh]" id="paletteGridMobile">
+                <!-- Nút số câu mobile render ở đây -->
+            </div>
+            
+            <div class="pt-2 text-[11px] text-slate-400 text-center font-medium">
+                💡 Chạm vào số câu để cuộn ngay đến câu hỏi tương ứng
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT VIEW AFTER SUBMIT -->
+    <section id="resultViewSection" class="hidden flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div class="card p-6 sm:p-8 max-w-lg w-full text-center shadow-xl border-slate-200 bg-white rounded-3xl">
+            <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-600">
+                <i data-lucide="check-circle" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800">Hoàn Thành Bài Thi!</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Kết quả bài làm của thí sinh <strong id="resStudentName" class="text-slate-800">...</strong></p>
+
+            <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 my-6">
+                <span class="text-xs font-black text-indigo-600 uppercase tracking-widest">Điểm Số Đạt Được</span>
+                <div class="text-5xl sm:text-6xl font-black text-indigo-700 my-2" id="resScoreDisplay">0.0</div>
+                <p class="text-xs font-semibold text-slate-500">
+                    Đúng: <strong id="resCorrectCount">0/0</strong>
+                </p>
+            </div>
+
+            <a href="index.html" class="btn btn-primary w-full py-3 text-sm font-bold flex items-center justify-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> Trở Về Trang Chủ
+            </a>
+        </div>
+    </section>
+
+    <!-- Core Scripts -->
+    <script src="assets/js/core/storage.js"></script>
+    <script src="assets/js/utils/katex-render.js"></script>
+    <script src="assets/js/tex/tex-parser.js"></script>
+    <script src="assets/js/tex/tex-renderer.js"></script>
+    <script src="assets/js/student/timer.js"></script>
+    <script src="assets/js/student/anti-cheat.js"></script>
+    <script src="assets/js/student/exam-runner.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            ExamRunner.init();
+        });
+    </script>
+</body>
+</html>
