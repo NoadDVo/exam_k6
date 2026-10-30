@@ -713,13 +713,6 @@
             <div class="editor-pane" id="editorPane">
                 <!-- Toolbar -->
                 <div class="editor-toolbar">
-                    <button onclick="toggleSidebar()" id="toolbarBtnSidebar" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn/hiện Sidebar cài đặt (Alt+S)">
-                        <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
-                    </button>
-                    <button onclick="toggleEditor()" id="toolbarBtnEditor" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn khung Soạn thảo (Alt+E)">
-                        <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
-                    </button>
-                    <div class="w-px h-5 bg-black/20 mx-1"></div>
                     <span class="text-xs font-black font-typewriter uppercase tracking-wider text-black">LaTeX Editor</span>
                     <div class="flex-1"></div>
                     <button onclick="clearEditor()" class="neo-btn neo-btn-sm neo-btn-danger neo-btn-icon" title="Xóa toàn bộ">
@@ -1303,20 +1296,6 @@
                     navBtnEditor.className = 'neo-btn neo-btn-sm neo-btn-white neo-btn-icon';
                     navBtnEditor.title = 'Ẩn Soạn thảo LaTeX (Alt+E)';
                     navBtnEditor.innerHTML = '<i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>';
-                }
-            }
-
-            // 3. Nút Sidebar trên thanh công cụ Editor
-            const toolbarBtnSidebar = document.getElementById('toolbarBtnSidebar');
-            if (toolbarBtnSidebar) {
-                if (isSidebarCollapsed) {
-                    toolbarBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-mint neo-btn-icon';
-                    toolbarBtnSidebar.title = 'Bấm để hiện lại Sidebar Cài đặt (Alt+S)';
-                    toolbarBtnSidebar.innerHTML = '<i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>';
-                } else {
-                    toolbarBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-white neo-btn-icon';
-                    toolbarBtnSidebar.title = 'Ẩn Sidebar Cài đặt (Alt+S)';
-                    toolbarBtnSidebar.innerHTML = '<i data-lucide="panel-left" class="w-3.5 h-3.5"></i>';
                 }
             }
 
