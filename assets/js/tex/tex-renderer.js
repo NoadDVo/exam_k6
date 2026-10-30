@@ -265,7 +265,9 @@ class TexRenderer {
       // Hiện đáp án: icon ✓ hoặc ✗
       const answerBadge = opts.showAnswers
         ? `<span class="tf-badge ${item.isCorrect ? 'tf-true' : 'tf-false'}">${item.isCorrect ? '✓' : '✗'}</span>`
-        : '';
+        : (opts.mode !== 'exam')
+          ? `<span class="tf-print-box" style="font-size: 11px; font-weight: 700; color: #64748b; border: 1.5px dashed #94a3b8; padding: 2px 8px; border-radius: 6px;">Đúng [ &nbsp; ] &nbsp; Sai [ &nbsp; ]</span>`
+          : '';
 
       return `
   <div class="tf-item${correctClass}${wrongClass}" data-letter="${item.letter}">
@@ -327,7 +329,9 @@ class TexRenderer {
           <span class="answer-label">Đáp án:</span>
           <span class="answer-value">${this._escape(question.shortAnswer)}</span>
         </div>`
-      : answerInputHtml;
+      : (!opts.showAnswers && opts.mode !== 'exam')
+        ? `<div class="short-answer-blank" style="margin-top: 10px; font-weight: 700; font-size: 13px; color: #64748b;">Đáp số: ............................................................................</div>`
+        : answerInputHtml;
 
     const imageHtml    = this._renderImage(question.image, opts);
     const solutionHtml = opts.showSolutions

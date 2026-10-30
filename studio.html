@@ -552,7 +552,11 @@
 
         <!-- Right Action Controls -->
         <div class="flex items-center gap-2 sm:gap-3">
-            <button onclick="printExamPaper()" class="neo-btn neo-btn-sm neo-btn-white hidden sm:inline-flex" title="In hoặc xuất PDF đề thi">
+            <button onclick="togglePreviewAnswers()" id="btnToggleAnswers" class="neo-btn neo-btn-sm neo-btn-mint" title="Bấm để ẩn hoặc hiện đáp án đúng khi xem và in đề">
+                <i data-lucide="eye" id="iconToggleAnswers" class="w-3.5 h-3.5"></i>
+                <span id="textToggleAnswers">Hiện đáp án</span>
+            </button>
+            <button onclick="printExamPaper()" class="neo-btn neo-btn-sm neo-btn-white" title="In hoặc xuất PDF đề thi">
                 <i data-lucide="printer" class="w-3.5 h-3.5"></i> In PDF
             </button>
             <button onclick="openCreateExamModal()" class="neo-btn neo-btn-sm neo-btn-yellow" title="Tạo kỳ thi mới">
@@ -711,12 +715,6 @@
                     </button>
                     <button onclick="updatePreview()" class="neo-btn neo-btn-sm neo-btn-white">
                         <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
-                    </button>
-                    <button onclick="printExamPaper()" class="neo-btn neo-btn-sm neo-btn-white" title="In hoặc xuất PDF đề thi theo chuẩn trang A4">
-                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> In đề
-                    </button>
-                    <button onclick="openCreateExamModal()" class="neo-btn neo-btn-sm neo-btn-yellow">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Tạo đề thi
                     </button>
                 </div>
 
@@ -1334,8 +1332,38 @@
         }
 
         // ============================================================
-        // PREVIEW
         // ============================================================
+        // PREVIEW & ANSWER TOGGLE
+        // ============================================================
+        let previewShowAnswers = true; // Mặc định hiện đáp án khi soạn thảo
+
+        function togglePreviewAnswers() {
+            previewShowAnswers = !previewShowAnswers;
+            const btn = document.getElementById('btnToggleAnswers');
+
+            if (previewShowAnswers) {
+                if (btn) {
+                    btn.className = 'neo-btn neo-btn-sm neo-btn-mint';
+                    btn.innerHTML = '<i data-lucide="eye" class="w-3.5 h-3.5"></i> <span id="textToggleAnswers">Hiện đáp án</span>';
+                    btn.title = 'Đang hiện đáp án (Bản GV). Bấm để ẩn đáp án khi in cho học sinh.';
+                }
+                showToast('Đang hiện đáp án đúng (Bản giáo viên)', 'info');
+            } else {
+                if (btn) {
+                    btn.className = 'neo-btn neo-btn-sm neo-btn-white';
+                    btn.innerHTML = '<i data-lucide="eye-off" class="w-3.5 h-3.5"></i> <span id="textToggleAnswers">Ẩn đáp án</span>';
+                    btn.title = 'Đang ẩn đáp án (Đề HS). Bấm để hiện đáp án giáo viên.';
+                }
+                showToast('Đã ẩn đáp án đúng (Đề thi học sinh sẵn sàng in)', 'success');
+            }
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            updatePreview();
+        }
+
         let previewDebounce;
         function debouncePreview() {
             clearTimeout(previewDebounce);
@@ -1400,7 +1428,7 @@
                     const renderer = new TexRenderer();
                     const html = renderer.renderExam(examData, {
                         mode: 'preview',
-                        showAnswers: true,
+                        showAnswers: previewShowAnswers,
                         showSolutions: false,
                         fontClass,
                         paperStyle,
@@ -1878,8 +1906,9 @@
                 showToast('Chưa có nội dung đề để in. Vui lòng tải file hoặc gõ nội dung trước!', 'warning');
                 return;
             }
-            const title = currentParsedExam?.meta?.title || currentParsedExam?.config?.title || 'Đề thi';
-            Exporter.printSection('previewContainer', title);
+            const baseTitle = currentParsedExam?.meta?.title || currentParsedExam?.config?.title || 'Đề thi';
+            const suffix = previewShowAnswers ? ' (Bản đáp án GV)' : ' (Đề thi học sinh)';
+            Exporter.printSection('previewContainer', baseTitle + suffix);
         }
 
         function executeExamCreation() {
