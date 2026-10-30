@@ -349,63 +349,111 @@ const Storage = (() => {
         /**
          * Tính điểm tự động cho câu TN, Đúng/Sai, Trả lời ngắn
          */
-        calculateScore: (exam, answers) => {
+        calculateScore: (exam, answers = {}) => {
             let totalScore = 0;
             let correctCount = 0;
             let totalCount = 0;
             const details = [];
 
-            exam.questions.forEach(q => {
-                if (q.type === 'essay') return; // tự luận không tính tự động
+            (exam.questions || []).forEach(q => {
+                if (q.type === 'essay') {
+                    details.push({
+                        questionId: q.id,
+                        type: 'essay',
+                        studentAnswer: answers[q.id] || null,
+                        isCorrect: null,
+                        earnedPoints: 0,
+                        maxPoints: q.points || 0
+                    });
+                    return;
+                }
 
                 const studentAnswer = answers[q.id];
                 let isCorrect = false;
+                let earnedPoints = 0;
+                const maxPoints = q.points || (q.type === 'truefalse' ? 1.0 : 0.25);
 
                 if (q.type === 'choice') {
                     totalCount++;
-                    isCorrect = studentAnswer === q.options.find(o => o.isCorrect)?.letter;
+                    const correctOpt = q.options?.find(o => o.isCorrect);
+                    const correctLetter = correctOpt?.letter;
+                    isCorrect = Boolean(studentAnswer && studentAnswer === correctLetter);
                     if (isCorrect) {
                         correctCount++;
-                        totalScore += q.points || 0;
+                        earnedPoints = maxPoints;
+                        totalScore += earnedPoints;
                     }
+                    details.push({
+                        questionId: q.id,
+                        type: 'choice',
+                        studentAnswer: studentAnswer || null,
+                        correctAnswer: correctLetter,
+                        isCorrect,
+                        earnedPoints: Math.round(earnedPoints * 100) / 100,
+                        maxPoints
+                    });
                 } else if (q.type === 'truefalse') {
                     totalCount++;
                     const tfItems = q.tfItems || [];
                     let numMatched = 0;
-                    if (studentAnswer && typeof studentAnswer === 'object') {
-                        tfItems.forEach(item => {
-                            const studentVal = studentAnswer[item.letter];
-                            if (studentVal !== undefined && Boolean(studentVal) === Boolean(item.isCorrect)) {
-                                numMatched++;
-                            }
-                        });
-                    }
+                    const itemResults = {};
+                    tfItems.forEach(item => {
+                        const studentVal = (studentAnswer && typeof studentAnswer === 'object') ? studentAnswer[item.letter] : undefined;
+                        const match = (studentVal !== undefined && Boolean(studentVal) === Boolean(item.isCorrect));
+                        if (match) numMatched++;
+                        itemResults[item.letter] = {
+                            studentValue: studentVal !== undefined ? Boolean(studentVal) : null,
+                            correctValue: Boolean(item.isCorrect),
+                            isMatch: match
+                        };
+                    });
+
                     // Thang điểm Bộ GD&ĐT cho câu Đúng/Sai (1.0 điểm):
                     // Đúng 1 ý = 0.1 đ, 2 ý = 0.25 đ, 3 ý = 0.5 đ, 4 ý = 1.0 đ
                     const correctTable = { 0: 0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0 };
-                    const pointScale = (q.points || 1.0);
-                    const earnedPoints = (correctTable[numMatched] !== undefined ? correctTable[numMatched] : (numMatched / (tfItems.length || 4))) * pointScale;
+                    earnedPoints = (correctTable[numMatched] !== undefined ? correctTable[numMatched] : (numMatched / (tfItems.length || 4))) * maxPoints;
                     totalScore += earnedPoints;
                     isCorrect = (numMatched === tfItems.length && tfItems.length > 0);
                     if (isCorrect) correctCount++;
+
+                    details.push({
+                        questionId: q.id,
+                        type: 'truefalse',
+                        studentAnswer: studentAnswer || {},
+                        itemResults,
+                        numMatched,
+                        totalItems: tfItems.length,
+                        isCorrect,
+                        earnedPoints: Math.round(earnedPoints * 100) / 100,
+                        maxPoints
+                    });
                 } else if (q.type === 'shortanswer') {
                     totalCount++;
                     const expected = String(q.shortAnswer || '').trim().toLowerCase();
                     const given = String(studentAnswer || '').trim().toLowerCase();
-                    isCorrect = expected === given;
+                    isCorrect = Boolean(expected && given && expected === given);
                     if (isCorrect) {
                         correctCount++;
-                        totalScore += q.points || 0;
+                        earnedPoints = maxPoints;
+                        totalScore += earnedPoints;
                     }
+                    details.push({
+                        questionId: q.id,
+                        type: 'shortanswer',
+                        studentAnswer: studentAnswer || '',
+                        correctAnswer: q.shortAnswer,
+                        isCorrect,
+                        earnedPoints: Math.round(earnedPoints * 100) / 100,
+                        maxPoints
+                    });
                 }
-
-                details.push({ questionId: q.id, studentAnswer, isCorrect, points: totalScore });
             });
 
             return {
                 totalScore: Math.round(totalScore * 100) / 100,
                 correctCount,
                 totalCount,
+                wrongCount: totalCount - correctCount,
                 details,
             };
         },
