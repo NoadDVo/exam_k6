@@ -18,37 +18,151 @@ const ExamRunner = (() => {
 
     // Hỗ trợ lấy mã phòng thi từ URL query param (?code=123456)
     const urlParams = new URLSearchParams(window.location.search);
-    const codeFromUrl = urlParams.get('code');
-    if ((!session || !session.examCode) && codeFromUrl) {
-      session = {
-        examCode: codeFromUrl,
-        studentName: session?.studentName || 'Học sinh',
-        studentClass: session?.studentClass || ''
-      };
-      Storage.StudentSession.save(session);
-    }
+    const codeFromUrl = urlParams.get('code') ? urlParams.get('code').trim() : '';
 
-    if (!session || !session.examCode) {
-      alert('Không tìm thấy thông tin phòng thi. Vui lòng vào lại từ trang chủ!');
-      window.location.href = 'index.html';
-      return;
-    }
+    const activeCode = codeFromUrl || session?.examCode || '123456';
 
     // 2. Lấy dữ liệu đề thi
-    examData = Storage.Exams.getByCode(session.examCode);
+    examData = Storage.Exams.getByCode(activeCode);
     if (!examData) {
-      alert(`Không tìm thấy đề thi với mã phòng [${session.examCode}]. Vui lòng kiểm tra lại!`);
+      alert(`Không tìm thấy đề thi với mã phòng [${activeCode}]. Vui lòng kiểm tra lại đường link hoặc liên hệ giáo viên!`);
       window.location.href = 'index.html';
       return;
     }
 
-    // 3. Khôi phục bài làm dang dở (nếu học sinh lỡ tải lại trang)
+    // 3. Kiểm tra xem học sinh ĐÃ có thông tin tên hợp lệ cho phòng thi này hay chưa
+    const hasValidSession = session && 
+                            String(session.examCode).trim() === String(activeCode).trim() && 
+                            session.studentName && 
+                            session.studentName.trim() !== '' && 
+                            session.studentName.trim().toLowerCase() !== 'học sinh';
+
+    if (!hasValidSession) {
+      // Học sinh mở từ link share chưa nhập thông tin: hiển thị modal nhập họ tên
+      showStudentEntryModal(activeCode);
+      return;
+    }
+
+    // Đã có thông tin đầy đủ: Bắt đầu làm bài thi
+    startExamRunning();
+  };
+
+  /**
+   * Hiển thị bảng đăng ký thông tin thí sinh trước khi bắt đầu
+   */
+  const showStudentEntryModal = (code) => {
+    const modal = document.getElementById('studentEntryModal');
+    if (!modal) return;
+
+    // Ẩn khu vực làm bài thi và bảng palette trong khi chờ học sinh nhập thông tin
+    const viewSection = document.getElementById('examViewSection');
+    if (viewSection) viewSection.classList.add('hidden');
+
+    const floatBtn = document.getElementById('mobilePaletteToggleBtn');
+    if (floatBtn) floatBtn.classList.add('hidden');
+
+    const codeBadge = document.getElementById('entryExamCodeBadge');
+    if (codeBadge) codeBadge.textContent = code;
+
+    const titleEl = document.getElementById('entryExamTitle');
+    if (titleEl) titleEl.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
+
+    const subjEl = document.getElementById('entryExamSubjectGrade');
+    if (subjEl) subjEl.textContent = `Môn: ${examData.config?.subject || examData.meta?.subject || 'Toán'} • ${examData.config?.grade || examData.meta?.grade || 'Lớp 6'}`;
+
+    const durEl = document.getElementById('entryExamDuration');
+    if (durEl) durEl.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1"></i>${examData.config?.duration || 45} phút`;
+
+    const qCountEl = document.getElementById('entryExamTotalQuestions');
+    if (qCountEl) qCountEl.innerHTML = `<i data-lucide="list" class="w-3.5 h-3.5 inline mr-1"></i>${examData.questions?.length || 0} câu`;
+
+    // Cập nhật tiêu đề navbar
+    const titleBadge = document.getElementById('examTitleBadge');
+    if (titleBadge) titleBadge.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
+
+    // Pre-fill thông tin nếu trước đó học sinh từng điền trên máy này
+    const prevSession = Storage.StudentSession.get();
+    if (prevSession?.studentName && prevSession.studentName !== 'Học sinh') {
+      const nameInput = document.getElementById('entryStudentName');
+      if (nameInput) nameInput.value = prevSession.studentName;
+      const classInput = document.getElementById('entryStudentClass');
+      if (classInput) classInput.value = prevSession.studentClass || '';
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    setTimeout(() => {
+      const nameInput = document.getElementById('entryStudentName');
+      if (nameInput) nameInput.focus();
+    }, 150);
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  };
+
+  /**
+   * Bắt đầu làm bài sau khi học sinh xác nhận thông tin ở Modal
+   */
+  const startExamFromEntry = () => {
+    const nameInput = document.getElementById('entryStudentName');
+    const classInput = document.getElementById('entryStudentClass');
+    const idInput = document.getElementById('entryStudentId');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const cls = classInput ? classInput.value.trim() : '';
+    const sbd = idInput ? idInput.value.trim() : '';
+
+    if (!name) {
+      alert('Vui lòng nhập Họ và tên thí sinh!');
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    if (!cls) {
+      alert('Vui lòng nhập Tên Lớp của bạn (ví dụ: 6A1)!');
+      if (classInput) classInput.focus();
+      return;
+    }
+
+    // Lưu phiên thi học sinh với thông tin thực tế
+    session = {
+      examCode: examData.examCode,
+      studentName: name,
+      studentClass: cls,
+      studentId: sbd || `HS_${Date.now().toString().slice(-4)}`,
+      startTime: new Date().toISOString()
+    };
+    Storage.StudentSession.save(session);
+
+    // Ẩn modal nhập thông tin
+    const modal = document.getElementById('studentEntryModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Bắt đầu làm bài thi chính thức
+    startExamRunning();
+  };
+
+  /**
+   * Khởi động quá trình làm bài thi (Render, Palette, Chống gian lận, Đếm ngược)
+   */
+  const startExamRunning = () => {
+    // Hiện khu vực làm bài thi
+    const viewSection = document.getElementById('examViewSection');
+    if (viewSection) viewSection.classList.remove('hidden');
+
+    const floatBtn = document.getElementById('mobilePaletteToggleBtn');
+    if (floatBtn) floatBtn.classList.remove('hidden');
+
+    // 1. Khôi phục bài làm dang dở (nếu học sinh lỡ tải lại trang)
     const savedDraft = Storage.StudentSession.getDraft(session.examCode, session.studentId);
     if (savedDraft) {
       userAnswers = savedDraft;
     }
 
-    // 4. Cập nhật thông tin giao diện
+    // 2. Cập nhật thông tin giao diện
     const sNameEl = document.getElementById('studentNameBadge');
     if (sNameEl) sNameEl.textContent = session.studentName || 'Học sinh';
 
@@ -58,16 +172,16 @@ const ExamRunner = (() => {
     const titleEl = document.getElementById('examTitleBadge');
     if (titleEl) titleEl.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
 
-    // 5. Render đề thi
+    // 3. Render đề thi
     renderExamPaper();
 
-    // 6. Render palette câu hỏi (cả Desktop và Mobile)
+    // 4. Render palette câu hỏi (cả Desktop và Mobile)
     renderPalette();
 
-    // 7. Khởi động bảo mật phòng thi (Chống chuột phải & chống chụp màn hình, KHÔNG khóa bài sau 5 lần)
+    // 5. Khởi động bảo mật phòng thi (Chống chuột phải & chống chụp màn hình)
     AntiCheat.start();
 
-    // 8. Bắt đầu đếm ngược thời gian
+    // 6. Bắt đầu đếm ngược thời gian
     const durationMinutes = examData.config?.duration || 45;
     ExamTimer.start(
       durationMinutes,
@@ -87,6 +201,8 @@ const ExamRunner = (() => {
         submitExam(true);
       }
     );
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   };
 
   // ============================================================
@@ -780,6 +896,7 @@ const ExamRunner = (() => {
 
   return {
     init,
+    startExamFromEntry,
     scrollToQuestion,
     toggleMobilePalette,
     submitExam,

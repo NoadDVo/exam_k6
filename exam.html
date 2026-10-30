@@ -215,6 +215,87 @@
         </div>
     </header>
 
+    <!-- ====================================================
+         MODAL / MÀN HÌNH NHẬP THÔNG TIN THÍ SINH VÀO THI
+         (Xuất hiện khi mở link share ?code=... mà chưa đăng ký)
+    ==================================================== -->
+    <div id="studentEntryModal" class="hidden fixed inset-0 z-50 bg-[#FFFDF7]/95 backdrop-blur-md items-center justify-center p-4 overflow-y-auto">
+        <div class="neo-card p-6 sm:p-8 max-w-md w-full bg-white border-[3px] border-black shadow-[6px_6px_0px_#000] space-y-5 my-auto" onclick="event.stopPropagation()">
+            
+            <!-- Branding & Title -->
+            <div class="text-center">
+                <img src="assets/images/logo-noadd.png" alt="NOADD" class="h-9 mx-auto mb-3 object-contain">
+                <h2 class="font-typewriter text-xl sm:text-2xl font-black text-black uppercase tracking-wider">
+                    Xác Nhận Vào Phòng Thi
+                </h2>
+                <p class="text-xs font-bold text-neutral-600 mt-1">
+                    Vui lòng điền thông tin của bạn để bắt đầu tính giờ làm bài
+                </p>
+            </div>
+
+            <!-- Exam Info Box -->
+            <div class="neo-card-yellow p-4 border-2 border-black space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black uppercase text-black">Mã phòng thi:</span>
+                    <span class="neo-badge neo-badge-black font-typewriter text-xs font-black" id="entryExamCodeBadge">------</span>
+                </div>
+                <h3 class="font-extrabold text-sm sm:text-base text-black line-clamp-2" id="entryExamTitle">Đang nạp đề thi...</h3>
+                <div class="flex items-center justify-between text-xs font-bold text-neutral-800 pt-2 border-t border-black/20">
+                    <span id="entryExamSubjectGrade">Môn: Toán</span>
+                    <span id="entryExamDuration"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1"></i>45 phút</span>
+                    <span id="entryExamTotalQuestions"><i data-lucide="list" class="w-3.5 h-3.5 inline mr-1"></i>0 câu</span>
+                </div>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="space-y-3.5">
+                <div>
+                    <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
+                        Họ và tên thí sinh <span class="text-rose-600">*</span>
+                    </label>
+                    <input type="text" id="entryStudentName" class="neo-input"
+                        placeholder="Ví dụ: Nguyễn Văn An"
+                        autocomplete="name"
+                        onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
+                            Lớp <span class="text-rose-600">*</span>
+                        </label>
+                        <input type="text" id="entryStudentClass" class="neo-input"
+                            placeholder="Ví dụ: 6A1"
+                            autocomplete="off"
+                            onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
+                    </div>
+                    <div>
+                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
+                            Số báo danh <span class="text-[10px] text-neutral-500 font-normal lowercase">(tùy chọn)</span>
+                        </label>
+                        <input type="text" id="entryStudentId" class="neo-input"
+                            placeholder="Ví dụ: SBD-01"
+                            autocomplete="off"
+                            onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
+                    </div>
+                </div>
+
+                <!-- Info note -->
+                <div class="p-3 bg-[#EFF6FF] border-2 border-black rounded-xl text-[11px] font-bold text-neutral-800 flex items-start gap-2 shadow-[2px_2px_0px_#000]">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
+                    <span>Khi nhấn Bắt Đầu, hệ thống sẽ tính giờ làm bài và bật chế độ chống gian lận. Kết quả thi sẽ gửi về giáo viên.</span>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button onclick="ExamRunner.startExamFromEntry()"
+                class="neo-btn neo-btn-yellow w-full py-3.5 text-sm uppercase font-black tracking-wider shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer hover:translate-x-0.5 hover:translate-y-0.5">
+                <i data-lucide="play-circle" class="w-5 h-5"></i>
+                <span>Bắt Đầu Làm Bài</span>
+            </button>
+        </div>
+    </div>
+
     <!-- MAIN EXAM AREA -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-2 py-3 sm:px-4 sm:py-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 min-w-0" id="examViewSection">
         
