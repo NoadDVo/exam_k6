@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Itim&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Itim&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <link rel="stylesheet" href="assets/css/paper.css">
+    <link rel="stylesheet" href="assets/css/neobrutalism.css">
 
     <style>
         :root {
@@ -522,37 +523,51 @@
     ==================================================== -->
     <header class="studio-navbar">
         <!-- Logo -->
-        <a href="index.html" class="flex items-center gap-2 text-slate-900 hover:opacity-80 transition-opacity shrink-0">
-            <div class="w-7 h-7 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center">
-                <i data-lucide="book-open" class="w-4 h-4 text-white"></i>
+        <a href="index.html" class="flex items-center gap-2.5 text-black hover:opacity-85 transition-opacity shrink-0">
+            <div class="w-8 h-8 bg-black text-white rounded-lg border-2 border-black flex items-center justify-center font-typewriter font-black text-xs shadow-[2px_2px_0px_#000]">
+                &lt;/&gt;
             </div>
-            <span class="font-black text-base tracking-tight">NoadD.Vo</span>
+            <span class="font-typewriter font-black text-lg tracking-tight text-black">NOADD.VO</span>
         </a>
 
-        <!-- Nav Tabs -->
-        <div class="nav-tabs ml-4">
-            <button class="nav-tab active" onclick="switchView('studio')" id="tabStudio">
+        <!-- Nav Tabs (Inverted Pill Tabs) -->
+        <div class="flex items-center gap-1.5 ml-3 sm:ml-6 bg-white/70 p-1 rounded-xl border-2 border-black shadow-[2px_2px_0px_#000]">
+            <button class="neo-tab-btn active" onclick="switchView('studio')" id="tabStudio">
                 <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> Studio
             </button>
-            <button class="nav-tab" onclick="switchView('exams')" id="tabExams">
+            <button class="neo-tab-btn" onclick="switchView('exams')" id="tabExams">
                 <i data-lucide="layers" class="w-3.5 h-3.5"></i> Đề Thi
             </button>
-            <button class="nav-tab" onclick="switchView('stats')" id="tabStats">
+            <button class="neo-tab-btn" onclick="switchView('stats')" id="tabStats">
                 <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Thống Kê
             </button>
         </div>
 
-        <div class="flex-1"></div>
-
-        <!-- User info & logout -->
-        <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2">
-                <div class="user-avatar" id="userAvatarBtn">?</div>
-                <span class="text-xs font-bold text-slate-600 hidden md:block" id="userNameDisplay">...</span>
+        <!-- Search Bar (matching reference image) -->
+        <div class="hidden md:flex items-center flex-1 max-w-sm mx-4">
+            <div class="relative w-full">
+                <i data-lucide="search" class="w-4 h-4 text-black/60 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" placeholder="Tìm kiếm đề thi, học sinh, câu hỏi..." class="neo-input pl-9 py-1.5 text-xs bg-white">
             </div>
-            <button onclick="handleLogout()"
-                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-100">
-                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Đăng xuất
+        </div>
+
+        <div class="flex-1 md:hidden"></div>
+
+        <!-- Right Action Controls -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="printExamPaper()" class="neo-btn neo-btn-sm neo-btn-white hidden sm:inline-flex" title="In hoặc xuất PDF đề thi">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i> In PDF
+            </button>
+            <button onclick="openCreateExamModal()" class="neo-btn neo-btn-sm neo-btn-yellow" title="Tạo kỳ thi mới">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Tạo Đề
+            </button>
+            <div class="w-px h-6 bg-black/20 mx-1"></div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-typewriter font-black text-xs text-black shadow-[2px_2px_0px_#000]" id="userAvatarBtn">?</div>
+                <span class="text-xs font-black text-black hidden lg:block" id="userNameDisplay">...</span>
+            </div>
+            <button onclick="handleLogout()" class="neo-btn neo-btn-sm neo-btn-danger" title="Đăng xuất">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
             </button>
         </div>
     </header>
@@ -567,20 +582,22 @@
         ============================================================ -->
         <div id="subviewStudio" class="w-full h-full flex overflow-hidden">
 
-            <!-- SIDEBAR: Tùy chỉnh thẩm mỹ -->
+            <!-- SIDEBAR: Tùy chỉnh thẩm mỹ (Mint Background) -->
             <aside class="studio-sidebar" id="studioSidebar">
 
                 <!-- Upload .tex (TÍNH NĂNG CHÍNH) -->
                 <div>
                     <div class="sidebar-section-title">📄 Tải file LaTeX (.tex)</div>
-                    <div class="tex-upload-zone" id="texDropZone"
+                    <div class="neo-card-sm p-4 text-center cursor-pointer bg-white hover:translate-x-0.5 transition-transform" id="texDropZone"
                         onclick="document.getElementById('texFileInput').click()"
                         ondragover="handleTexDragOver(event)"
                         ondragleave="handleTexDragLeave(event)"
                         ondrop="handleTexDrop(event)">
-                        <i data-lucide="file-text" class="w-8 h-8 text-indigo-400 mx-auto mb-2"></i>
-                        <p class="text-xs font-black text-indigo-700">Kéo thả hoặc nhấp để tải</p>
-                        <span id="texFileName" class="text-[10px] font-bold text-emerald-600 mt-2 block"></span>
+                        <div class="w-10 h-10 bg-amber-200 border-2 border-black rounded-lg flex items-center justify-center mx-auto mb-2 shadow-[2px_2px_0px_#000]">
+                            <i data-lucide="file-text" class="w-5 h-5 text-black"></i>
+                        </div>
+                        <p class="text-xs font-black text-black">Kéo thả hoặc nhấp để tải .tex</p>
+                        <span id="texFileName" class="text-[11px] font-mono font-bold text-emerald-800 mt-1 block"></span>
                     </div>
                     <input type="file" id="texFileInput" class="hidden" accept=".tex"
                         onchange="handleTexFileSelect(this)">
@@ -590,22 +607,24 @@
                 <!-- Chèn ảnh -->
                 <div>
                     <div class="sidebar-section-title">🖼️ Chèn ảnh vào LaTeX</div>
-                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/50 rounded-xl p-3 text-center cursor-pointer transition-all mb-2"
+                    <div class="neo-card-sm p-3 text-center cursor-pointer bg-white mb-2 hover:translate-x-0.5 transition-transform"
                         onclick="document.getElementById('imgInput').click()"
                         ondragover="event.preventDefault()"
                         ondrop="handleImgDrop(event)">
-                        <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-500 mx-auto mb-1"></i>
-                        <p class="text-xs font-bold text-slate-700">Tải ảnh lên / Kéo thả</p>
-                        <span class="text-[10px] text-slate-400">Hỗ trợ dán Ctrl+V trực tiếp</span>
+                        <div class="w-8 h-8 bg-sky-200 border-2 border-black rounded-lg flex items-center justify-center mx-auto mb-1.5 shadow-[2px_2px_0px_#000]">
+                            <i data-lucide="upload-cloud" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <p class="text-xs font-black text-black">Tải ảnh lên / Kéo thả</p>
+                        <span class="text-[10px] font-bold text-slate-500">Hỗ trợ dán Ctrl+V</span>
                     </div>
                     <input type="file" id="imgInput" class="hidden" accept="image/*"
                         onchange="insertImageToEditor(this)">
 
                     <!-- Danh sách ảnh trong đề -->
                     <div id="uploadedImagesContainer" class="hidden mt-2">
-                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1 px-1">
-                            <span>Ảnh đính kèm:</span>
-                            <span id="uploadedImagesCount" class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px]">0</span>
+                        <div class="flex items-center justify-between text-[11px] font-black text-black mb-1.5 px-1 font-mono">
+                            <span>ẢNH ĐÍNH KÈM:</span>
+                            <span id="uploadedImagesCount" class="neo-badge neo-badge-yellow text-[10px] py-0.5">0</span>
                         </div>
                         <div id="uploadedImagesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
                     </div>
@@ -614,10 +633,10 @@
                 <!-- Thẩm mỹ -->
                 <div>
                     <div class="sidebar-section-title">🎨 Thẩm mỹ giấy thi</div>
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Font chữ</label>
-                            <select class="sidebar-select" id="fontSelect" onchange="updatePreview()">
+                            <label class="text-[11px] font-black text-black block mb-1">Font chữ</label>
+                            <select class="neo-select" id="fontSelect" onchange="updatePreview()">
                                 <option value="font-itim">Itim (Chữ viết tay học trò)</option>
                                 <option value="font-mali">Mali (Nét tròn thanh thoát)</option>
                                 <option value="font-playpen">Playpen Sans (Tập viết THCS)</option>
@@ -630,8 +649,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Kiểu giấy</label>
-                            <select class="sidebar-select" id="paperStyleSelect" onchange="updatePreview()">
+                            <label class="text-[11px] font-black text-black block mb-1">Kiểu giấy</label>
+                            <select class="neo-select" id="paperStyleSelect" onchange="updatePreview()">
                                 <option value="grid-oly">Ô ly học sinh (vở 5 ô)</option>
                                 <option value="grid-squared">Caro toán học (ô vuông)</option>
                                 <option value="grid-dot">Chấm Dot Grid</option>
@@ -642,8 +661,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Màu giấy</label>
-                            <select class="sidebar-select" id="paperColorSelect" onchange="updatePreview()">
+                            <label class="text-[11px] font-black text-black block mb-1">Màu giấy</label>
+                            <select class="neo-select" id="paperColorSelect" onchange="updatePreview()">
                                 <option value="#FDFCF7">Trắng ngà (dịu mắt, mặc định)</option>
                                 <option value="#F4ECD8">Sepia ấm (cổ điển)</option>
                                 <option value="#FFFFFF">Trắng tinh khôi</option>
@@ -656,24 +675,20 @@
                     </div>
                 </div>
 
-                <!-- Templates nhanh -->
+                <!-- Templates nhanh (Colorful Neo-Buttons) -->
                 <div>
                     <div class="sidebar-section-title">⚡ Mẫu nhanh</div>
-                    <div class="space-y-1.5">
-                        <button onclick="insertTemplate('choice')"
-                            class="w-full text-left px-3 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-2">
+                    <div class="space-y-2">
+                        <button onclick="insertTemplate('choice')" class="neo-btn neo-btn-sm neo-btn-yellow w-full justify-start">
                             <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i> Câu trắc nghiệm
                         </button>
-                        <button onclick="insertTemplate('truefalse')"
-                            class="w-full text-left px-3 py-2 text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-lg transition-colors flex items-center gap-2">
+                        <button onclick="insertTemplate('truefalse')" class="neo-btn neo-btn-sm neo-btn-pink w-full justify-start">
                             <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Câu đúng/sai
                         </button>
-                        <button onclick="insertTemplate('short')"
-                            class="w-full text-left px-3 py-2 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors flex items-center gap-2">
+                        <button onclick="insertTemplate('short')" class="neo-btn neo-btn-sm neo-btn-blue w-full justify-start">
                             <i data-lucide="type" class="w-3.5 h-3.5"></i> Trả lời ngắn
                         </button>
-                        <button onclick="insertTemplate('essay')"
-                            class="w-full text-left px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex items-center gap-2">
+                        <button onclick="insertTemplate('essay')" class="neo-btn neo-btn-sm neo-btn-mint w-full justify-start">
                             <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Câu tự luận
                         </button>
                     </div>
@@ -685,33 +700,33 @@
             <div class="editor-pane" id="editorPane">
                 <!-- Toolbar -->
                 <div class="editor-toolbar">
-                    <button onclick="toggleSidebar()" class="toolbar-btn" title="Ẩn/hiện sidebar">
+                    <button onclick="toggleSidebar()" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn/hiện sidebar">
                         <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button onclick="toggleEditor()" class="toolbar-btn" title="Ẩn editor">
+                    <button onclick="toggleEditor()" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn editor">
                         <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
                     </button>
-                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">LaTeX Editor</span>
+                    <div class="w-px h-5 bg-black/20 mx-1"></div>
+                    <span class="text-xs font-black font-typewriter uppercase tracking-wider text-black">LaTeX Editor</span>
                     <div class="flex-1"></div>
-                    <button onclick="clearEditor()" class="toolbar-btn text-rose-500 hover:bg-rose-50">
+                    <button onclick="clearEditor()" class="neo-btn neo-btn-sm neo-btn-danger neo-btn-icon" title="Xóa toàn bộ">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button onclick="updatePreview()" class="toolbar-btn primary">
+                    <button onclick="updatePreview()" class="neo-btn neo-btn-sm neo-btn-white">
                         <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
                     </button>
-                    <button onclick="printExamPaper()" class="toolbar-btn" style="background: #F1F5F9; color: #334155;" title="In hoặc xuất PDF đề thi theo chuẩn trang A4">
-                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> In / Xuất đề
+                    <button onclick="printExamPaper()" class="neo-btn neo-btn-sm neo-btn-white" title="In hoặc xuất PDF đề thi theo chuẩn trang A4">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> In đề
                     </button>
-                    <button onclick="openCreateExamModal()" class="toolbar-btn primary" style="background: linear-gradient(135deg, #10B981, #059669);">
+                    <button onclick="openCreateExamModal()" class="neo-btn neo-btn-sm neo-btn-yellow">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Tạo đề thi
                     </button>
                 </div>
 
                 <!-- Code Area -->
                 <div class="editor-header">
-                    <span class="text-xs font-bold text-slate-500">📝 Soạn thảo LaTeX</span>
-                    <label for="texFileInputEditor" class="flex items-center gap-1 text-xs font-bold text-indigo-600 cursor-pointer hover:text-indigo-800">
+                    <span class="text-xs font-black text-black font-typewriter">📝 Soạn thảo LaTeX</span>
+                    <label for="texFileInputEditor" class="flex items-center gap-1.5 text-xs font-black text-black cursor-pointer hover:underline">
                         <i data-lucide="upload" class="w-3.5 h-3.5"></i> Tải file .tex
                     </label>
                     <input type="file" id="texFileInputEditor" class="hidden" accept=".tex"
@@ -747,92 +762,219 @@
         <!-- ============================================================
              SUBVIEW 2: QUẢN LÝ ĐỀ THI
         ============================================================ -->
-        <div id="subviewExams" class="w-full h-full overflow-y-auto bg-slate-50 p-6 hidden">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-800">Đề Thi Đã Tạo</h2>
-                        <p class="text-sm text-slate-500 mt-1">Quản lý, chia sẻ và theo dõi các kỳ thi</p>
+        <div id="subviewExams" class="w-full h-full overflow-y-auto bg-[#FFFDF7] p-6 lg:p-8 hidden">
+            <div class="max-w-6xl mx-auto space-y-6">
+
+                <!-- HERO CARD: Trainer info (Lấy cảm hứng trực tiếp từ ảnh tham khảo) -->
+                <div class="neo-card-yellow p-6 md:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b-2 border-black">
+                        <div class="flex items-center gap-3">
+                            <span class="font-typewriter text-lg md:text-xl font-black uppercase tracking-wider text-black">
+                                Trainer info
+                            </span>
+                            <span class="neo-badge neo-badge-black text-[11px] font-mono">
+                                KHỐI 6 THCS
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="switchView('studio')" class="neo-btn neo-btn-white neo-btn-sm">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Soạn LaTeX
+                            </button>
+                            <button onclick="openCreateExamModal()" class="neo-btn bg-black text-white neo-btn-sm hover:bg-neutral-800">
+                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Tạo Đề Mới
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="openCreateExamModal()"
-                        class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Tạo Đề Mới
-                    </button>
-                </div>
-                <div id="examListGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <!-- Exam cards rendered here -->
-                    <div class="col-span-full text-center py-16 text-slate-400">
-                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
-                        <p class="font-semibold">Chưa có đề thi nào</p>
-                        <p class="text-sm mt-1">Tạo đề đầu tiên bằng cách upload file .tex</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <!-- Trainer Profile Info -->
+                        <div class="lg:col-span-5 flex items-center gap-4">
+                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white border-2 border-black shadow-[3px_3px_0px_#000] flex items-center justify-center font-typewriter text-2xl md:text-3xl font-black text-black shrink-0">
+                                NV
+                            </div>
+                            <div>
+                                <h3 class="font-typewriter text-lg md:text-xl font-black text-black uppercase">
+                                    Thầy NoadD.Vo
+                                </h3>
+                                <p class="text-xs font-bold text-neutral-800 mt-1">
+                                    Bộ môn Toán • THCS Chuẩn Quốc Gia
+                                </p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="neo-badge neo-badge-mint text-[10px]">Đang hoạt động</span>
+                                    <span class="neo-badge neo-badge-pink text-[10px]">LaTeX 2.0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Stat Boxes (Matching reference UI) -->
+                        <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="neo-stat-box">
+                                <div class="neo-stat-box-val" id="heroTotalExams">0</div>
+                                <div class="neo-stat-box-lbl">Đề thi</div>
+                            </div>
+                            <div class="neo-stat-box">
+                                <div class="neo-stat-box-val">K6</div>
+                                <div class="neo-stat-box-lbl">Khối lớp</div>
+                            </div>
+                            <div class="neo-stat-box">
+                                <div class="neo-stat-box-val">45'</div>
+                                <div class="neo-stat-box-lbl">Thời gian</div>
+                            </div>
+                            <div class="neo-stat-box">
+                                <div class="neo-stat-box-val">100%</div>
+                                <div class="neo-stat-box-lbl">Chính xác</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- SECTION: Danh sách đề thi đã tạo (Work experience style) -->
+                <div>
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                        <div>
+                            <h2 class="font-typewriter text-xl font-black text-black uppercase tracking-wide flex items-center gap-2">
+                                <i data-lucide="folder-open" class="w-5 h-5"></i> Work experience • Đề thi đã tạo
+                            </h2>
+                            <p class="text-xs font-bold text-neutral-600 mt-0.5">
+                                Danh sách các phòng thi, chia sẻ link làm bài trực tiếp cho học sinh
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="loadExamList()" class="neo-btn neo-btn-white neo-btn-sm" title="Làm mới">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Làm mới
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="examListGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Exam cards rendered here via loadExamList() -->
+                        <div class="col-span-full text-center py-16 neo-card p-8 bg-white">
+                            <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                            <p class="font-typewriter font-bold text-base">Chưa có đề thi nào</p>
+                            <p class="text-xs font-semibold text-neutral-500 mt-1">Tạo đề đầu tiên bằng cách upload file .tex trong Studio</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <!-- ============================================================
              SUBVIEW 3: THỐNG KÊ
         ============================================================ -->
-        <div id="subviewStats" class="w-full h-full overflow-y-auto bg-slate-50 p-6 hidden">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-800">Thống Kê Điểm Thi</h2>
-                        <p class="text-sm text-slate-500 mt-1">Phân tích kết quả và phổ điểm</p>
+        <div id="subviewStats" class="w-full h-full overflow-y-auto bg-[#FFFDF7] p-6 lg:p-8 hidden">
+            <div class="max-w-6xl mx-auto space-y-6">
+
+                <!-- TOP CARD: Students reviews (Pink Card with wavy sparkline matching reference image) -->
+                <div class="neo-card-pink p-6 md:p-8">
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b-2 border-black">
+                        <div class="flex items-center gap-3">
+                            <span class="font-typewriter text-lg md:text-xl font-black uppercase tracking-wider text-black">
+                                Students reviews
+                            </span>
+                            <span class="neo-badge neo-badge-black text-[11px] font-mono">
+                                ANALYTICS
+                            </span>
+                        </div>
+                        <span class="text-xs font-bold font-mono text-black">
+                            Cập nhật theo thời gian thực
+                        </span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-bold text-slate-500">Đề thi:</span>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-6 flex items-center gap-6">
+                            <div>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-typewriter text-4xl md:text-5xl font-black text-black" id="statAvgHero">0.0</span>
+                                    <span class="font-typewriter text-lg font-bold text-neutral-700">/ 10</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-yellow-400 text-xl mt-1 drop-shadow-[1.5px_1.5px_0px_#000]">
+                                    ★★★★★
+                                </div>
+                                <p class="text-xs font-bold text-black mt-2">
+                                    Tỉ lệ đạt: <strong id="statPassRateHero" class="font-typewriter font-black text-base">0%</strong>
+                                </p>
+                            </div>
+                            <div class="h-16 w-0.5 bg-black/20 hidden sm:block"></div>
+                            <div class="text-xs font-bold text-neutral-800 leading-relaxed hidden sm:block">
+                                Phổ điểm và tiến độ hoàn thành bài kiểm tra giữa học kỳ I của học sinh lớp 6.
+                            </div>
+                        </div>
+
+                        <!-- Wavy Sparkline (from reference visual design) -->
+                        <div class="md:col-span-6">
+                            <div class="bg-white/60 rounded-xl border-2 border-black p-3 shadow-[2.5px_2.5px_0px_#000]">
+                                <div class="flex items-center justify-between text-[11px] font-bold font-mono mb-1">
+                                    <span>BIỂU ĐỒ PHÂN BỐ XU HƯỚNG</span>
+                                    <span class="neo-badge neo-badge-mint text-[9px]">LIVE</span>
+                                </div>
+                                <svg class="w-full h-16 neo-sparkline" viewBox="0 0 300 60" preserveAspectRatio="none">
+                                    <path d="M 0 45 Q 40 10, 80 35 T 160 20 T 240 40 T 300 15" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILTER BAR -->
+                <div class="neo-card p-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <label for="statsExamSelect" class="font-typewriter text-xs font-black uppercase text-black">
+                            Chọn đề thi:
+                        </label>
                         <select id="statsExamSelect" onchange="loadStats(this.value)"
-                            class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                            class="neo-select font-bold text-sm min-w-[260px] max-w-md">
                             <option value="">-- Chọn đề thi --</option>
                         </select>
                     </div>
+                    <button onclick="exportResultsExcel()" class="neo-btn neo-btn-mint">
+                        <i data-lucide="download" class="w-4 h-4"></i> Xuất File Excel
+                    </button>
                 </div>
 
-                <!-- Stats Overview -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Tổng bài nộp</div>
-                        <div class="text-3xl font-black text-slate-800 mt-2" id="statTotal">0</div>
+                <!-- 4 METRIC STAT CARDS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="neo-card p-5">
+                        <div class="text-[11px] font-bold text-neutral-600 uppercase tracking-wider">Tổng bài nộp</div>
+                        <div class="font-typewriter text-3xl font-black text-black mt-2" id="statTotal">0</div>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Điểm TB</div>
-                        <div class="text-3xl font-black text-indigo-600 mt-2" id="statAvg">0.0</div>
+                    <div class="neo-card-yellow p-5">
+                        <div class="text-[11px] font-bold text-black uppercase tracking-wider">Điểm Trung Bình</div>
+                        <div class="font-typewriter text-3xl font-black text-black mt-2" id="statAvg">0.0</div>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Cao nhất / Thấp nhất</div>
-                        <div class="text-2xl font-black text-emerald-500 mt-2" id="statRange">0 / 0</div>
+                    <div class="neo-card-blue p-5">
+                        <div class="text-[11px] font-bold text-black uppercase tracking-wider">Cao / Thấp nhất</div>
+                        <div class="font-typewriter text-2xl font-black text-black mt-2" id="statRange">0 / 0</div>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Tỉ lệ đạt (≥5đ)</div>
-                        <div class="text-3xl font-black text-amber-500 mt-2" id="statPassRate">0%</div>
+                    <div class="neo-card-mint p-5">
+                        <div class="text-[11px] font-bold text-black uppercase tracking-wider">Tỉ lệ đạt (≥5đ)</div>
+                        <div class="font-typewriter text-3xl font-black text-black mt-2" id="statPassRate">0%</div>
                     </div>
                 </div>
 
-                <!-- Table + Chart -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-black text-slate-700 uppercase text-xs tracking-wider">Chi tiết bài nộp</h3>
-                            <button onclick="exportResultsExcel()" class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors">
-                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Xuất Excel
-                            </button>
+                <!-- TABLE + CHART -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-typewriter font-black text-black text-sm uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="list-ordered" class="w-4 h-4"></i> Chi tiết bài nộp học sinh
+                            </h3>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs" id="resultsTable">
+                            <table class="neo-table" id="resultsTable">
                                 <thead>
-                                    <tr class="border-b-2 border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider">
-                                        <th class="pb-3">Học sinh</th>
-                                        <th class="pb-3">Lớp</th>
-                                        <th class="pb-3">Điểm</th>
-                                        <th class="pb-3">Đúng/Tổng</th>
-                                        <th class="pb-3">Nộp lúc</th>
+                                    <tr>
+                                        <th>Học sinh</th>
+                                        <th>Lớp</th>
+                                        <th>Điểm</th>
+                                        <th>Đúng / Tổng</th>
+                                        <th>Nộp lúc</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-50 text-slate-700 font-medium" id="resultsTableBody">
+                                <tbody id="resultsTableBody">
                                     <tr>
-                                        <td colspan="5" class="py-8 text-center text-slate-400 italic">
-                                            Chọn đề thi để xem kết quả
+                                        <td colspan="5" class="py-8 text-center text-neutral-500 italic">
+                                            Chọn đề thi để xem danh sách kết quả
                                         </td>
                                     </tr>
                                 </tbody>
@@ -840,97 +982,106 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                        <h3 class="font-black text-slate-700 uppercase text-xs tracking-wider mb-4">Phổ phân bố điểm</h3>
-                        <div id="gradeChart" class="h-48 flex items-end gap-1.5 border-b border-l border-slate-200 p-2">
-                            <!-- Bars rendered by JS -->
+                    <div class="neo-card p-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-typewriter font-black text-black uppercase text-xs tracking-wider mb-4 flex items-center gap-2">
+                                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Phổ phân bố điểm
+                            </h3>
+                            <div id="gradeChart" class="h-48 flex items-end gap-2 border-b-2 border-l-2 border-black p-2 bg-amber-50/40 rounded-bl-lg">
+                                <!-- Bars rendered by JS -->
+                            </div>
+                            <div class="flex justify-between text-[10px] font-typewriter font-bold text-neutral-600 mt-2 px-1">
+                                <span>Yếu (&lt;5)</span>
+                                <span>TB (5-7)</span>
+                                <span>Khá (7-9)</span>
+                                <span>Giỏi (≥9)</span>
+                            </div>
                         </div>
-                        <div class="flex justify-between text-[9px] text-slate-400 font-bold mt-1">
-                            <span>Yếu</span><span>TB</span><span>Khá</span><span>Giỏi</span>
+                        <div class="mt-4 pt-3 border-t-2 border-black/10 text-[11px] font-bold text-neutral-500 text-center">
+                            Thống kê cập nhật tự động theo từng bài nộp
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
     </div><!-- end studio-layout -->
 
     <!-- ====================================================
-         MODAL: TẠO ĐỀ THI ONLINE
+         MODAL: TẠO ĐỀ THI ONLINE (NEO-BRUTALIST)
     ==================================================== -->
     <div id="createExamModal" class="modal-overlay hidden" onclick="handleModalOutsideClick(event)">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between mb-5 pb-4 border-b border-slate-100">
+        <div class="neo-modal-card" onclick="event.stopPropagation()">
+            <div class="neo-modal-header">
                 <div>
-                    <h3 class="text-lg font-black text-slate-800">⚙️ Cấu hình Kỳ Thi</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Đặt cấu hình và phát hành đề thi</p>
+                    <h3 class="font-typewriter text-lg font-black text-black uppercase">⚙️ Cấu hình Kỳ Thi</h3>
+                    <p class="text-xs font-bold text-neutral-800 mt-0.5">Đặt cấu hình và phát hành đề thi</p>
                 </div>
-                <button onclick="closeCreateExamModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-400 transition-colors">
+                <button onclick="closeCreateExamModal()" class="w-8 h-8 rounded-lg border-2 border-black bg-white hover:bg-neutral-100 flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_#000] transition-transform active:translate-x-0.5 active:translate-y-0.5">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <div class="space-y-4">
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 <div class="grid grid-cols-1 gap-3">
                     <div>
-                        <label class="text-xs font-black text-slate-600 uppercase block mb-1">Tên kỳ thi / Bài kiểm tra</label>
-                        <input type="text" id="cfgTitle" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Tên kỳ thi / Bài kiểm tra</label>
+                        <input type="text" id="cfgTitle" class="neo-input"
                             placeholder="Kiểm tra giữa học kỳ I - Toán 6">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Mã phòng thi (6 số)</label>
-                            <input type="text" id="cfgCode" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-indigo-700 font-mono tracking-wider focus:outline-none focus:border-indigo-500"
+                            <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Mã phòng thi (6 số)</label>
+                            <input type="text" id="cfgCode" class="neo-input font-typewriter text-base tracking-wider font-black"
                                 placeholder="123456" maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                         </div>
                         <div>
-                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Khối lớp</label>
-                            <input type="text" id="cfgGrade" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                            <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Khối lớp</label>
+                            <input type="text" id="cfgGrade" class="neo-input"
                                 placeholder="Lớp 6">
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-black text-slate-600 uppercase block mb-1">Môn học</label>
-                        <input type="text" id="cfgSubject" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Môn học</label>
+                        <input type="text" id="cfgSubject" class="neo-input"
                             placeholder="Toán Học">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Thời gian (phút)</label>
-                            <input type="number" id="cfgDuration" value="90"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500">
+                            <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Thời gian (phút)</label>
+                            <input type="number" id="cfgDuration" value="90" class="neo-input">
                         </div>
                         <div>
-                            <label class="text-xs font-black text-slate-600 uppercase block mb-1">Số lần thi tối đa</label>
-                            <input type="number" id="cfgAttempts" value="1"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500">
+                            <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Số lần thi tối đa</label>
+                            <input type="number" id="cfgAttempts" value="1" class="neo-input">
                         </div>
                     </div>
 
                     <!-- Cấu hình thẩm mỹ (Font, Kiểu giấy, Màu giấy) -->
-                    <div class="border-t border-slate-100 pt-3">
-                        <label class="text-xs font-black text-slate-700 uppercase block mb-2">Định dạng hiển thị & In ấn</label>
+                    <div class="border-t-2 border-black/10 pt-3">
+                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-2">Định dạng hiển thị & In ấn</label>
                         <div class="grid grid-cols-3 gap-3">
                             <div>
-                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Font chữ</label>
-                                <select id="cfgFont" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
-                                    <option value="font-itim">Itim (Viết tay mầm)</option>
+                                <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Font chữ</label>
+                                <select id="cfgFont" class="neo-select">
+                                    <option value="font-itim">Itim (Viết tay)</option>
                                     <option value="font-mali">Mali (Vui nhộn)</option>
                                     <option value="font-playpen">Playpen (Mềm mại)</option>
-                                    <option value="font-patrick">Patrick (Viết phấn)</option>
+                                    <option value="font-patrick">Patrick (Phấn)</option>
                                     <option value="font-caveat">Caveat (Bút mực)</option>
-                                    <option value="font-bevietnam">Be Vietnam (Chuẩn mực)</option>
-                                    <option value="font-sans">Modern Sans (Hiện đại)</option>
-                                    <option value="font-serif">Roboto Slab (Cổ điển)</option>
-                                    <option value="font-comfortaa">Comfortaa (Bo tròn)</option>
+                                    <option value="font-bevietnam">Be Vietnam</option>
+                                    <option value="font-sans">Modern Sans</option>
+                                    <option value="font-serif">Roboto Slab</option>
+                                    <option value="font-comfortaa">Comfortaa</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Kiểu giấy</label>
-                                <select id="cfgPaperStyle" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
+                                <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Kiểu giấy</label>
+                                <select id="cfgPaperStyle" class="neo-select">
                                     <option value="grid-oly">Ô ly tiểu học</option>
                                     <option value="grid-squared">Kẻ ô vuông</option>
-                                    <option value="grid-dot">Chấm chấm (Dot)</option>
+                                    <option value="grid-dot">Chấm (Dot)</option>
                                     <option value="grid-lined">Dòng kẻ ngang</option>
                                     <option value="grid-milimet">Giấy Milimet</option>
                                     <option value="grid-double">Dòng kẻ đôi</option>
@@ -938,11 +1089,11 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Màu giấy</label>
-                                <select id="cfgPaperColor" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
-                                    <option value="#FDFCF7">Trắng ngà (dịu mắt)</option>
-                                    <option value="#F4ECD8">Sepia ấm (cổ điển)</option>
-                                    <option value="#FFFFFF">Trắng tinh khôi</option>
+                                <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Màu giấy</label>
+                                <select id="cfgPaperColor" class="neo-select">
+                                    <option value="#FDFCF7">Trắng ngà</option>
+                                    <option value="#F4ECD8">Sepia ấm</option>
+                                    <option value="#FFFFFF">Trắng tinh</option>
                                     <option value="#F0FDF4">Xanh bạc hà</option>
                                     <option value="#EFF6FF">Xanh da trời</option>
                                     <option value="#FEF9C3">Vàng kem</option>
@@ -954,63 +1105,67 @@
                 </div>
 
                 <!-- Checkboxes -->
-                <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+                <div class="neo-card p-4 space-y-3 bg-white">
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="cfgShowScore" checked class="w-4 h-4 accent-indigo-600 rounded">
-                        <span class="text-sm font-semibold text-slate-700">Cho học sinh xem điểm sau khi nộp</span>
+                        <input type="checkbox" id="cfgShowScore" checked class="w-4 h-4 accent-black rounded">
+                        <span class="text-xs font-bold text-black">Cho học sinh xem điểm sau khi nộp</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="cfgShowAnswers" checked class="w-4 h-4 accent-indigo-600 rounded">
-                        <span class="text-sm font-semibold text-slate-700">Cho học sinh xem đáp án và lời giải</span>
+                        <input type="checkbox" id="cfgShowAnswers" checked class="w-4 h-4 accent-black rounded">
+                        <span class="text-xs font-bold text-black">Cho học sinh xem đáp án và lời giải chi tiết</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="cfgShuffle" class="w-4 h-4 accent-indigo-600 rounded">
-                        <span class="text-sm font-semibold text-slate-700">Trộn thứ tự câu hỏi ngẫu nhiên</span>
+                        <input type="checkbox" id="cfgShuffle" class="w-4 h-4 accent-black rounded">
+                        <span class="text-xs font-bold text-black">Trộn thứ tự câu hỏi ngẫu nhiên</span>
                     </label>
                 </div>
 
                 <!-- Cảnh báo nếu chưa có dữ liệu parse -->
-                <div id="noDataWarning" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 font-semibold">
+                <div id="noDataWarning" class="hidden neo-card-yellow p-3 text-xs font-bold text-black">
                     ⚠️ Chưa có nội dung đề thi. Vui lòng tải file .tex hoặc nhập LaTeX vào editor trước.
                 </div>
 
                 <button onclick="executeExamCreation()"
-                    class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wide transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2">
-                    <i data-lucide="cloud-upload" class="w-4 h-4"></i> Khởi Tạo Kỳ Thi
+                    class="neo-btn neo-btn-yellow w-full text-sm font-black py-3 uppercase tracking-wider">
+                    <i data-lucide="cloud-upload" class="w-4 h-4"></i> Khởi Tạo Kỳ Thi Ngay
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Mã đề thi thành công -->
+    <!-- MODAL: Mã đề thi thành công (NEO-BRUTALIST) -->
     <div id="examCodeModal" class="modal-overlay hidden" onclick="closeExamCodeModal()">
-        <div class="modal-card max-w-sm" onclick="event.stopPropagation()">
-            <div class="text-center mb-5">
-                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-500"></i>
+        <div class="neo-modal-card max-w-sm" onclick="event.stopPropagation()">
+            <div class="neo-modal-header bg-[#B7E4C7]">
+                <h3 class="font-typewriter text-base font-black text-black uppercase flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i> Đã Tạo Đề Thi!
+                </h3>
+                <button onclick="closeExamCodeModal()" class="w-7 h-7 rounded-lg border-2 border-black bg-white hover:bg-neutral-100 flex items-center justify-center text-black shadow-[1.5px_1.5px_0px_#000]">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="p-6 text-center space-y-4">
+                <p class="text-xs font-bold text-neutral-700">
+                    Chia sẻ mã phòng thi này hoặc gửi link cho học sinh tham gia:
+                </p>
+
+                <div class="neo-card-yellow p-5 text-center">
+                    <div class="text-[10px] font-mono font-bold uppercase text-neutral-800 tracking-wider">MÃ PHÒNG THI</div>
+                    <div class="font-typewriter text-3xl font-black text-black tracking-widest my-1.5" id="newExamCode">EX-XXXXX</div>
+                    <button onclick="copyExamCode()" class="neo-btn neo-btn-white neo-btn-sm mt-1">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã
+                    </button>
                 </div>
-                <h3 class="text-xl font-black text-slate-800">Đề Thi Đã Được Tạo!</h3>
-                <p class="text-sm text-slate-500 mt-1">Chia sẻ mã này cho học sinh</p>
-            </div>
 
-            <div class="exam-code-badge mb-5">
-                <div class="text-xs font-bold text-slate-400 mb-1">MÃ ĐỀ THI</div>
-                <div class="exam-code-value" id="newExamCode">EX-XXXXX</div>
-                <button onclick="copyExamCode()"
-                    class="mt-2 text-xs font-bold text-yellow-200 hover:text-white flex items-center gap-1 mx-auto">
-                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã
-                </button>
-            </div>
-
-            <div class="space-y-2">
-                <button onclick="closeExamCodeModal()"
-                    class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5">
-                    Quay về Studio
-                </button>
-                <button onclick="switchView('exams'); closeExamCodeModal()"
-                    class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-sm transition-colors">
-                    Xem danh sách đề thi
-                </button>
+                <div class="space-y-2 pt-2">
+                    <button onclick="closeExamCodeModal()" class="neo-btn bg-black text-white w-full">
+                        Quay về Studio
+                    </button>
+                    <button onclick="switchView('exams'); closeExamCodeModal()" class="neo-btn neo-btn-mint w-full">
+                        Xem danh sách đề thi
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1792,17 +1947,19 @@
         }
 
         // ============================================================
-        // EXAM LIST
+        // EXAM LIST (NEO-BRUTALIST CARDS)
         // ============================================================
         function loadExamList() {
             const exams = Storage.Exams.getMyExams();
             const grid = document.getElementById('examListGrid');
+            const heroTotal = document.getElementById('heroTotalExams');
+            if (heroTotal) heroTotal.textContent = exams.length;
 
             if (!exams.length) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400">
-                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
-                    <p class="font-semibold">Chưa có đề thi nào</p>
-                    <p class="text-sm mt-1">Tạo đề đầu tiên bằng cách upload file .tex</p>
+                grid.innerHTML = `<div class="col-span-full text-center py-16 neo-card p-8 bg-white">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
+                    <p class="font-typewriter font-bold text-base">Chưa có đề thi nào</p>
+                    <p class="text-xs font-semibold text-neutral-500 mt-1">Tạo đề đầu tiên bằng cách upload file .tex trong Studio</p>
                 </div>`;
                 lucide.createIcons();
                 return;
@@ -1836,41 +1993,41 @@
                 const paperLabel = paperNames[cfg.paperStyle] || 'Ô ly';
 
                 return `
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                <div class="neo-card neo-card-hover p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-2">
-                                <span class="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full font-mono">
+                                <span class="neo-badge neo-badge-black font-typewriter">
                                     ${exam.examCode}
                                 </span>
-                                <span class="bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-full" title="Font & Kiểu giấy">
+                                <span class="neo-badge neo-badge-yellow text-[11px]" title="Font & Kiểu giấy">
                                     ${fontLabel} • ${paperLabel}
                                 </span>
                             </div>
-                            <button onclick="deleteExam('${exam.examCode}')" class="text-slate-300 hover:text-rose-400 transition-colors" title="Xóa đề">
+                            <button onclick="deleteExam('${exam.examCode}')" class="w-8 h-8 rounded-lg border-2 border-black bg-rose-100 hover:bg-rose-200 flex items-center justify-center text-rose-700 shadow-[1.5px_1.5px_0px_#000] transition-transform active:translate-x-0.5 active:translate-y-0.5" title="Xóa đề">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${cfg.title || exam.title || 'Đề thi'}</h3>
-                        <p class="text-xs text-slate-400">${cfg.subject || exam.subject || 'Toán'} • ${cfg.grade || exam.grade || 'Lớp 6'}</p>
-                        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 font-medium">
-                            <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${cfg.duration || 45} phút</span>
-                            <span><i data-lucide="list" class="w-3 h-3 inline"></i> ${exam.questions?.length || 0} câu</span>
-                            <span class="ml-auto">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
+                        <h3 class="font-extrabold text-black text-base mb-1 line-clamp-2">${cfg.title || exam.title || 'Đề thi'}</h3>
+                        <p class="text-xs font-bold text-neutral-600">${cfg.subject || exam.subject || 'Toán'} • ${cfg.grade || exam.grade || 'Lớp 6'}</p>
+                        <div class="flex items-center gap-3 mt-3 pt-3 border-t-2 border-black/10 text-xs font-bold text-neutral-700">
+                            <span><i data-lucide="clock" class="w-3.5 h-3.5 inline"></i> ${cfg.duration || 45} phút</span>
+                            <span><i data-lucide="list" class="w-3.5 h-3.5 inline"></i> ${exam.questions?.length || 0} câu</span>
+                            <span class="ml-auto font-mono text-[11px]">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100">
+                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t-2 border-black">
                         <a href="exam.html?code=${exam.examCode}" target="_blank"
-                            class="py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 shadow-sm text-center">
-                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Làm bài
+                            class="neo-btn neo-btn-yellow neo-btn-sm text-center">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Thi
                         </a>
                         <button onclick="printSavedExam('${exam.examCode}')"
-                            class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1" title="In hoặc xuất PDF đề thi">
-                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> In đề
+                            class="neo-btn neo-btn-white neo-btn-sm text-center" title="In hoặc xuất PDF đề thi">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> In
                         </button>
                         <button onclick="copyCode('${exam.examCode}')"
-                            class="py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1" title="Sao chép mã phòng thi">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép
+                            class="neo-btn neo-btn-mint neo-btn-sm text-center" title="Sao chép mã phòng thi">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Chép
                         </button>
                     </div>
                 </div>
@@ -1957,17 +2114,23 @@
                 document.getElementById('statAvg').textContent = avg;
                 document.getElementById('statRange').textContent = `${Math.max(...scores)} / ${Math.min(...scores)}`;
                 const pass = scores.filter(s => s >= 5).length;
-                document.getElementById('statPassRate').textContent = `${((pass / scores.length) * 100).toFixed(0)}%`;
+                const passPercent = `${((pass / scores.length) * 100).toFixed(0)}%`;
+                document.getElementById('statPassRate').textContent = passPercent;
+
+                const statAvgHero = document.getElementById('statAvgHero');
+                if (statAvgHero) statAvgHero.textContent = avg;
+                const statPassRateHero = document.getElementById('statPassRateHero');
+                if (statPassRateHero) statPassRateHero.textContent = passPercent;
 
                 // Table
                 const tbody = document.getElementById('resultsTableBody');
                 tbody.innerHTML = submissions.map(s => `
                     <tr>
-                        <td class="py-2.5 font-semibold text-slate-800">${s.studentName}</td>
-                        <td class="py-2.5 text-slate-500">${s.studentClass || '-'}</td>
-                        <td class="py-2.5"><span class="font-black text-lg ${s.score >= 5 ? 'text-emerald-600' : 'text-rose-500'}">${s.score}</span></td>
-                        <td class="py-2.5 text-slate-500">${s.correctCount || 0}/${s.totalCount || 0}</td>
-                        <td class="py-2.5 text-slate-400">${new Date(s.submittedAt).toLocaleTimeString('vi-VN')}</td>
+                        <td class="font-bold text-black">${s.studentName}</td>
+                        <td class="font-mono text-neutral-600">${s.studentClass || '-'}</td>
+                        <td><span class="neo-badge ${s.score >= 5 ? 'neo-badge-mint' : 'neo-badge-pink'} font-typewriter text-sm font-black">${s.score}</span></td>
+                        <td class="font-mono font-bold">${s.correctCount || 0}/${s.totalCount || 0}</td>
+                        <td class="font-mono text-neutral-500 text-xs">${new Date(s.submittedAt).toLocaleTimeString('vi-VN')}</td>
                     </tr>
                 `).join('');
 
@@ -1977,7 +2140,11 @@
                 document.getElementById('statAvg').textContent = '0.0';
                 document.getElementById('statRange').textContent = '0 / 0';
                 document.getElementById('statPassRate').textContent = '0%';
-                document.getElementById('resultsTableBody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400 italic">Chưa có bài nộp nào</td></tr>';
+                const statAvgHero = document.getElementById('statAvgHero');
+                if (statAvgHero) statAvgHero.textContent = '0.0';
+                const statPassRateHero = document.getElementById('statPassRateHero');
+                if (statPassRateHero) statPassRateHero.textContent = '0%';
+                document.getElementById('resultsTableBody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-neutral-400 italic">Chưa có bài nộp nào cho đề thi này</td></tr>';
             }
         }
 
