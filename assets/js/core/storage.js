@@ -266,6 +266,7 @@ const Storage = (() => {
                     title: cfg.title || examData.meta?.title || 'Đề thi',
                     subject: cfg.subject || examData.meta?.subject || 'Toán',
                     grade: cfg.grade || examData.meta?.grade || '',
+                    teacher: cfg.teacher || examData.config?.teacher || '',
                     fontClass: cfg.fontClass || examData.config?.fontClass || examData.fontClass || 'font-itim',
                     paperStyle: cfg.paperStyle || examData.config?.paperStyle || examData.paperStyle || 'grid-oly',
                     paperColor: cfg.paperColor || examData.config?.paperColor || examData.paperColor || '#FDFCF7',
