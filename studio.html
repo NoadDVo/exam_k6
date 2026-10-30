@@ -1195,13 +1195,27 @@
             const previewEmpty = document.getElementById('previewEmpty');
             const previewContainer = document.getElementById('previewContainer');
 
+            if (!content) {
+                currentParsedExam = null;
+                if (previewEmpty) previewEmpty.classList.remove('hidden');
+                if (previewContainer) previewContainer.classList.add('hidden');
+                document.getElementById('parseStatus')?.classList.add('hidden');
+                return;
+            }
+
             let examData = null;
-            if (content && typeof TexParser !== 'undefined') {
+            if (typeof TexParser !== 'undefined') {
                 try {
                     const parser = new TexParser();
                     examData = parser.parse(content);
                     currentParsedExam = examData;
-                } catch (_) {}
+                    if (examData.questions?.length > 0) {
+                        showParseStatus('success', `✅ Đang đồng bộ: ${examData.questions.length} câu hỏi`);
+                        document.getElementById('texDropZone')?.classList.add('success');
+                    }
+                } catch (err) {
+                    console.warn('[Preview] Parse error:', err);
+                }
             }
             if (!examData) {
                 examData = currentParsedExam;
@@ -1322,13 +1336,62 @@
 
         function insertTemplate(type) {
             const textarea = document.getElementById('latexInput');
-            const template = TEMPLATES[type] || '';
+            if (!textarea) return;
+
+            // 1. Tự động tính số thứ tự câu tiếp theo
+            let nextNum = 1;
+            if (currentParsedExam?.questions?.length) {
+                const maxId = Math.max(...currentParsedExam.questions.map(q => q.id || 0));
+                nextNum = maxId + 1;
+            } else {
+                const matches = textarea.value.match(/%[Cc]âu\s*(\d+)/g);
+                if (matches && matches.length) {
+                    const ids = matches.map(m => parseInt(m.replace(/[^0-9]/g, ''))).filter(n => !isNaN(n));
+                    if (ids.length) nextNum = Math.max(...ids) + 1;
+                }
+            }
+
+            let template = TEMPLATES[type] || '';
+            template = template.replace('%Câu hỏi mới', `%Câu ${nextNum}`)
+                               .replace('%Câu đúng/sai', `%Câu ${nextNum}`)
+                               .replace('%Câu trả lời ngắn', `%Câu ${nextNum}`)
+                               .replace('%Câu tự luận', `%Câu ${nextNum}`);
+
+            // 2. Chèn thông minh:
+            // - Nếu người dùng đang đặt con trỏ bên trong textarea (>0): chèn tại vị trí con trỏ
+            // - Nếu con trỏ ở đầu (hoặc textarea chưa focus): chèn vào cuối tài liệu (trước \end{document} nếu có)
+            const isFocused = document.activeElement === textarea;
             const start = textarea.selectionStart;
-            const before = textarea.value.substring(0, start);
-            const after = textarea.value.substring(start);
-            textarea.value = before + '\n' + template + after;
+            const end = textarea.selectionEnd;
+
+            if (isFocused && start > 0) {
+                const before = textarea.value.substring(0, start);
+                const after = textarea.value.substring(end);
+                textarea.value = before + '\n' + template + after;
+                textarea.selectionStart = textarea.selectionEnd = start + template.length + 1;
+            } else {
+                if (textarea.value.includes('\\end{document}')) {
+                    textarea.value = textarea.value.replace(/(\s*\\end\{document\})/, '\n\n' + template + '$1');
+                } else {
+                    const val = textarea.value.trimEnd();
+                    textarea.value = (val ? val + '\n\n' : '') + template;
+                }
+            }
+
             textarea.focus();
-            debouncePreview();
+
+            // 3. CẬP NHẬT ĐỒNG BỘ NGAY LẬP TỨC
+            updatePreview();
+
+            // 4. Cuộn preview mượt mà xuống câu vừa thêm
+            setTimeout(() => {
+                const previewPane = document.getElementById('previewPane');
+                if (previewPane) {
+                    previewPane.scrollTo({ top: previewPane.scrollHeight, behavior: 'smooth' });
+                }
+            }, 100);
+
+            showToast(`Đã thêm và đồng bộ mẫu câu hỏi ${nextNum}!`, 'success');
         }
 
         // ============================================================

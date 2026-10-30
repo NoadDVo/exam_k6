@@ -65,11 +65,23 @@ class TexRenderer {
     }
 
     // --- Nội dung từng phần ---
-    for (const section of examData.sections) {
+    const renderedQIds = new Set();
+    const sections = (examData.sections && examData.sections.length > 0) ? examData.sections : [];
+
+    for (const section of sections) {
       html += this.renderSection(section);
 
       const questions = questionsBySection[section.id] || [];
       for (const q of questions) {
+        html += this.renderQuestion(q, opts);
+        renderedQIds.add(q.id);
+      }
+    }
+
+    // Render bất kỳ câu hỏi nào còn sót chưa thuộc section nào (chống mất câu hỏi)
+    const remainingQuestions = (examData.questions || []).filter(q => !renderedQIds.has(q.id));
+    if (remainingQuestions.length > 0) {
+      for (const q of remainingQuestions) {
         html += this.renderQuestion(q, opts);
       }
     }

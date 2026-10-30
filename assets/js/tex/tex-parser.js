@@ -48,6 +48,57 @@ class TexParser {
     // Bước 4: Extract tất cả câu hỏi
     const questions = this._extractAllQuestions(cleaned, sections);
 
+    // Bước 4.1: Đảm bảo toàn bộ câu hỏi đều có section tương ứng (kể cả khi tạo nhanh từ template mẫu)
+    if (questions.length > 0) {
+      const defaultSectionDefs = {
+        'part1': {
+          id: 'part1',
+          title: 'PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn',
+          instruction: 'Mỗi câu hỏi thí sinh chỉ chọn một phương án.',
+          type: 'choice',
+          totalPoints: null
+        },
+        'part2': {
+          id: 'part2',
+          title: 'PHẦN II. Câu trắc nghiệm đúng sai',
+          instruction: 'Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.',
+          type: 'truefalse',
+          totalPoints: null
+        },
+        'part3': {
+          id: 'part3',
+          title: 'PHẦN III. Câu trắc nghiệm trả lời ngắn',
+          instruction: 'Thí sinh điền câu trả lời ngắn vào ô tương ứng.',
+          type: 'shortanswer',
+          totalPoints: null
+        },
+        'part4': {
+          id: 'part4',
+          title: 'PHẦN IV. Tự luận',
+          instruction: 'Thí sinh trình bày lời giải chi tiết.',
+          type: 'essay',
+          totalPoints: null
+        }
+      };
+
+      const existingSectionIds = new Set(sections.map(s => s.id));
+      for (const q of questions) {
+        const sId = q.sectionId || 'part1';
+        if (!existingSectionIds.has(sId)) {
+          existingSectionIds.add(sId);
+          sections.push(defaultSectionDefs[sId] || {
+            id: sId,
+            title: `Phần ${sections.length + 1}`,
+            instruction: '',
+            type: q.type || 'choice',
+            totalPoints: null
+          });
+        }
+      }
+      const order = { 'part1': 1, 'part2': 2, 'part3': 3, 'part4': 4 };
+      sections.sort((a, b) => (order[a.id] || 99) - (order[b.id] || 99));
+    }
+
     // Bước 5: Tổng hợp answer key
     const answerKey = this._buildAnswerKey(questions);
 
