@@ -802,13 +802,12 @@
                                         <th class="pb-3">Lớp</th>
                                         <th class="pb-3">Điểm</th>
                                         <th class="pb-3">Đúng/Tổng</th>
-                                        <th class="pb-3">Tin cậy</th>
                                         <th class="pb-3">Nộp lúc</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-50 text-slate-700 font-medium" id="resultsTableBody">
                                     <tr>
-                                        <td colspan="6" class="py-8 text-center text-slate-400 italic">
+                                        <td colspan="5" class="py-8 text-center text-slate-400 italic">
                                             Chọn đề thi để xem kết quả
                                         </td>
                                     </tr>
@@ -1545,7 +1544,6 @@
                         <td class="py-2.5 text-slate-500">${s.studentClass || '-'}</td>
                         <td class="py-2.5"><span class="font-black text-lg ${s.score >= 5 ? 'text-emerald-600' : 'text-rose-500'}">${s.score}</span></td>
                         <td class="py-2.5 text-slate-500">${s.correctCount || 0}/${s.totalCount || 0}</td>
-                        <td class="py-2.5 text-slate-500">${s.integrity || 100}%</td>
                         <td class="py-2.5 text-slate-400">${new Date(s.submittedAt).toLocaleTimeString('vi-VN')}</td>
                     </tr>
                 `).join('');
@@ -1556,7 +1554,7 @@
                 document.getElementById('statAvg').textContent = '0.0';
                 document.getElementById('statRange').textContent = '0 / 0';
                 document.getElementById('statPassRate').textContent = '0%';
-                document.getElementById('resultsTableBody').innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400 italic">Chưa có bài nộp nào</td></tr>';
+                document.getElementById('resultsTableBody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400 italic">Chưa có bài nộp nào</td></tr>';
             }
         }
 

@@ -24,12 +24,9 @@ const Exporter = (() => {
             'STT': idx + 1,
             'Họ và tên': s.studentName || '',
             'Lớp': s.studentClass || '',
-            'Mã học sinh': s.studentId || '',
             'Điểm': s.score ?? '',
-            'Đúng TN (câu)': s.correctCount ?? '',
-            'Tổng TN (câu)': s.totalCount ?? '',
-            'Độ tin cậy (%)': s.integrity ?? 100,
-            'Vi phạm quy chế': s.violations ?? 0,
+            'Số câu đúng': s.correctCount ?? '',
+            'Tổng số câu': s.totalCount ?? '',
             'Thời gian nộp': s.submittedAt ? new Date(s.submittedAt).toLocaleString('vi-VN') : '',
         }));
 
@@ -37,9 +34,13 @@ const Exporter = (() => {
 
         // Độ rộng cột
         ws['!cols'] = [
-            { wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 15 },
-            { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
-            { wch: 16 }, { wch: 20 },
+            { wch: 6 },  // STT
+            { wch: 26 }, // Họ và tên
+            { wch: 12 }, // Lớp
+            { wch: 10 }, // Điểm
+            { wch: 15 }, // Số câu đúng
+            { wch: 15 }, // Tổng số câu
+            { wch: 22 }, // Thời gian nộp
         ];
 
         const wb = XLSX.utils.book_new();
@@ -156,4 +157,9 @@ const Exporter = (() => {
     return { exportToExcel, printSection, exportToPng };
 })();
 
-window.Exporter = Exporter;
+if (typeof window !== 'undefined') {
+    window.Exporter = Exporter;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Exporter;
+}
