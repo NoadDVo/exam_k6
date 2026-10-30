@@ -2224,15 +2224,22 @@
 
                 // Table
                 const tbody = document.getElementById('resultsTableBody');
-                tbody.innerHTML = submissions.map(s => `
+                tbody.innerHTML = submissions.map(s => {
+                    const d = s.submittedAt ? new Date(s.submittedAt) : null;
+                    const timeStr = d ? d.toLocaleTimeString('vi-VN') : '--:--:--';
+                    const dateStr = d ? d.toLocaleDateString('vi-VN') : '';
+                    return `
                     <tr>
                         <td class="font-bold text-black">${s.studentName}</td>
                         <td class="font-mono text-neutral-600">${s.studentClass || '-'}</td>
                         <td><span class="neo-badge ${s.score >= 5 ? 'neo-badge-mint' : 'neo-badge-pink'} font-typewriter text-sm font-black">${s.score}</span></td>
                         <td class="font-mono font-bold">${s.correctCount || 0}/${s.totalCount || 0}</td>
-                        <td class="font-mono text-neutral-500 text-xs">${new Date(s.submittedAt).toLocaleTimeString('vi-VN')}</td>
+                        <td class="font-mono text-xs whitespace-nowrap">
+                            <span class="font-bold text-black">${timeStr}</span>
+                            <span class="text-neutral-500 block text-[11px] font-medium">${dateStr}</span>
+                        </td>
                     </tr>
-                `).join('');
+                `}).join('');
 
                 // Chart
                 renderGradeChart(scores);
