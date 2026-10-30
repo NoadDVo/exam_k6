@@ -94,21 +94,21 @@ const Storage = (() => {
             username: "noaddvo",
             email: "noaddvo",
             name: "Thầy NoadDVo",
-            passwordHash: "84b1983ed82ba7faefaa2d558d2d891264e5565f850f3295431d84e08e3478d8", // 402042
+            passwordHash: "84b1983ed82ba7faefaa2d558d2d891264e5565f850f3295431d84e08e3478d8",
             role: "teacher"
         },
         "lephuong_123": {
             username: "lephuong_123",
             email: "lephuong_123",
             name: "Cô Phương",
-            passwordHash: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92", // 123456
+            passwordHash: "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
             role: "teacher"
         },
         "giaovien@gmail.com": {
             username: "giaovien@gmail.com",
             email: "giaovien@gmail.com",
             name: "Giáo Viên Bộ Môn",
-            passwordHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9", // admin123
+            passwordHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
             role: "teacher"
         }
     };
