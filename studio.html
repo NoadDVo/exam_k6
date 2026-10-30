@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Itim&family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playpen+Sans:wght@300;500;700&family=Patrick+Hand&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Itim&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -619,29 +619,39 @@
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 block mb-1">Font chữ</label>
                             <select class="sidebar-select" id="fontSelect" onchange="updatePreview()">
-                                <option value="font-itim">Itim</option>
-                                <option value="font-mali">Mali</option>
-                                <option value="font-playpen">Playpen Sans</option>
-                                <option value="font-patrick">Patrick Hand</option>
-                                <option value="font-caveat">Caveat</option>
+                                <option value="font-itim">Itim (Chữ viết tay học trò)</option>
+                                <option value="font-mali">Mali (Nét tròn thanh thoát)</option>
+                                <option value="font-playpen">Playpen Sans (Tập viết THCS)</option>
+                                <option value="font-patrick">Patrick Hand (Bút dạ gọn)</option>
+                                <option value="font-caveat">Caveat (Bút máy phóng khoáng)</option>
+                                <option value="font-bevietnam">Be Vietnam Pro (Chuẩn tiếng Việt)</option>
+                                <option value="font-sans">Plus Jakarta (Chữ in hiện đại)</option>
+                                <option value="font-serif">Roboto Slab (Chữ in có chân)</option>
+                                <option value="font-comfortaa">Comfortaa (Nét tròn mềm)</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 block mb-1">Kiểu giấy</label>
                             <select class="sidebar-select" id="paperStyleSelect" onchange="updatePreview()">
-                                <option value="grid-oly">Ô ly (5 ô)</option>
-                                <option value="grid-squared">Caro toán</option>
-                                <option value="grid-dot">Chấm Dot</option>
-                                <option value="grid-lined">Kẻ ngang</option>
-                                <option value="grid-blank">Trơn (không kẻ)</option>
+                                <option value="grid-oly">Ô ly học sinh (vở 5 ô)</option>
+                                <option value="grid-squared">Caro toán học (ô vuông)</option>
+                                <option value="grid-dot">Chấm Dot Grid</option>
+                                <option value="grid-lined">Kẻ ngang (vở ghi chép)</option>
+                                <option value="grid-milimet">Kẻ mili / Tọa độ (hình học)</option>
+                                <option value="grid-double">Kẻ đôi (vở ô đôi)</option>
+                                <option value="grid-blank">Trơn (giấy trắng thi cử)</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 block mb-1">Màu giấy</label>
                             <select class="sidebar-select" id="paperColorSelect" onchange="updatePreview()">
-                                <option value="#FDFCF7">Trắng ngà</option>
-                                <option value="#F4ECD8">Sepia ấm</option>
-                                <option value="#FFFFFF">Trắng tinh</option>
+                                <option value="#FDFCF7">Trắng ngà (dịu mắt, mặc định)</option>
+                                <option value="#F4ECD8">Sepia ấm (cổ điển)</option>
+                                <option value="#FFFFFF">Trắng tinh khôi</option>
+                                <option value="#F0FDF4">Xanh bạc hà pastel</option>
+                                <option value="#EFF6FF">Xanh da trời pastel</option>
+                                <option value="#FEF9C3">Vàng kem pastel</option>
+                                <option value="#FDF2F8">Hồng phấn pastel</option>
                             </select>
                         </div>
                     </div>
@@ -690,6 +700,9 @@
                     </button>
                     <button onclick="updatePreview()" class="toolbar-btn primary">
                         <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
+                    </button>
+                    <button onclick="printExamPaper()" class="toolbar-btn" style="background: #F1F5F9; color: #334155;" title="In hoặc xuất PDF đề thi theo chuẩn trang A4">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> In / Xuất đề
                     </button>
                     <button onclick="openCreateExamModal()" class="toolbar-btn primary" style="background: linear-gradient(135deg, #10B981, #059669);">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Tạo đề thi
@@ -892,6 +905,51 @@
                             <label class="text-xs font-black text-slate-600 uppercase block mb-1">Số lần thi tối đa</label>
                             <input type="number" id="cfgAttempts" value="1"
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Cấu hình thẩm mỹ (Font, Kiểu giấy, Màu giấy) -->
+                    <div class="border-t border-slate-100 pt-3">
+                        <label class="text-xs font-black text-slate-700 uppercase block mb-2">Định dạng hiển thị & In ấn</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Font chữ</label>
+                                <select id="cfgFont" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
+                                    <option value="font-itim">Itim (Viết tay mầm)</option>
+                                    <option value="font-mali">Mali (Vui nhộn)</option>
+                                    <option value="font-playpen">Playpen (Mềm mại)</option>
+                                    <option value="font-patrick">Patrick (Viết phấn)</option>
+                                    <option value="font-caveat">Caveat (Bút mực)</option>
+                                    <option value="font-bevietnam">Be Vietnam (Chuẩn mực)</option>
+                                    <option value="font-sans">Modern Sans (Hiện đại)</option>
+                                    <option value="font-serif">Roboto Slab (Cổ điển)</option>
+                                    <option value="font-comfortaa">Comfortaa (Bo tròn)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Kiểu giấy</label>
+                                <select id="cfgPaperStyle" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
+                                    <option value="grid-oly">Ô ly tiểu học</option>
+                                    <option value="grid-squared">Kẻ ô vuông</option>
+                                    <option value="grid-dot">Chấm chấm (Dot)</option>
+                                    <option value="grid-lined">Dòng kẻ ngang</option>
+                                    <option value="grid-milimet">Giấy Milimet</option>
+                                    <option value="grid-double">Dòng kẻ đôi</option>
+                                    <option value="grid-blank">Trơn sạch</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Màu giấy</label>
+                                <select id="cfgPaperColor" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-indigo-500">
+                                    <option value="#FDFCF7">Trắng ngà (dịu mắt)</option>
+                                    <option value="#F4ECD8">Sepia ấm (cổ điển)</option>
+                                    <option value="#FFFFFF">Trắng tinh khôi</option>
+                                    <option value="#F0FDF4">Xanh bạc hà</option>
+                                    <option value="#EFF6FF">Xanh da trời</option>
+                                    <option value="#FEF9C3">Vàng kem</option>
+                                    <option value="#FDF2F8">Hồng phấn</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1541,6 +1599,14 @@
                 document.getElementById('cfgCode').value = Storage.generateExamCode();
             }
 
+            // Sync giá trị font, kiểu giấy, màu giấy từ sidebar hoặc từ config của đề hiện tại
+            const curFont = currentParsedExam?.config?.fontClass || document.getElementById('fontSelect')?.value || 'font-itim';
+            const curPaperStyle = currentParsedExam?.config?.paperStyle || document.getElementById('paperStyleSelect')?.value || 'grid-oly';
+            const curPaperColor = currentParsedExam?.config?.paperColor || document.getElementById('paperColorSelect')?.value || '#FDFCF7';
+            if (document.getElementById('cfgFont')) document.getElementById('cfgFont').value = curFont;
+            if (document.getElementById('cfgPaperStyle')) document.getElementById('cfgPaperStyle').value = curPaperStyle;
+            if (document.getElementById('cfgPaperColor')) document.getElementById('cfgPaperColor').value = curPaperColor;
+
             // Kiểm tra có data không
             const hasData = currentParsedExam && currentParsedExam.questions?.length > 0;
             document.getElementById('noDataWarning').classList.toggle('hidden', hasData);
@@ -1589,6 +1655,19 @@
             safeCopy(code, `Đã sao chép mã: ${code}`);
         }
 
+        function printExamPaper() {
+            if (!currentParsedExam) {
+                updatePreview();
+            }
+            const previewContainer = document.getElementById('previewContainer');
+            if (!previewContainer || previewContainer.classList.contains('hidden') || !previewContainer.innerHTML.trim()) {
+                showToast('Chưa có nội dung đề để in. Vui lòng tải file hoặc gõ nội dung trước!', 'warning');
+                return;
+            }
+            const title = currentParsedExam?.meta?.title || currentParsedExam?.config?.title || 'Đề thi';
+            Exporter.printSection('previewContainer', title);
+        }
+
         function executeExamCreation() {
             if (!currentParsedExam || !currentParsedExam.questions?.length) {
                 const content = document.getElementById('latexInput')?.value?.trim() || '';
@@ -1632,6 +1711,9 @@
                 showAnswers: document.getElementById('cfgShowAnswers').checked,
                 shuffleQuestions: document.getElementById('cfgShuffle').checked,
                 examCode: customCode || Storage.generateExamCode(),
+                fontClass: document.getElementById('cfgFont')?.value || document.getElementById('fontSelect')?.value || 'font-itim',
+                paperStyle: document.getElementById('cfgPaperStyle')?.value || document.getElementById('paperStyleSelect')?.value || 'grid-oly',
+                paperColor: document.getElementById('cfgPaperColor')?.value || document.getElementById('paperColorSelect')?.value || '#FDFCF7',
                 images: allImages,
             };
 
@@ -1664,30 +1746,110 @@
                 return;
             }
 
-            grid.innerHTML = exams.map(exam => `
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full font-mono">
-                            ${exam.examCode}
+            const fontNames = {
+                'font-itim': 'Itim',
+                'font-mali': 'Mali',
+                'font-playpen': 'Playpen',
+                'font-patrick': 'Patrick Hand',
+                'font-caveat': 'Caveat',
+                'font-bevietnam': 'Be Vietnam',
+                'font-sans': 'Modern Sans',
+                'font-serif': 'Roboto Slab',
+                'font-comfortaa': 'Comfortaa'
+            };
+
+            const paperNames = {
+                'grid-oly': 'Ô ly',
+                'grid-squared': 'Ô vuông',
+                'grid-dot': 'Chấm',
+                'grid-lined': 'Kẻ ngang',
+                'grid-milimet': 'Mili',
+                'grid-double': 'Kẻ đôi',
+                'grid-blank': 'Trơn'
+            };
+
+            grid.innerHTML = exams.map(exam => {
+                const cfg = exam.config || {};
+                const fontLabel = fontNames[cfg.fontClass] || 'Itim';
+                const paperLabel = paperNames[cfg.paperStyle] || 'Ô ly';
+
+                return `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full font-mono">
+                                    ${exam.examCode}
+                                </span>
+                                <span class="bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-full" title="Font & Kiểu giấy">
+                                    ${fontLabel} • ${paperLabel}
+                                </span>
+                            </div>
+                            <button onclick="deleteExam('${exam.examCode}')" class="text-slate-300 hover:text-rose-400 transition-colors" title="Xóa đề">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
                         </div>
-                        <button onclick="deleteExam('${exam.examCode}')" class="text-slate-300 hover:text-rose-400 transition-colors">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${cfg.title || exam.title || 'Đề thi'}</h3>
+                        <p class="text-xs text-slate-400">${cfg.subject || exam.subject || 'Toán'} • ${cfg.grade || exam.grade || 'Lớp 6'}</p>
+                        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 font-medium">
+                            <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${cfg.duration || 45} phút</span>
+                            <span><i data-lucide="list" class="w-3 h-3 inline"></i> ${exam.questions?.length || 0} câu</span>
+                            <span class="ml-auto">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100">
+                        <a href="exam.html?code=${exam.examCode}" target="_blank"
+                            class="py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 shadow-sm text-center">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Làm bài
+                        </a>
+                        <button onclick="printSavedExam('${exam.examCode}')"
+                            class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1" title="In hoặc xuất PDF đề thi">
+                            <i data-lucide="printer" class="w-3.5 h-3.5"></i> In đề
+                        </button>
+                        <button onclick="copyCode('${exam.examCode}')"
+                            class="py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1" title="Sao chép mã phòng thi">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép
                         </button>
                     </div>
-                    <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${exam.config?.title || exam.title || 'Đề thi'}</h3>
-                    <p class="text-xs text-slate-400">${exam.config?.subject || exam.subject || 'Toán'} • ${exam.config?.grade || exam.grade || 'Lớp 6'}</p>
-                    <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 font-medium">
-                        <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${exam.config?.duration || 45} phút</span>
-                        <span><i data-lucide="list" class="w-3 h-3 inline"></i> ${exam.questions?.length || 0} câu</span>
-                        <span class="ml-auto">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
-                    </div>
-                    <button onclick="copyCode('${exam.examCode}')"
-                        class="w-full mt-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã đề
-                    </button>
                 </div>
-            `).join('');
+            `}).join('');
             lucide.createIcons();
+        }
+
+        function printSavedExam(code) {
+            const exam = Storage.Exams.get(code);
+            if (!exam) {
+                showToast('Không tìm thấy đề thi!', 'error');
+                return;
+            }
+            if (typeof TexRenderer === 'undefined') {
+                showToast('Chưa nạp bộ dựng TexRenderer!', 'error');
+                return;
+            }
+            const config = exam.config || {};
+            const renderer = new TexRenderer();
+            const html = renderer.renderExam(exam, {
+                mode: 'preview',
+                showAnswers: false,
+                showSolutions: false,
+                fontClass: config.fontClass || 'font-itim',
+                paperStyle: config.paperStyle || 'grid-oly',
+                paperColor: config.paperColor || '#FDFCF7',
+                images: config.images || exam.images || {}
+            });
+
+            let hiddenContainer = document.getElementById('hiddenPrintContainer');
+            if (!hiddenContainer) {
+                hiddenContainer = document.createElement('div');
+                hiddenContainer.id = 'hiddenPrintContainer';
+                hiddenContainer.className = 'hidden';
+                document.body.appendChild(hiddenContainer);
+            }
+            hiddenContainer.innerHTML = html;
+            if (typeof KatexRenderer !== 'undefined') {
+                KatexRenderer.renderAll(hiddenContainer);
+            }
+            Exporter.printSection('hiddenPrintContainer', config.title || exam.title || 'Đề thi');
         }
 
         function deleteExam(code) {

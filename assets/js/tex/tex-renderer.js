@@ -22,6 +22,7 @@ class TexRenderer {
       showHeader:    false,     // Không hiện tiêu đề trường/đề/thông tin HS, bắt đầu thẳng từ Phần 1
       paperStyle:    'grid-oly',// Kiểu giấy (dùng trong paper.css)
       fontClass:     'font-itim',// Font chữ
+      paperColor:    '#FDFCF7',  // Màu giấy nền
       imageBasePath: '',        // Đường dẫn gốc cho hình ảnh
     };
 
@@ -40,9 +41,13 @@ class TexRenderer {
    * @returns {string} HTML string hoàn chỉnh
    */
   renderExam(examData, options = {}) {
+    const cfg = examData?.config || {};
     const opts = {
       ...this._defaultOptions,
-      images: { ...(examData?.images || {}), ...(options.images || {}) },
+      paperStyle: cfg.paperStyle || this._defaultOptions.paperStyle,
+      fontClass:  cfg.fontClass  || this._defaultOptions.fontClass,
+      paperColor: cfg.paperColor || this._defaultOptions.paperColor,
+      images: { ...(examData?.images || {}), ...(cfg.images || {}), ...(options.images || {}) },
       ...options
     };
 

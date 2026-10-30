@@ -78,7 +78,7 @@ const Exporter = (() => {
      * In trang hiện tại (dùng browser print)
      * @param {string} containerId - ID của vùng cần in
      */
-    const printSection = (containerId) => {
+    const printSection = (containerId, customTitle = 'Đề thi') => {
         const content = document.getElementById(containerId);
         if (!content) return;
 
@@ -88,14 +88,30 @@ const Exporter = (() => {
             <html lang="vi">
             <head>
                 <meta charset="UTF-8">
-                <title>In đề thi</title>
+                <base href="${window.location.href}">
+                <title>${customTitle}</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Itim&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Slab:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <link rel="stylesheet" href="assets/css/main.css">
+                <link rel="stylesheet" href="assets/css/components.css">
+                <link rel="stylesheet" href="assets/css/paper.css">
                 <style>
-                    body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 20px; }
-                    @media print { body { margin: 0; } }
-                    .solution-box { display: none !important; }
-                    .choice-item.correct { background: transparent !important; border-color: transparent !important; }
+                    body {
+                        margin: 0;
+                        padding: 16px;
+                        background: #F1F5F9;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    @media print {
+                        body {
+                            background: transparent !important;
+                            padding: 0 !important;
+                        }
+                        .solution-box, .no-print { display: none !important; }
+                    }
                 </style>
             </head>
             <body>
@@ -105,8 +121,8 @@ const Exporter = (() => {
         `);
         printWindow.document.close();
         setTimeout(() => {
+            printWindow.focus();
             printWindow.print();
-            printWindow.close();
         }, 800);
     };
 

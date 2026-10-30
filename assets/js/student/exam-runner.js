@@ -97,12 +97,16 @@ const ExamRunner = (() => {
     if (!container) return;
 
     const renderer = new TexRenderer();
+    const cfg = examData.config || {};
     container.innerHTML = renderer.renderExam(examData, {
       mode: 'exam',
       showAnswers: false,
       showSolutions: false,
-      paperStyle: 'grid-oly',
-      imageBasePath: 'images'
+      fontClass: cfg.fontClass || examData.fontClass || 'font-itim',
+      paperStyle: cfg.paperStyle || examData.paperStyle || 'grid-oly',
+      paperColor: cfg.paperColor || examData.paperColor || '#FDFCF7',
+      imageBasePath: 'images',
+      images: examData.images || {}
     });
 
     // Thêm hình mờ bảo mật chống chụp ảnh camera vật lý

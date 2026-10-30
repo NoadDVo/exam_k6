@@ -231,6 +231,9 @@ const Storage = (() => {
             return null;
         },
 
+        /** Alias cho getByCode */
+        get: (examCode) => Exams.getByCode(examCode),
+
         /**
          * Lưu đề thi mới
          * @param {Object} examData - Dữ liệu đề thi từ TexParser
@@ -263,6 +266,9 @@ const Storage = (() => {
                     title: cfg.title || examData.meta?.title || 'Đề thi',
                     subject: cfg.subject || examData.meta?.subject || 'Toán',
                     grade: cfg.grade || examData.meta?.grade || '',
+                    fontClass: cfg.fontClass || examData.config?.fontClass || examData.fontClass || 'font-itim',
+                    paperStyle: cfg.paperStyle || examData.config?.paperStyle || examData.paperStyle || 'grid-oly',
+                    paperColor: cfg.paperColor || examData.config?.paperColor || examData.paperColor || '#FDFCF7',
                 },
                 createdAt: examData.createdAt || new Date().toISOString(),
                 createdBy: examData.createdBy || Auth.getCurrentUser()?.email || 'anonymous',
