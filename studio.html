@@ -118,12 +118,13 @@
         }
 
         .studio-sidebar.collapsed {
-            width: 0;
-            min-width: 0;
+            width: 0 !important;
+            min-width: 0 !important;
             opacity: 0;
             pointer-events: none;
-            padding: 0;
+            padding: 0 !important;
             overflow: hidden;
+            border-right: none;
         }
 
         .sidebar-section-title {
@@ -165,11 +166,12 @@
         }
 
         .editor-pane.collapsed {
-            width: 0;
-            min-width: 0;
+            width: 0 !important;
+            min-width: 0 !important;
             opacity: 0;
             pointer-events: none;
             overflow: hidden;
+            border-right: none;
         }
 
         .editor-header {
@@ -540,6 +542,16 @@
             </button>
         </div>
 
+        <!-- Studio Panel Toggles (Luôn hiển thị ở Top Navbar để mở lại khi đã ẩn) -->
+        <div id="navStudioToggles" class="hidden sm:flex items-center gap-1.5 ml-2 border-l-2 border-black/20 pl-2">
+            <button onclick="toggleSidebar()" id="btnNavToggleSidebar" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn / Hiện Cài đặt đề thi (Sidebar trái - Alt+S)">
+                <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="toggleEditor()" id="btnNavToggleEditor" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn / Hiện Khung Soạn thảo LaTeX (Alt+E)">
+                <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+
         <!-- Search Bar (matching reference image) -->
         <div class="hidden md:flex items-center flex-1 max-w-sm mx-4">
             <div class="relative w-full">
@@ -581,7 +593,19 @@
         <!-- ============================================================
              SUBVIEW 1: STUDIO (Soạn thảo + Preview)
         ============================================================ -->
-        <div id="subviewStudio" class="w-full h-full flex overflow-hidden">
+        <div id="subviewStudio" class="w-full h-full flex overflow-hidden relative">
+
+            <!-- Floating Restore Controls (Xuất hiện khi Sidebar hoặc Editor bị ẩn) -->
+            <div id="floatingRestoreControls" class="absolute top-3 left-3 z-30 hidden items-center gap-2 pointer-events-auto">
+                <button onclick="toggleSidebar()" id="floatBtnRestoreSidebar" class="neo-btn neo-btn-sm neo-btn-white shadow-[3px_3px_0px_#000] hidden items-center gap-1.5 transition-all" title="Bấm để hiện lại Sidebar Cài đặt (Alt+S)">
+                    <i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>
+                    <span class="font-bold text-xs">Hiện Cài đặt</span>
+                </button>
+                <button onclick="toggleEditor()" id="floatBtnRestoreEditor" class="neo-btn neo-btn-sm neo-btn-yellow shadow-[3px_3px_0px_#000] hidden items-center gap-1.5 transition-all" title="Bấm để hiện lại Khung Soạn thảo LaTeX (Alt+E)">
+                    <i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>
+                    <span class="font-bold text-xs">Hiện Soạn thảo</span>
+                </button>
+            </div>
 
             <!-- SIDEBAR: Tùy chỉnh thẩm mỹ (Mint Background) -->
             <aside class="studio-sidebar" id="studioSidebar">
@@ -701,10 +725,10 @@
             <div class="editor-pane" id="editorPane">
                 <!-- Toolbar -->
                 <div class="editor-toolbar">
-                    <button onclick="toggleSidebar()" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn/hiện sidebar">
+                    <button onclick="toggleSidebar()" id="toolbarBtnSidebar" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn/hiện Sidebar cài đặt (Alt+S)">
                         <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button onclick="toggleEditor()" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn editor">
+                    <button onclick="toggleEditor()" id="toolbarBtnEditor" class="neo-btn neo-btn-sm neo-btn-white neo-btn-icon" title="Ẩn khung Soạn thảo (Alt+E)">
                         <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
                     </button>
                     <div class="w-px h-5 bg-black/20 mx-1"></div>
@@ -1222,6 +1246,7 @@
             loadExamList();
             loadStatsExamOptions();
             renderUploadedImagesList();
+            updatePanelToggleUI();
         }
 
         function handleLogout() {
@@ -1241,22 +1266,150 @@
             document.getElementById(viewId).classList.remove('hidden');
             document.getElementById(`tab${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
 
+            const navToggles = document.getElementById('navStudioToggles');
+            if (navToggles) {
+                if (view === 'studio') {
+                    navToggles.classList.remove('hidden');
+                    navToggles.classList.add('hidden', 'sm:flex');
+                } else {
+                    navToggles.classList.remove('sm:flex');
+                    navToggles.classList.add('hidden');
+                }
+            }
+
             if (view === 'exams') loadExamList();
             if (view === 'stats') loadStatsExamOptions();
         }
 
         // ============================================================
-        // SIDEBAR & EDITOR TOGGLE
+        // SIDEBAR & EDITOR TOGGLE (VỚI GIAO DIỆN MỞ LẠI LINH HOẠT)
         // ============================================================
+        function updatePanelToggleUI() {
+            const sidebar = document.getElementById('studioSidebar');
+            const editor = document.getElementById('editorPane');
+            const isSidebarCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
+            const isEditorCollapsed = editor ? editor.classList.contains('collapsed') : false;
+
+            // 1. Nút nổi khôi phục (Floating Restore Controls) ở góc trên bên trái khu vực làm việc
+            const floatSidebar = document.getElementById('floatBtnRestoreSidebar');
+            const floatEditor = document.getElementById('floatBtnRestoreEditor');
+            const floatContainer = document.getElementById('floatingRestoreControls');
+
+            if (floatSidebar) {
+                if (isSidebarCollapsed) {
+                    floatSidebar.classList.remove('hidden');
+                    floatSidebar.classList.add('inline-flex');
+                } else {
+                    floatSidebar.classList.add('hidden');
+                    floatSidebar.classList.remove('inline-flex');
+                }
+            }
+
+            if (floatEditor) {
+                if (isEditorCollapsed) {
+                    floatEditor.classList.remove('hidden');
+                    floatEditor.classList.add('inline-flex');
+                } else {
+                    floatEditor.classList.add('hidden');
+                    floatEditor.classList.remove('inline-flex');
+                }
+            }
+
+            if (floatContainer) {
+                if (isSidebarCollapsed || isEditorCollapsed) {
+                    floatContainer.classList.remove('hidden');
+                    floatContainer.classList.add('flex');
+                } else {
+                    floatContainer.classList.add('hidden');
+                    floatContainer.classList.remove('flex');
+                }
+            }
+
+            // 2. Nút điều khiển cố định trên Top Navbar (luôn hiển thị, không bao giờ bị biến mất)
+            const navBtnSidebar = document.getElementById('btnNavToggleSidebar');
+            const navBtnEditor = document.getElementById('btnNavToggleEditor');
+
+            if (navBtnSidebar) {
+                if (isSidebarCollapsed) {
+                    navBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-mint neo-btn-icon';
+                    navBtnSidebar.title = 'Bấm để hiện lại Sidebar Cài đặt (Alt+S)';
+                    navBtnSidebar.innerHTML = '<i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>';
+                } else {
+                    navBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-white neo-btn-icon';
+                    navBtnSidebar.title = 'Ẩn Sidebar Cài đặt (Alt+S)';
+                    navBtnSidebar.innerHTML = '<i data-lucide="panel-left" class="w-3.5 h-3.5"></i>';
+                }
+            }
+
+            if (navBtnEditor) {
+                if (isEditorCollapsed) {
+                    navBtnEditor.className = 'neo-btn neo-btn-sm neo-btn-yellow neo-btn-icon';
+                    navBtnEditor.title = 'Bấm để hiện lại Soạn thảo LaTeX (Alt+E)';
+                    navBtnEditor.innerHTML = '<i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>';
+                } else {
+                    navBtnEditor.className = 'neo-btn neo-btn-sm neo-btn-white neo-btn-icon';
+                    navBtnEditor.title = 'Ẩn Soạn thảo LaTeX (Alt+E)';
+                    navBtnEditor.innerHTML = '<i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>';
+                }
+            }
+
+            // 3. Nút Sidebar trên thanh công cụ Editor
+            const toolbarBtnSidebar = document.getElementById('toolbarBtnSidebar');
+            if (toolbarBtnSidebar) {
+                if (isSidebarCollapsed) {
+                    toolbarBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-mint neo-btn-icon';
+                    toolbarBtnSidebar.title = 'Bấm để hiện lại Sidebar Cài đặt (Alt+S)';
+                    toolbarBtnSidebar.innerHTML = '<i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>';
+                } else {
+                    toolbarBtnSidebar.className = 'neo-btn neo-btn-sm neo-btn-white neo-btn-icon';
+                    toolbarBtnSidebar.title = 'Ẩn Sidebar Cài đặt (Alt+S)';
+                    toolbarBtnSidebar.innerHTML = '<i data-lucide="panel-left" class="w-3.5 h-3.5"></i>';
+                }
+            }
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
         function toggleSidebar() {
-            const sidebar = document.getElementById('studioSidebar') || document.getElementById('studiaSidebar');
-            if (sidebar) sidebar.classList.toggle('collapsed');
+            const sidebar = document.getElementById('studioSidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                showToast(isCollapsed ? 'Đã ẩn Sidebar Cài đặt' : 'Đã hiện Sidebar Cài đặt', 'info');
+            }
+            updatePanelToggleUI();
         }
 
         function toggleEditor() {
-            document.getElementById('editorPane').classList.toggle('collapsed');
-            document.getElementById('dragSplitter').classList.toggle('collapsed');
+            const editor = document.getElementById('editorPane');
+            const splitter = document.getElementById('dragSplitter');
+            if (editor) {
+                editor.classList.toggle('collapsed');
+                if (splitter) splitter.classList.toggle('collapsed');
+                const isCollapsed = editor.classList.contains('collapsed');
+                if (!isCollapsed) {
+                    // Đảm bảo độ rộng không bị kẹt khi mở lại
+                    if (editor.style.width && parseInt(editor.style.width) < 250) {
+                        editor.style.width = '42%';
+                    }
+                }
+                showToast(isCollapsed ? 'Đã ẩn Editor (Toàn màn hình Preview)' : 'Đã hiện lại khung Soạn thảo LaTeX', 'info');
+            }
+            updatePanelToggleUI();
         }
+
+        // Phím tắt bàn phím: Alt+E (Soạn thảo) và Alt+S (Cài đặt)
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && (e.key === 'e' || e.key === 'E')) {
+                e.preventDefault();
+                toggleEditor();
+            } else if (e.altKey && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                toggleSidebar();
+            }
+        });
 
         // ============================================================
         // TEX FILE UPLOAD
