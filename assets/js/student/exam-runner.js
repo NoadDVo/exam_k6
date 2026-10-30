@@ -106,11 +106,9 @@ const ExamRunner = (() => {
   const startExamFromEntry = () => {
     const nameInput = document.getElementById('entryStudentName');
     const classInput = document.getElementById('entryStudentClass');
-    const idInput = document.getElementById('entryStudentId');
 
     const name = nameInput ? nameInput.value.trim() : '';
     const cls = classInput ? classInput.value.trim() : '';
-    const sbd = idInput ? idInput.value.trim() : '';
 
     if (!name) {
       alert('Vui lòng nhập Họ và tên thí sinh!');
@@ -129,7 +127,7 @@ const ExamRunner = (() => {
       examCode: examData.examCode,
       studentName: name,
       studentClass: cls,
-      studentId: sbd || `HS_${Date.now().toString().slice(-4)}`,
+      studentId: `HS_${Date.now().toString().slice(-4)}`,
       startTime: new Date().toISOString()
     };
     Storage.StudentSession.save(session);

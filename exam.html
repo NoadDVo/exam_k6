@@ -259,31 +259,14 @@
                         onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
-                            Lớp <span class="text-rose-600">*</span>
-                        </label>
-                        <input type="text" id="entryStudentClass" class="neo-input"
-                            placeholder="Ví dụ: 6A1"
-                            autocomplete="off"
-                            onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
-                    </div>
-                    <div>
-                        <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
-                            Số báo danh <span class="text-[10px] text-neutral-500 font-normal lowercase">(tùy chọn)</span>
-                        </label>
-                        <input type="text" id="entryStudentId" class="neo-input"
-                            placeholder="Ví dụ: SBD-01"
-                            autocomplete="off"
-                            onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
-                    </div>
-                </div>
-
-                <!-- Info note -->
-                <div class="p-3 bg-[#EFF6FF] border-2 border-black rounded-xl text-[11px] font-bold text-neutral-800 flex items-start gap-2 shadow-[2px_2px_0px_#000]">
-                    <i data-lucide="shield-alert" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
-                    <span>Khi nhấn Bắt Đầu, hệ thống sẽ tính giờ làm bài và bật chế độ chống gian lận. Kết quả thi sẽ gửi về giáo viên.</span>
+                <div>
+                    <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">
+                        Lớp <span class="text-rose-600">*</span>
+                    </label>
+                    <input type="text" id="entryStudentClass" class="neo-input"
+                        placeholder="Ví dụ: 6A1"
+                        autocomplete="off"
+                        onkeydown="if(event.key==='Enter') ExamRunner.startExamFromEntry()">
                 </div>
             </div>
 
