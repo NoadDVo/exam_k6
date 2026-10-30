@@ -128,10 +128,10 @@ class TexParser {
     const deMatch = tex.match(/\(ĐỀ\s*(\d+)\)/i);
     if (deMatch) meta.examNumber = deMatch[1];
 
-    // ----- Tiêu đề đề thi (dòng \textbf lớn nhất trong minipage thứ 2) -----
-    const titleMatch = tex.match(
-      /\\begin\{minipage\}[^}]*\}\s*\\textbf\{(ĐỀ[^}]+)\}/i
-    );
+    // ----- Tiêu đề đề thi (dòng \textbf lớn nhất trong minipage thứ 2 hoặc chứa ĐỀ KIỂM TRA) -----
+    const titleMatch = tex.match(/\\textbf\{(ĐỀ\s+KIỂM\s+TRA[^}]+)\}/i) ||
+                       tex.match(/\\begin\{minipage\}[^}]*\}[\s\S]*?\\textbf\{(ĐỀ[^}]+)\}/i) ||
+                       tex.match(/\\textbf\{(ĐỀ[^}]+)\}/i);
     if (titleMatch) {
       meta.title = this._cleanText(titleMatch[1]);
     }
@@ -141,7 +141,7 @@ class TexParser {
     if (yearMatch) meta.year = yearMatch[1].trim();
 
     // ----- Môn và lớp -----
-    const monMatch = tex.match(/Môn:\s*([^-–—]+)[-–—]\s*Lớp\s*(\S+)/i);
+    const monMatch = tex.match(/Môn:\s*([^-–—\\]+)[-–—]+\s*Lớp\s*([^\\}\s]+)/i);
     if (monMatch) {
       meta.subject = monMatch[1].trim();
       meta.grade   = `Lớp ${monMatch[2].trim()}`;

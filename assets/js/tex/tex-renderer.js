@@ -45,7 +45,9 @@ class TexRenderer {
     // Nhóm câu hỏi theo section để render tuần tự
     const questionsBySection = this._groupBySection(examData.questions);
 
-    let html = `<div class="exam-paper ${opts.paperStyle} ${opts.fontClass}" data-exam-code="${examData.meta.examCode}">`;
+    const bgStyle = opts.paperColor ? `style="background-color: ${opts.paperColor};"` : '';
+    const examCode = examData?.meta?.examCode || examData?.examCode || '';
+    let html = `<div class="exam-paper ${opts.paperStyle} ${opts.fontClass}" ${bgStyle} data-exam-code="${examCode}">`;
 
     // --- Header & Thông tin học sinh (chỉ render nếu showHeader được bật) ---
     if (opts.showHeader) {

@@ -129,7 +129,7 @@ const Storage = (() => {
          */
         syncWithJson: async () => {
             try {
-                const res = await fetch('/data/teachers.json');
+                const res = await fetch('data/teachers.json');
                 if (res.ok) {
                     const list = await res.json();
                     const current = Auth.getTeachers();
@@ -287,11 +287,27 @@ const Storage = (() => {
          */
         getMyExams: () => {
             const user = Auth.getCurrentUser();
-            if (!user) return [];
             const exams = Exams.getAll();
-            return Object.values(exams)
-                .filter(e => e.createdBy === user.email)
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            let list = Object.values(exams);
+
+            // Nếu chưa có đề nào trong LocalStorage, nạp sẵn đề mẫu 123456
+            if (list.length === 0 && typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
+                const def = window.__DEFAULT_EXAM__;
+                const defaultExam = {
+                    ...def,
+                    examCode: '123456',
+                    createdBy: user?.email || 'giaovien@gmail.com',
+                    createdAt: def.createdAt || new Date().toISOString()
+                };
+                exams['123456'] = defaultExam;
+                set(KEYS.EXAMS, exams);
+                list = [defaultExam];
+            }
+
+            if (!user) return list;
+            return list
+                .filter(e => !e.createdBy || e.createdBy.toLowerCase() === user.email.toLowerCase() || user.role === 'admin' || user.email === 'admin@school.edu.vn')
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         },
     };
 

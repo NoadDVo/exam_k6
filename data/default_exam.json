@@ -1,9 +1,9 @@
 {
   "meta": {
-    "examCode": "237200",
-    "title": "",
-    "subject": "",
-    "grade": "",
+    "examCode": "123456",
+    "title": "ĐỀ KIỂM TRA GIỮA HỌC KÌ I",
+    "subject": "TOÁN",
+    "grade": "Lớp 6",
     "year": "2026 -- 2027",
     "duration": 90,
     "school": "TRƯỜNG THCS \\dots\\dots\\dots\\dots\\dots\\dots",
@@ -619,8 +619,8 @@
   },
   "examCode": "123456",
   "config": {
-    "title": "Kiểm tra giữa học kỳ I - Toán 6",
-    "duration": 45,
+    "title": "ĐỀ KIỂM TRA GIỮA HỌC KÌ I",
+    "duration": 90,
     "maxAttempts": 1,
     "showScore": true,
     "showAnswers": true,
@@ -629,5 +629,5 @@
     "grade": "Lớp 6"
   },
   "isActive": true,
-  "createdAt": "2026-10-29T18:30:45.951Z"
+  "createdAt": "2026-10-30T00:00:00.000Z"
 }

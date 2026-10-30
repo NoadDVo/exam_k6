@@ -211,6 +211,10 @@
             background: var(--primary);
         }
 
+        .drag-splitter.collapsed {
+            display: none;
+        }
+
         /* ==== PREVIEW PANE ==== */
         .preview-pane {
             flex: 1;
@@ -564,7 +568,7 @@
         <div id="subviewStudio" class="w-full h-full flex overflow-hidden">
 
             <!-- SIDEBAR: Tùy chỉnh thẩm mỹ -->
-            <aside class="studio-sidebar" id="studiaSidebar">
+            <aside class="studio-sidebar" id="studioSidebar">
 
                 <!-- Upload .tex (TÍNH NĂNG CHÍNH) -->
                 <div>
@@ -980,6 +984,22 @@
                 setTimeout(updatePreview, 100);
             }
 
+            // Tự động nạp mã nguồn de1.tex vào editor nếu editor chưa có chữ
+            const editorEl = document.getElementById('latexInput');
+            if (editorEl && !editorEl.value.trim()) {
+                fetch('de1.tex')
+                    .then(r => r.ok ? r.text() : '')
+                    .then(tex => {
+                        if (tex && editorEl && !editorEl.value.trim()) {
+                            editorEl.value = tex;
+                            document.getElementById('texFileName').textContent = 'de1.tex (Mặc định)';
+                            document.getElementById('texDropZone')?.classList.add('success');
+                            showParseStatus('success', '✅ Đề mẫu Toán 6 sẵn sàng!');
+                        }
+                    })
+                    .catch(() => {});
+            }
+
             // Load danh sách đề thi
             loadExamList();
             loadStatsExamOptions();
@@ -1010,7 +1030,8 @@
         // SIDEBAR & EDITOR TOGGLE
         // ============================================================
         function toggleSidebar() {
-            document.getElementById('studiaSidebar').classList.toggle('collapsed');
+            const sidebar = document.getElementById('studioSidebar') || document.getElementById('studiaSidebar');
+            if (sidebar) sidebar.classList.toggle('collapsed');
         }
 
         function toggleEditor() {
@@ -1105,12 +1126,16 @@
             const previewEmpty = document.getElementById('previewEmpty');
             const previewContainer = document.getElementById('previewContainer');
 
-            let examData = currentParsedExam;
-            if (!examData && content && typeof TexParser !== 'undefined') {
+            let examData = null;
+            if (content && typeof TexParser !== 'undefined') {
                 try {
                     const parser = new TexParser();
                     examData = parser.parse(content);
+                    currentParsedExam = examData;
                 } catch (_) {}
+            }
+            if (!examData) {
+                examData = currentParsedExam;
             }
 
             if (!examData) {
@@ -1121,7 +1146,8 @@
 
             if (previewEmpty) previewEmpty.classList.add('hidden');
             if (previewContainer) previewContainer.classList.remove('hidden');
-
+            if (typeof TexRenderer !== 'undefined') {
+                try {
                     const fontClass = document.getElementById('fontSelect')?.value || 'font-itim';
                     const paperStyle = document.getElementById('paperStyleSelect')?.value || 'grid-oly';
                     const paperColor = document.getElementById('paperColorSelect')?.value || '#FDFCF7';
@@ -1134,18 +1160,17 @@
                         fontClass,
                         paperStyle,
                         paperColor,
+                        imageBasePath: 'images'
                     });
                     previewContainer.innerHTML = html;
 
                     // Render KaTeX
                     KatexRenderer.renderAll(previewContainer);
                 } catch(e) {
-                    // Fallback: hiển thị raw với KaTeX
-                    previewContainer.innerHTML = `<div class="paper-a4"><pre class="text-xs text-slate-500 whitespace-pre-wrap">${content}</pre></div>`;
+                    previewContainer.innerHTML = `<div class="paper-a4 text-rose-500 font-bold p-4">Lỗi hiển thị đề thi: ${e.message}</div>`;
                     console.warn('[Preview] Lỗi render:', e);
                 }
             } else {
-                // Fallback nếu parser chưa load
                 previewContainer.innerHTML = `<div class="paper-a4 text-sm text-slate-600 whitespace-pre-wrap font-mono">${content}</div>`;
             }
 
@@ -1300,6 +1325,20 @@
         // CREATE EXAM MODAL
         // ============================================================
         function openCreateExamModal() {
+            // Đảm bảo parse dữ liệu mới nhất từ editor nếu có
+            if (!currentParsedExam) {
+                const content = document.getElementById('latexInput')?.value?.trim() || '';
+                if (content && typeof TexParser !== 'undefined') {
+                    try {
+                        const parser = new TexParser();
+                        currentParsedExam = parser.parse(content);
+                    } catch (_) {}
+                }
+            }
+            if (!currentParsedExam && typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
+                currentParsedExam = window.__DEFAULT_EXAM__;
+            }
+
             document.getElementById('createExamModal').classList.remove('hidden');
 
             // Pre-fill từ dữ liệu đã parse
@@ -1331,14 +1370,55 @@
             document.getElementById('examCodeModal').classList.add('hidden');
         }
 
+        function safeCopy(text, successMsg = 'Đã sao chép!') {
+            const doFallback = () => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(successMsg, 'success');
+                } catch (_) {
+                    showToast(`Mã: ${text}`, 'info');
+                }
+                document.body.removeChild(ta);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast(successMsg, 'success'))
+                    .catch(() => doFallback());
+            } else {
+                doFallback();
+            }
+        }
+
         function copyExamCode() {
             const code = document.getElementById('newExamCode').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                showToast(`Đã sao chép mã: ${code}`, 'success');
-            });
+            safeCopy(code, `Đã sao chép mã: ${code}`);
         }
 
         function executeExamCreation() {
+            if (!currentParsedExam || !currentParsedExam.questions?.length) {
+                const content = document.getElementById('latexInput')?.value?.trim() || '';
+                if (content && typeof TexParser !== 'undefined') {
+                    try {
+                        const parser = new TexParser();
+                        currentParsedExam = parser.parse(content);
+                    } catch (err) {
+                        showToast(`Lỗi phân tích LaTeX: ${err.message}`, 'error');
+                        return;
+                    }
+                }
+            }
+            if (!currentParsedExam || !currentParsedExam.questions?.length) {
+                if (typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
+                    currentParsedExam = window.__DEFAULT_EXAM__;
+                }
+            }
             if (!currentParsedExam || !currentParsedExam.questions?.length) {
                 showToast('Chưa có nội dung đề thi! Hãy tải file .tex trước.', 'error');
                 return;
@@ -1365,6 +1445,7 @@
                 lucide.createIcons();
                 showToast(`Đã tạo đề thi: ${result.examCode}`, 'success');
                 loadExamList();
+                loadStatsExamOptions();
             }
         }
 
@@ -1395,12 +1476,12 @@
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${exam.config.title}</h3>
-                    <p class="text-xs text-slate-400">${exam.config.subject} • ${exam.config.grade}</p>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1 line-clamp-2">${exam.config?.title || exam.title || 'Đề thi'}</h3>
+                    <p class="text-xs text-slate-400">${exam.config?.subject || exam.subject || 'Toán'} • ${exam.config?.grade || exam.grade || 'Lớp 6'}</p>
                     <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 font-medium">
-                        <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${exam.config.duration} phút</span>
+                        <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${exam.config?.duration || 45} phút</span>
                         <span><i data-lucide="list" class="w-3 h-3 inline"></i> ${exam.questions?.length || 0} câu</span>
-                        <span class="ml-auto">${new Date(exam.createdAt).toLocaleDateString('vi-VN')}</span>
+                        <span class="ml-auto">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
                     </div>
                     <button onclick="copyCode('${exam.examCode}')"
                         class="w-full mt-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5">
@@ -1415,12 +1496,13 @@
             if (confirm(`Xóa đề thi ${code}?`)) {
                 Storage.Exams.delete(code);
                 loadExamList();
+                loadStatsExamOptions();
                 showToast(`Đã xóa đề thi ${code}`, 'success');
             }
         }
 
         function copyCode(code) {
-            navigator.clipboard.writeText(code).then(() => showToast(`Đã sao chép: ${code}`, 'success'));
+            safeCopy(code, `Đã sao chép: ${code}`);
         }
 
         // ============================================================
@@ -1429,8 +1511,16 @@
         function loadStatsExamOptions() {
             const exams = Storage.Exams.getMyExams();
             const select = document.getElementById('statsExamSelect');
+            if (!select) return;
+            const currentVal = select.value;
             select.innerHTML = '<option value="">-- Chọn đề thi --</option>' +
-                exams.map(e => `<option value="${e.examCode}">${e.examCode}: ${e.config.title}</option>`).join('');
+                exams.map(e => `<option value="${e.examCode}">${e.examCode}: ${e.config?.title || e.title || 'Đề thi'}</option>`).join('');
+            if (currentVal && exams.some(e => e.examCode === currentVal)) {
+                select.value = currentVal;
+            } else if (exams.length > 0 && !currentVal) {
+                select.value = exams[0].examCode;
+                loadStats(exams[0].examCode);
+            }
         }
 
         function loadStats(examCode) {
