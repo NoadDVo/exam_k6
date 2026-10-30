@@ -1,23 +1,26 @@
 [
   {
+    "username": "noaddvo",
+    "email": "noaddvo",
+    "name": "Thầy NoadDVo",
+    "passwordHash": "84b1983ed82ba7faefaa2d558d2d891264e5565f850f3295431d84e08e3478d8",
+    "role": "teacher",
+    "note": "Mật khẩu: 402042"
+  },
+  {
+    "username": "lephuong_123",
+    "email": "lephuong_123",
+    "name": "Cô Phương",
+    "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "role": "teacher",
+    "note": "Mật khẩu: 123456"
+  },
+  {
+    "username": "giaovien@gmail.com",
     "email": "giaovien@gmail.com",
     "name": "Giáo Viên Bộ Môn",
     "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
     "role": "teacher",
     "note": "Mật khẩu mặc định: admin123"
-  },
-  {
-    "email": "thaynam@gmail.com",
-    "name": "Thầy Võ Hoàng Nam",
-    "passwordHash": "13172baa4590e81430c91b83fe152cf6ff6abb32f7f7f268fcdc86daa585fada",
-    "role": "teacher",
-    "note": "Mật khẩu mặc định: toan6@2026"
-  },
-  {
-    "email": "admin@school.edu.vn",
-    "name": "Quản Trị Viên Khảo Thí",
-    "passwordHash": "e88d908c9e5872a47e8e4fdd686d7ed136b82f8c57f5a126fd8c5ab195f2e6d4",
-    "role": "teacher",
-    "note": "Mật khẩu mặc định: giaovien123"
   }
 ]

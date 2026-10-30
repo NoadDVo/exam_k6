@@ -150,12 +150,12 @@
                     <p class="text-xs font-semibold text-neutral-500 mt-0.5">Đăng nhập để vào Studio soạn đề &amp; quản lý điểm</p>
                 </div>
 
-                <!-- Email -->
+                <!-- Tài khoản -->
                 <div>
-                    <label class="font-typewriter text-[11px] font-black text-black uppercase block mb-1">Email Tài Khoản</label>
-                    <input type="email" id="teacherEmail" class="neo-input"
-                        placeholder="giaovien@gmail.com"
-                        autocomplete="off"
+                    <label class="font-typewriter text-[11px] font-black text-black uppercase block mb-1">Tài Khoản</label>
+                    <input type="text" id="teacherEmail" class="neo-input"
+                        placeholder="Ví dụ: noaddvo hoặc lephuong_123"
+                        autocomplete="username"
                         onkeydown="if(event.key==='Enter') handleTeacherAuth()">
                 </div>
 
@@ -231,7 +231,7 @@
 
         <!-- Footer -->
         <div class="text-center mt-6 text-xs font-bold text-neutral-500">
-            NOADD Exam System &bull; Thiết kế Neo-Brutalism
+            NOADD Exam System
         </div>
 
     </div>
@@ -291,7 +291,7 @@
             const email = document.getElementById('teacherEmail').value.trim();
             const password = document.getElementById('teacherPassword').value;
 
-            if (!email) return showToast('Vui lòng nhập email tài khoản!', 'error');
+            if (!email) return showToast('Vui lòng nhập tài khoản!', 'error');
             if (!password) return showToast('Vui lòng nhập mật khẩu!', 'error');
 
             showToast('Đang xác thực thông tin...', 'info');
