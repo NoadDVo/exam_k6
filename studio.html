@@ -593,19 +593,7 @@
         <!-- ============================================================
              SUBVIEW 1: STUDIO (Soạn thảo + Preview)
         ============================================================ -->
-        <div id="subviewStudio" class="w-full h-full flex overflow-hidden relative">
-
-            <!-- Floating Restore Controls (Xuất hiện khi Sidebar hoặc Editor bị ẩn) -->
-            <div id="floatingRestoreControls" class="absolute top-3 left-3 z-30 hidden items-center gap-2 pointer-events-auto">
-                <button onclick="toggleSidebar()" id="floatBtnRestoreSidebar" class="neo-btn neo-btn-sm neo-btn-white shadow-[3px_3px_0px_#000] hidden items-center gap-1.5 transition-all" title="Bấm để hiện lại Sidebar Cài đặt (Alt+S)">
-                    <i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>
-                    <span class="font-bold text-xs">Hiện Cài đặt</span>
-                </button>
-                <button onclick="toggleEditor()" id="floatBtnRestoreEditor" class="neo-btn neo-btn-sm neo-btn-yellow shadow-[3px_3px_0px_#000] hidden items-center gap-1.5 transition-all" title="Bấm để hiện lại Khung Soạn thảo LaTeX (Alt+E)">
-                    <i data-lucide="panel-left-open" class="w-3.5 h-3.5"></i>
-                    <span class="font-bold text-xs">Hiện Soạn thảo</span>
-                </button>
-            </div>
+        <div id="subviewStudio" class="w-full h-full flex overflow-hidden">
 
             <!-- SIDEBAR: Tùy chỉnh thẩm mỹ (Mint Background) -->
             <aside class="studio-sidebar" id="studioSidebar">
@@ -1290,42 +1278,7 @@
             const isSidebarCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
             const isEditorCollapsed = editor ? editor.classList.contains('collapsed') : false;
 
-            // 1. Nút nổi khôi phục (Floating Restore Controls) ở góc trên bên trái khu vực làm việc
-            const floatSidebar = document.getElementById('floatBtnRestoreSidebar');
-            const floatEditor = document.getElementById('floatBtnRestoreEditor');
-            const floatContainer = document.getElementById('floatingRestoreControls');
-
-            if (floatSidebar) {
-                if (isSidebarCollapsed) {
-                    floatSidebar.classList.remove('hidden');
-                    floatSidebar.classList.add('inline-flex');
-                } else {
-                    floatSidebar.classList.add('hidden');
-                    floatSidebar.classList.remove('inline-flex');
-                }
-            }
-
-            if (floatEditor) {
-                if (isEditorCollapsed) {
-                    floatEditor.classList.remove('hidden');
-                    floatEditor.classList.add('inline-flex');
-                } else {
-                    floatEditor.classList.add('hidden');
-                    floatEditor.classList.remove('inline-flex');
-                }
-            }
-
-            if (floatContainer) {
-                if (isSidebarCollapsed || isEditorCollapsed) {
-                    floatContainer.classList.remove('hidden');
-                    floatContainer.classList.add('flex');
-                } else {
-                    floatContainer.classList.add('hidden');
-                    floatContainer.classList.remove('flex');
-                }
-            }
-
-            // 2. Nút điều khiển cố định trên Top Navbar (luôn hiển thị, không bao giờ bị biến mất)
+            // Nút điều khiển cố định trên Top Navbar (luôn hiển thị trên header)
             const navBtnSidebar = document.getElementById('btnNavToggleSidebar');
             const navBtnEditor = document.getElementById('btnNavToggleEditor');
 
