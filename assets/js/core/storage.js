@@ -16,6 +16,7 @@ const Storage = (() => {
         SUBMISSIONS: 'noadd_submissions',
         SETTINGS: 'noadd_settings',
         CURRENT_SESSION: 'noadd_session',
+        IMAGES: 'noadd_images',
     };
 
     // ============================================================
@@ -240,9 +241,19 @@ const Storage = (() => {
             const cfg = config || examData.config || {};
             // Ưu tiên mã do giáo viên nhập > mã từ examData > mã meta > tự sinh số ngẫu nhiên
             const examCode = String(cfg.examCode || examData.examCode || examData.meta?.examCode || generateExamCode()).trim();
+            
+            // Tích hợp toàn bộ hình ảnh đi kèm đề thi để lưu đồng bộ
+            const attachedImages = {
+                ...(typeof Storage !== 'undefined' && Storage.Images ? Storage.Images.getAll() : {}),
+                ...(examData.images || {}),
+                ...(cfg.images || {}),
+                ...(typeof window !== 'undefined' && window.__EXAM_IMAGES__ ? window.__EXAM_IMAGES__ : {})
+            };
+
             const exam = {
                 ...examData,
                 examCode,
+                images: Object.keys(attachedImages).length ? attachedImages : (examData.images || {}),
                 config: {
                     duration: cfg.duration || 45,
                     maxAttempts: cfg.maxAttempts || 1,
@@ -493,12 +504,64 @@ const Storage = (() => {
     };
 
     // ============================================================
+    // IMAGES (Quản lý hình ảnh đính kèm đề thi qua Base64)
+    // ============================================================
+
+    const Images = {
+        /**
+         * Lấy tất cả ảnh đã lưu
+         */
+        getAll: () => get(KEYS.IMAGES, {}),
+
+        /**
+         * Lấy ảnh theo tên hoặc đường dẫn
+         */
+        get: (key) => {
+            if (!key) return null;
+            const images = Images.getAll();
+            const clean = String(key).trim().replace(/^images\//, '');
+            return images[key] || images[clean] || images[`images/${clean}`] || null;
+        },
+
+        /**
+         * Lưu một ảnh (dạng base64 data URL)
+         */
+        save: (key, dataUrl) => {
+            if (!key || !dataUrl) return false;
+            const images = Images.getAll();
+            const clean = String(key).trim().replace(/^images\//, '');
+            images[key] = dataUrl;
+            images[clean] = dataUrl;
+            images[`images/${clean}`] = dataUrl;
+            return set(KEYS.IMAGES, images);
+        },
+
+        /**
+         * Xóa ảnh
+         */
+        remove: (key) => {
+            const images = Images.getAll();
+            const clean = String(key).trim().replace(/^images\//, '');
+            delete images[key];
+            delete images[clean];
+            delete images[`images/${clean}`];
+            return set(KEYS.IMAGES, images);
+        },
+
+        /**
+         * Xóa toàn bộ kho ảnh
+         */
+        clear: () => remove(KEYS.IMAGES),
+    };
+
+    // ============================================================
     // PUBLIC API
     // ============================================================
     return {
         Auth,
         Exams,
         Submissions,
+        Images,
         Session: StudentSession,
         StudentSession,
         Settings,

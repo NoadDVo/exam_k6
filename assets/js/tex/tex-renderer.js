@@ -40,7 +40,11 @@ class TexRenderer {
    * @returns {string} HTML string hoàn chỉnh
    */
   renderExam(examData, options = {}) {
-    const opts = { ...this._defaultOptions, ...options };
+    const opts = {
+      ...this._defaultOptions,
+      images: { ...(examData?.images || {}), ...(options.images || {}) },
+      ...options
+    };
 
     // Nhóm câu hỏi theo section để render tuần tự
     const questionsBySection = this._groupBySection(examData.questions);
@@ -629,22 +633,52 @@ class TexRenderer {
   /**
    * Render hình ảnh của câu hỏi (nếu có)
    */
-  _renderImage(imagePath, opts) {
+  _renderImage(imagePath, opts = {}) {
     if (!imagePath) return '';
-    let src = imagePath.trim();
-    if (opts.imageBasePath) {
-      const base = opts.imageBasePath.replace(/\/+$/, '');
-      const path = src.replace(/^\/+/, '');
-      if (base.endsWith('/images') && path.startsWith('images/')) {
-        src = `${base.slice(0, -7)}/${path}`;
-      } else {
-        src = `${base}/${path}`;
+    let rawPath = String(imagePath).trim();
+    let src = rawPath;
+
+    // 1. Tìm trong options.images hoặc examData.images
+    const cleanKey = rawPath.replace(/^images\//, '');
+    const imgs = opts.images || {};
+    if (imgs[rawPath]) {
+      src = imgs[rawPath];
+    } else if (imgs[cleanKey]) {
+      src = imgs[cleanKey];
+    } else if (imgs['images/' + cleanKey]) {
+      src = imgs['images/' + cleanKey];
+    }
+
+    // 2. Nếu chưa thấy, tìm trong window.__EXAM_IMAGES__
+    if (src === rawPath && typeof window !== 'undefined' && window.__EXAM_IMAGES__) {
+      src = window.__EXAM_IMAGES__[rawPath] || window.__EXAM_IMAGES__[cleanKey] || window.__EXAM_IMAGES__['images/' + cleanKey] || src;
+    }
+
+    // 3. Nếu chưa thấy, tìm trong Storage.Images
+    if (src === rawPath && typeof Storage !== 'undefined' && Storage.Images) {
+      const stored = Storage.Images.get(rawPath);
+      if (stored) src = stored;
+    }
+
+    // 4. Nếu không phải Data URL / URL đầy đủ, chuẩn hóa đường dẫn tương đối
+    if (!src.startsWith('data:') && !src.startsWith('blob:') && !src.startsWith('http://') && !src.startsWith('https://')) {
+      if (opts.imageBasePath) {
+        const base = opts.imageBasePath.replace(/\/+$/, '');
+        const path = src.replace(/^\/+/, '');
+        if (base.endsWith('/images') && path.startsWith('images/')) {
+          src = `${base.slice(0, -7)}/${path}`;
+        } else if (path.startsWith('images/')) {
+          src = path;
+        } else {
+          src = `${base}/${path}`;
+        }
       }
     }
-    return `<div class="question-image-wrap">
+
+    return `<div class="question-image-wrap text-center my-3">
   <img src="${this._escape(src)}"
        alt="Hình minh họa"
-       class="question-image"
+       class="question-image max-h-64 mx-auto rounded-lg border border-slate-200 shadow-sm object-contain"
        loading="lazy"
        data-src="${this._escape(src)}"
        onerror="this.style.display='none'">

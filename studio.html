@@ -591,15 +591,25 @@
                 <!-- Chèn ảnh -->
                 <div>
                     <div class="sidebar-section-title">🖼️ Chèn ảnh vào LaTeX</div>
-                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 rounded-xl p-3 text-center cursor-pointer transition-all"
+                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/50 rounded-xl p-3 text-center cursor-pointer transition-all mb-2"
                         onclick="document.getElementById('imgInput').click()"
                         ondragover="event.preventDefault()"
                         ondrop="handleImgDrop(event)">
-                        <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-400 mx-auto mb-1"></i>
-                        <span class="text-[10px] font-bold text-slate-500">Kéo thả / Ctrl+V</span>
+                        <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-500 mx-auto mb-1"></i>
+                        <p class="text-xs font-bold text-slate-700">Tải ảnh lên / Kéo thả</p>
+                        <span class="text-[10px] text-slate-400">Hỗ trợ dán Ctrl+V trực tiếp</span>
                     </div>
                     <input type="file" id="imgInput" class="hidden" accept="image/*"
                         onchange="insertImageToEditor(this)">
+
+                    <!-- Danh sách ảnh trong đề -->
+                    <div id="uploadedImagesContainer" class="hidden mt-2">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1 px-1">
+                            <span>Ảnh đính kèm:</span>
+                            <span id="uploadedImagesCount" class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px]">0</span>
+                        </div>
+                        <div id="uploadedImagesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                    </div>
                 </div>
 
                 <!-- Thẩm mỹ -->
@@ -696,9 +706,11 @@
                         onchange="handleTexFileSelect(this)">
                 </div>
                 <textarea id="latexInput" class="flex-1"
-                    placeholder="Gõ LaTeX ở đây hoặc kéo thả file .tex vào ô bên trái...&#10;&#10;Ví dụ:&#10;\begin{ex}&#10;Nội dung câu hỏi $f(x) = x^2$&#10;\choice&#10;{Đáp án A}&#10;{\True Đáp án B (đúng)}&#10;{Đáp án C}&#10;{Đáp án D}&#10;\end{ex}"
+                    placeholder="Gõ LaTeX ở đây hoặc kéo thả file .tex / dán ảnh (Ctrl+V) vào đây...&#10;&#10;Ví dụ:&#10;\begin{ex}&#10;Nội dung câu hỏi $f(x) = x^2$&#10;\choice&#10;{Đáp án A}&#10;{\True Đáp án B (đúng)}&#10;{Đáp án C}&#10;{Đáp án D}&#10;\end{ex}"
                     oninput="debouncePreview()"
-                    onpaste="handlePaste(event)">
+                    onpaste="handlePaste(event)"
+                    ondragover="handleEditorDragOver(event)"
+                    ondrop="handleEditorDrop(event)">
                 </textarea>
             </div>
 
@@ -999,9 +1011,10 @@
                     .catch(() => {});
             }
 
-            // Load danh sách đề thi
+            // Load danh sách đề thi & hình ảnh
             loadExamList();
             loadStatsExamOptions();
+            renderUploadedImagesList();
         }
 
         function handleLogout() {
@@ -1145,6 +1158,16 @@
 
             if (previewEmpty) previewEmpty.classList.add('hidden');
             if (previewContainer) previewContainer.classList.remove('hidden');
+
+            // Đồng bộ và gắn toàn bộ kho hình ảnh vào examData
+            const bundledImages = {
+                ...(typeof Storage !== 'undefined' && Storage.Images ? Storage.Images.getAll() : {}),
+                ...(window.__EXAM_IMAGES__ || {}),
+                ...(examData.images || {})
+            };
+            examData.images = bundledImages;
+            if (currentParsedExam) currentParsedExam.images = bundledImages;
+
             if (typeof TexRenderer !== 'undefined') {
                 try {
                     const fontClass = document.getElementById('fontSelect')?.value || 'font-itim';
@@ -1159,7 +1182,8 @@
                         fontClass,
                         paperStyle,
                         paperColor,
-                        imageBasePath: 'images'
+                        imageBasePath: 'images',
+                        images: bundledImages
                     });
                     previewContainer.innerHTML = html;
 
@@ -1251,16 +1275,18 @@
         }
 
         // ============================================================
-        // IMAGE PASTE / DROP
+        // IMAGE MANAGEMENT (PASTE / DROP / UPLOAD / BASE64 REGISTRY)
         // ============================================================
+        window.__EXAM_IMAGES__ = window.__EXAM_IMAGES__ || {};
+
         function handlePaste(event) {
             const items = event.clipboardData?.items;
             if (!items) return;
             for (const item of items) {
-                if (item.type.startsWith('image/')) {
+                if (item.type && item.type.startsWith('image/')) {
                     event.preventDefault();
                     const file = item.getAsFile();
-                    uploadImageFile(file);
+                    if (file) uploadImageFile(file);
                     break;
                 }
             }
@@ -1268,27 +1294,190 @@
 
         function handleImgDrop(event) {
             event.preventDefault();
-            const file = event.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) uploadImageFile(file);
+            const file = event.dataTransfer?.files?.[0];
+            if (file && file.type?.startsWith('image/')) uploadImageFile(file);
+        }
+
+        function handleEditorDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleEditorDrop(event) {
+            const files = event.dataTransfer?.files;
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            if (file.type?.startsWith('image/')) {
+                event.preventDefault();
+                uploadImageFile(file);
+            } else if (file.name.endsWith('.tex')) {
+                event.preventDefault();
+                handleTexFileSelect({ files: [file] });
+            }
         }
 
         function insertImageToEditor(input) {
-            const file = input.files[0];
+            const file = input.files?.[0];
             if (file) uploadImageFile(file);
+            input.value = ''; // Reset input để có thể chọn lại cùng file
+        }
+
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                // Nếu file đã nhỏ hơn 70KB, giữ nguyên không cần nén lại
+                if (file.size < 70 * 1024) {
+                    callback(dataUrl);
+                    return;
+                }
+                const img = new Image();
+                img.onload = () => {
+                    const maxDim = 900;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                    callback(canvas.toDataURL(mime, 0.85));
+                };
+                img.onerror = () => callback(dataUrl);
+                img.src = dataUrl;
+            };
+            reader.readAsDataURL(file);
         }
 
         function uploadImageFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                // Lưu vào assets/images (không thể trong browser, dùng base64 gợi ý tên)
-                const suggestedName = `images/${file.name}`;
-                const latex = `\\includegraphics[width=0.4\\linewidth]{${suggestedName}}`;
+            // Đặt tên an toàn
+            let origName = file.name || `hinh_${Date.now()}.png`;
+            if (origName.toLowerCase() === 'image.png') {
+                origName = `hinh_${Date.now()}.png`;
+            }
+            const cleanName = origName.toLowerCase().replace(/[^a-z0-9._-]/g, '_');
+            const imageKey = cleanName.startsWith('images/') ? cleanName : `images/${cleanName}`;
+
+            compressImage(file, (dataUrl) => {
+                // 1. Lưu vào window store
+                window.__EXAM_IMAGES__[imageKey] = dataUrl;
+                window.__EXAM_IMAGES__[cleanName] = dataUrl;
+
+                // 2. Lưu vào Storage.Images
+                if (typeof Storage !== 'undefined' && Storage.Images) {
+                    Storage.Images.save(imageKey, dataUrl);
+                }
+
+                // 3. Gắn vào currentParsedExam nếu có
+                if (currentParsedExam) {
+                    currentParsedExam.images = currentParsedExam.images || {};
+                    currentParsedExam.images[imageKey] = dataUrl;
+                    currentParsedExam.images[cleanName] = dataUrl;
+                }
+
+                // 4. Chèn cú pháp LaTeX chuẩn vào vị trí con trỏ của editor
+                const latex = `\\begin{center}\n\\includegraphics[width=0.45\\linewidth]{${imageKey}}\n\\end{center}\n`;
                 const textarea = document.getElementById('latexInput');
-                const pos = textarea.selectionStart;
+                const pos = textarea.selectionStart ?? textarea.value.length;
                 textarea.value = textarea.value.substring(0, pos) + latex + textarea.value.substring(pos);
-                showToast(`Đã chèn: ${suggestedName}. Hãy copy file vào thư mục assets/images/`, 'info');
+                textarea.selectionStart = textarea.selectionEnd = pos + latex.length;
+                textarea.focus();
+
+                // 5. Cập nhật giao diện
+                renderUploadedImagesList();
+                updatePreview();
+                showToast(`Đã tải lên và hiển thị: ${cleanName}`, 'success');
+            });
+        }
+
+        function insertImageTag(key) {
+            const latex = `\\begin{center}\n\\includegraphics[width=0.45\\linewidth]{${key}}\n\\end{center}\n`;
+            const textarea = document.getElementById('latexInput');
+            const pos = textarea.selectionStart ?? textarea.value.length;
+            textarea.value = textarea.value.substring(0, pos) + latex + textarea.value.substring(pos);
+            textarea.selectionStart = textarea.selectionEnd = pos + latex.length;
+            textarea.focus();
+            updatePreview();
+            showToast(`Đã chèn lệnh: ${key}`, 'info');
+        }
+
+        function deleteUploadedImage(key) {
+            if (confirm(`Bạn có chắc muốn xóa ảnh "${key}" khỏi kho đề thi?`)) {
+                const clean = key.replace(/^images\//, '');
+                if (window.__EXAM_IMAGES__) {
+                    delete window.__EXAM_IMAGES__[key];
+                    delete window.__EXAM_IMAGES__[clean];
+                    delete window.__EXAM_IMAGES__[`images/${clean}`];
+                }
+                if (typeof Storage !== 'undefined' && Storage.Images) {
+                    Storage.Images.remove(key);
+                }
+                if (currentParsedExam?.images) {
+                    delete currentParsedExam.images[key];
+                    delete currentParsedExam.images[clean];
+                    delete currentParsedExam.images[`images/${clean}`];
+                }
+                renderUploadedImagesList();
+                updatePreview();
+                showToast(`Đã xóa ảnh: ${key}`, 'info');
+            }
+        }
+
+        function renderUploadedImagesList() {
+            const container = document.getElementById('uploadedImagesContainer');
+            const list = document.getElementById('uploadedImagesList');
+            const countEl = document.getElementById('uploadedImagesCount');
+            if (!container || !list) return;
+
+            const allImages = {
+                ...(typeof Storage !== 'undefined' && Storage.Images ? Storage.Images.getAll() : {}),
+                ...(window.__EXAM_IMAGES__ || {}),
+                ...(currentParsedExam?.images || {})
             };
-            reader.readAsDataURL(file);
+
+            const uniqueItems = [];
+            const seenUrls = new Set();
+            for (const [k, url] of Object.entries(allImages)) {
+                if (typeof url !== 'string' || !url.startsWith('data:')) continue;
+                if (seenUrls.has(url)) continue;
+                seenUrls.add(url);
+                const displayKey = k.startsWith('images/') ? k : `images/${k}`;
+                uniqueItems.push({ key: displayKey, url });
+            }
+
+            if (uniqueItems.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            if (countEl) countEl.textContent = uniqueItems.length;
+
+            list.innerHTML = uniqueItems.map(item => `
+                <div class="flex items-center gap-2 p-1.5 bg-white rounded-lg border border-slate-200 hover:border-blue-400 transition-all text-xs shadow-2xs">
+                    <img src="${item.url}" class="w-8 h-8 rounded object-cover border border-slate-100 shrink-0 bg-slate-50">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-bold text-slate-700 truncate text-[11px]" title="${item.key}">${item.key}</div>
+                    </div>
+                    <button type="button" onclick="insertImageTag('${item.key}')" class="p-1 hover:bg-blue-50 text-blue-600 rounded cursor-pointer transition-colors" title="Chèn vào vị trí con trỏ">
+                        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button type="button" onclick="deleteUploadedImage('${item.key}')" class="p-1 hover:bg-rose-50 text-rose-500 rounded cursor-pointer transition-colors" title="Xóa ảnh">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // ============================================================
@@ -1424,6 +1613,15 @@
             }
 
             const customCode = document.getElementById('cfgCode')?.value.replace(/[^0-9]/g, '').trim();
+            
+            // Đảm bảo gắn đầy đủ hình ảnh vào đề thi trước khi lưu
+            const allImages = {
+                ...(typeof Storage !== 'undefined' && Storage.Images ? Storage.Images.getAll() : {}),
+                ...(window.__EXAM_IMAGES__ || {}),
+                ...(currentParsedExam.images || {})
+            };
+            currentParsedExam.images = allImages;
+
             const config = {
                 title: document.getElementById('cfgTitle').value || 'Đề kiểm tra giữa học kỳ I - Toán 6',
                 subject: document.getElementById('cfgSubject').value || 'Toán',
@@ -1434,6 +1632,7 @@
                 showAnswers: document.getElementById('cfgShowAnswers').checked,
                 shuffleQuestions: document.getElementById('cfgShuffle').checked,
                 examCode: customCode || Storage.generateExamCode(),
+                images: allImages,
             };
 
             const result = Storage.Exams.save(currentParsedExam, config);

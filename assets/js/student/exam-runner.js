@@ -598,12 +598,24 @@ const ExamRunner = (() => {
       // Hình ảnh đính kèm (nếu có)
       let imageHtml = '';
       if (q.image) {
-        const src = q.image.startsWith('images/') || q.image.startsWith('http') || q.image.startsWith('/')
-          ? q.image
-          : `images/${q.image}`;
+        let rawPath = String(q.image).trim();
+        let src = rawPath;
+        const cleanKey = rawPath.replace(/^images\//, '');
+        const imgs = examData.images || {};
+        if (imgs[rawPath]) {
+          src = imgs[rawPath];
+        } else if (imgs[cleanKey]) {
+          src = imgs[cleanKey];
+        } else if (imgs['images/' + cleanKey]) {
+          src = imgs['images/' + cleanKey];
+        } else if (typeof Storage !== 'undefined' && Storage.Images?.get(rawPath)) {
+          src = Storage.Images.get(rawPath);
+        } else if (!src.startsWith('images/') && !src.startsWith('http') && !src.startsWith('/') && !src.startsWith('data:')) {
+          src = `images/${src}`;
+        }
         imageHtml = `
           <div class="my-3 flex justify-center">
-            <img src="${src}" alt="Hình câu ${q.id}" class="max-h-60 max-w-full rounded-2xl border border-slate-200 shadow-sm object-contain bg-white p-1">
+            <img src="${src}" alt="Hình câu ${q.id}" class="max-h-60 max-w-full rounded-2xl border border-slate-200 shadow-sm object-contain bg-white p-1" onerror="this.style.display='none'">
           </div>
         `;
       }

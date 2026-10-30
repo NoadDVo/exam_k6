@@ -824,6 +824,7 @@ class TexParser {
     s = s.replace(/\\(?:begin|end)\{itemize\}/g, '');
     s = s.replace(/\\(?:begin|end)\{enumerate\}(?:\[[^\]]*\])?/g, '');
     s = s.replace(/\\(?:begin|end)\{loigiai\}/g, '');
+    s = s.replace(/\\(?:begin|end)\{center\}/g, '');
 
     // 7. Thay thế bất kỳ \item nào còn lại thành dấu bullet •
     s = s.replace(/\\item\s*/g, '• ');
