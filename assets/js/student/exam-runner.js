@@ -12,6 +12,8 @@ const ExamRunner = (() => {
   // ============================================================
   // KHỞI TẠO PHÒNG THI
   // ============================================================
+  let activeExamCode = '123456';
+
   const init = () => {
     // 1. Kiểm tra phiên đăng nhập
     session = Storage.StudentSession.get();
@@ -21,6 +23,7 @@ const ExamRunner = (() => {
     const codeFromUrl = urlParams.get('code') ? urlParams.get('code').trim() : '';
 
     const activeCode = codeFromUrl || session?.examCode || '123456';
+    activeExamCode = activeCode;
 
     // 2. Lấy dữ liệu đề thi
     examData = Storage.Exams.getByCode(activeCode);
@@ -30,39 +33,30 @@ const ExamRunner = (() => {
       return;
     }
 
-    // 3. Kiểm tra xem học sinh ĐÃ có thông tin tên hợp lệ cho phòng thi này hay chưa
-    const hasValidSession = session && 
-                            String(session.examCode).trim() === String(activeCode).trim() && 
-                            session.studentName && 
-                            session.studentName.trim() !== '' && 
-                            session.studentName.trim().toLowerCase() !== 'học sinh';
-
-    if (!hasValidSession) {
-      // Học sinh mở từ link share chưa nhập thông tin: hiển thị modal nhập họ tên
-      showStudentEntryModal(activeCode);
-      return;
-    }
-
-    // Đã có thông tin đầy đủ: Bắt đầu làm bài thi
-    startExamRunning();
+    // 3. Luôn hiển thị Modal Xác Nhận Vào Phòng Thi để học sinh xác nhận, kiểm tra hoặc đổi thí sinh
+    showStudentEntryModal(activeCode);
   };
 
   /**
    * Hiển thị bảng đăng ký thông tin thí sinh trước khi bắt đầu
    */
-  const showStudentEntryModal = (code) => {
+  const showStudentEntryModal = (code, forceClear = false) => {
+    activeExamCode = code || activeExamCode || '123456';
     const modal = document.getElementById('studentEntryModal');
     if (!modal) return;
 
-    // Ẩn khu vực làm bài thi và bảng palette trong khi chờ học sinh nhập thông tin
+    // Ẩn khu vực làm bài thi và bảng palette trong khi chờ học sinh nhập/xác nhận thông tin
     const viewSection = document.getElementById('examViewSection');
     if (viewSection) viewSection.classList.add('hidden');
 
     const floatBtn = document.getElementById('mobilePaletteToggleBtn');
     if (floatBtn) floatBtn.classList.add('hidden');
 
+    const resultSection = document.getElementById('resultViewSection');
+    if (resultSection) resultSection.classList.add('hidden');
+
     const codeBadge = document.getElementById('entryExamCodeBadge');
-    if (codeBadge) codeBadge.textContent = code;
+    if (codeBadge) codeBadge.textContent = activeExamCode;
 
     const titleEl = document.getElementById('entryExamTitle');
     if (titleEl) titleEl.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
@@ -80,24 +74,67 @@ const ExamRunner = (() => {
     const titleBadge = document.getElementById('examTitleBadge');
     if (titleBadge) titleBadge.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
 
-    // Pre-fill thông tin nếu trước đó học sinh từng điền trên máy này
-    const prevSession = Storage.StudentSession.get();
-    if (prevSession?.studentName && prevSession.studentName !== 'Học sinh') {
-      const nameInput = document.getElementById('entryStudentName');
+    const nameInput = document.getElementById('entryStudentName');
+    const classInput = document.getElementById('entryStudentClass');
+    const resumeNotice = document.getElementById('entryResumeNotice');
+    const resumeName = document.getElementById('entryResumeStudentName');
+    const btnText = document.getElementById('entrySubmitBtnText');
+
+    const prevSession = forceClear ? null : Storage.StudentSession.get();
+    const hasExistingSession = prevSession && 
+                               String(prevSession.examCode).trim() === String(activeExamCode).trim() && 
+                               prevSession.studentName && 
+                               prevSession.studentName.trim() !== '' && 
+                               prevSession.studentName.trim().toLowerCase() !== 'học sinh';
+
+    if (hasExistingSession) {
       if (nameInput) nameInput.value = prevSession.studentName;
-      const classInput = document.getElementById('entryStudentClass');
       if (classInput) classInput.value = prevSession.studentClass || '';
+      if (resumeNotice) resumeNotice.classList.remove('hidden');
+      if (resumeName) resumeName.textContent = `${prevSession.studentName} (${prevSession.studentClass || 'Chưa rõ lớp'})`;
+      if (btnText) btnText.textContent = 'Tiếp Tục Bài Làm';
+    } else {
+      if (forceClear || !prevSession) {
+        if (nameInput) nameInput.value = '';
+        if (classInput) classInput.value = '';
+      }
+      if (resumeNotice) resumeNotice.classList.add('hidden');
+      if (btnText) btnText.textContent = 'Bắt Đầu Làm Bài';
     }
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 
     setTimeout(() => {
-      const nameInput = document.getElementById('entryStudentName');
-      if (nameInput) nameInput.focus();
+      if (nameInput) {
+        if (!nameInput.value) nameInput.focus();
+        else nameInput.select();
+      }
     }, 150);
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
+  };
+
+  /**
+   * Xóa thông tin thí sinh cũ trên form và giải phóng phiên thi để thí sinh mới bắt đầu
+   */
+  const clearStudentEntryForm = () => {
+    const nameInput = document.getElementById('entryStudentName');
+    const classInput = document.getElementById('entryStudentClass');
+    const resumeNotice = document.getElementById('entryResumeNotice');
+    const btnText = document.getElementById('entrySubmitBtnText');
+
+    if (nameInput) nameInput.value = '';
+    if (classInput) classInput.value = '';
+    if (resumeNotice) resumeNotice.classList.add('hidden');
+    if (btnText) btnText.textContent = 'Bắt Đầu Làm Bài';
+
+    // Xóa session cũ trong storage
+    Storage.StudentSession.clear();
+    session = null;
+    userAnswers = {};
+
+    if (nameInput) nameInput.focus();
   };
 
   /**
@@ -122,13 +159,24 @@ const ExamRunner = (() => {
       return;
     }
 
+    // Kiểm tra xem thí sinh có trùng với phiên trước không
+    const prev = Storage.StudentSession.get();
+    let sId;
+    if (prev && prev.studentName === name && prev.studentClass === cls && prev.studentId) {
+      sId = prev.studentId;
+    } else {
+      sId = `HS_${Date.now().toString().slice(-4)}`;
+      // Nếu là thí sinh mới thì xóa câu trả lời nháp của thí sinh trước
+      userAnswers = {};
+    }
+
     // Lưu phiên thi học sinh với thông tin thực tế
     session = {
       examCode: examData.examCode,
       studentName: name,
       studentClass: cls,
-      studentId: `HS_${Date.now().toString().slice(-4)}`,
-      startTime: new Date().toISOString()
+      studentId: sId,
+      startTime: (prev && prev.studentName === name) ? (prev.startTime || new Date().toISOString()) : new Date().toISOString()
     };
     Storage.StudentSession.save(session);
 
@@ -141,6 +189,41 @@ const ExamRunner = (() => {
 
     // Bắt đầu làm bài thi chính thức
     startExamRunning();
+  };
+
+  /**
+   * Đổi thông tin thí sinh hoặc mở lại modal xác nhận
+   */
+  const changeStudentInfo = () => {
+    if (confirm('Bạn có muốn đổi thông tin thí sinh hoặc vào lại từ đầu? Bài làm hiện tại của bạn sẽ được tạm dừng.')) {
+      ExamTimer.stop();
+      AntiCheat.stop();
+      showStudentEntryModal(activeExamCode);
+    }
+  };
+
+  /**
+   * Thoát phòng thi và quay về trang chủ
+   */
+  const exitExam = () => {
+    if (confirm('Bạn có chắc muốn thoát phòng thi? Thông tin phiên thi sẽ được xóa để sẵn sàng cho lần thi sau.')) {
+      ExamTimer.stop();
+      AntiCheat.stop();
+      Storage.StudentSession.clear();
+      window.location.href = 'index.html';
+    }
+  };
+
+  /**
+   * Cho phép thí sinh khác vào thi (từ màn hình kết quả)
+   */
+  const startNewStudent = () => {
+    ExamTimer.stop();
+    AntiCheat.stop();
+    Storage.StudentSession.clear();
+    session = null;
+    userAnswers = {};
+    showStudentEntryModal(activeExamCode, true);
   };
 
   /**
@@ -523,6 +606,8 @@ const ExamRunner = (() => {
 
     // Xóa bản nháp sau khi đã nộp thành công
     Storage.StudentSession.clearDraft(session.examCode, session.studentId);
+    // Giải phóng phiên thi đang chạy để tránh bị kẹt thông tin học sinh cũ khi tải lại trang
+    Storage.StudentSession.clear();
 
     // Hiển thị kết quả & ĐÁP ÁN CHI TIẾT
     showResultModal(submissionData);
@@ -895,6 +980,10 @@ const ExamRunner = (() => {
   return {
     init,
     startExamFromEntry,
+    clearStudentEntryForm,
+    changeStudentInfo,
+    exitExam,
+    startNewStudent,
     scrollToQuestion,
     toggleMobilePalette,
     submitExam,
