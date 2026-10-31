@@ -128,6 +128,48 @@
             animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        /* Style bảng danh sách câu hỏi điều hướng (Palette) */
+        .palette-item {
+            height: 38px;
+            border-radius: 10px !important;
+            border: 2px solid #000000 !important;
+            background: #FFFFFF !important;
+            color: #000000 !important;
+            font-family: 'Space Mono', monospace, sans-serif !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            box-shadow: 2px 2px 0px #000000 !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer;
+        }
+        .palette-item:hover {
+            transform: translate(-1.5px, -1.5px) !important;
+            box-shadow: 3.5px 3.5px 0px #000000 !important;
+            background: #FFFDF7 !important;
+        }
+        /* CÂU ĐÃ LÀM: Nền xanh lá tươi rực rỡ, chữ trắng, viền đen sắc nét */
+        .palette-item.answered {
+            background: #10B981 !important;
+            color: #FFFFFF !important;
+            border: 2px solid #000000 !important;
+            box-shadow: 2.5px 2.5px 0px #000000 !important;
+            font-weight: 900 !important;
+        }
+        /* CÂU ĐANG XEM */
+        .palette-item.current {
+            background: #FFC83B !important;
+            color: #000000 !important;
+            border: 2.5px solid #000000 !important;
+            box-shadow: 3px 3px 0px #000000 !important;
+            transform: translate(-1px, -1px);
+        }
+        .palette-item.answered.current {
+            background: #10B981 !important;
+            color: #FFFFFF !important;
+            outline: 3px solid #000000 !important;
+            outline-offset: 1.5px !important;
+        }
+
         /* Style cho phần xem lại bài thi & lời giải */
         .review-filter-btn {
             border: 1.5px solid #E2E8F0;
@@ -322,9 +364,20 @@
 
         <!-- Desktop Sticky Navigation Palette -->
         <aside class="neo-card p-4 shrink-0 sticky top-20 hidden lg:flex flex-col w-64 max-h-[85vh] bg-white">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b-2 border-black">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b-2 border-black">
                 <span class="font-typewriter text-xs font-black text-black uppercase tracking-wider">Danh Sách Câu</span>
                 <span class="neo-badge neo-badge-yellow text-[10px] font-bold" id="progressText">Đã làm: 0/0</span>
+            </div>
+            <!-- Chú thích trạng thái -->
+            <div class="flex items-center gap-3 mb-2.5 px-1 text-[11px] font-bold">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded border border-black bg-white inline-block shadow-[1px_1px_0px_#000]"></span>
+                    <span class="text-neutral-600">Chưa làm</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3.5 h-3.5 rounded border border-black bg-[#10B981] inline-block shadow-[1px_1px_0px_#000]"></span>
+                    <span class="text-emerald-700 font-extrabold">Đã làm</span>
+                </div>
             </div>
             <div class="palette-grid flex-1 overflow-y-auto" id="paletteGrid">
                 <!-- Nút số câu render ở đây -->
@@ -347,7 +400,13 @@
             <div class="flex items-center justify-between pb-3 border-b-2 border-black">
                 <div>
                     <h3 class="font-typewriter text-sm font-black text-black uppercase tracking-wider">Danh Sách Câu Hỏi</h3>
-                    <span class="neo-badge neo-badge-yellow text-[10px] font-bold mt-1" id="mobileProgressText">Đã làm: 0/0 câu</span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="neo-badge neo-badge-yellow text-[10px] font-bold" id="mobileProgressText">Đã làm: 0/0 câu</span>
+                        <div class="flex items-center gap-2 text-[10px] font-bold">
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded border border-black bg-white inline-block"></span>Chưa làm</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded border border-black bg-[#10B981] inline-block"></span>Đã làm</span>
+                        </div>
+                    </div>
                 </div>
                 <button onclick="ExamRunner.toggleMobilePalette(false)" class="w-8 h-8 rounded-lg border-2 border-black bg-white hover:bg-neutral-100 flex items-center justify-center text-black font-bold text-lg leading-none shadow-[1.5px_1.5px_0px_#000]">
                     &times;

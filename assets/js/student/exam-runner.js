@@ -522,11 +522,14 @@ const ExamRunner = (() => {
     const titleEl = document.getElementById('examTitleBadge');
     if (titleEl) titleEl.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
 
-    // 3. Render đề thi
+    // 3. Render bảng câu hỏi (Palette) trước để các nút câu hỏi luôn có sẵn trong DOM
+    renderPalette();
+
+    // 4. Render nội dung đề thi & khôi phục các câu đã làm từ bản nháp
     renderExamPaper();
 
-    // 4. Render palette câu hỏi (cả Desktop và Mobile)
-    renderPalette();
+    // 4.1 Đồng bộ lại toàn bộ trạng thái nút trên bảng câu hỏi và thanh tiến trình
+    refreshPaletteStatus();
 
     // 5. Khởi động bảo mật phòng thi (Chống chuột phải & chống chụp màn hình)
     AntiCheat.start();
@@ -609,6 +612,112 @@ const ExamRunner = (() => {
   };
 
   // ============================================================
+  // QUẢN LÝ TRẠNG THÁI CÂU HỎI & BẢNG ĐIỀU HƯỚNG (PALETTE)
+  // ============================================================
+  /**
+   * Kiểm tra câu hỏi qId đã được học sinh làm hay chưa
+   */
+  const isQuestionAnswered = (qId) => {
+    if (!userAnswers) return false;
+    const ans = userAnswers[qId];
+    if (ans === undefined || ans === null) return false;
+
+    if (typeof ans === 'string') {
+      const trimmed = ans.trim();
+      if (!trimmed) return false;
+
+      // Phân số dạng a/b (cần đủ cả tử và mẫu)
+      if (trimmed.includes('/')) {
+        const parts = trimmed.split('/');
+        return parts.length === 2 && parts[0].trim() !== '' && parts[1].trim() !== '';
+      }
+
+      // Lũy thừa dạng b^e hoặc tích b1^e1 \cdot b2^e2
+      if (trimmed.includes('^')) {
+        const parts = trimmed.split(/\\cdot|\\times|\*|·/);
+        if (parts.length > 1) {
+          return parts.every(p => {
+            const m = p.trim().match(/^(\d+)\^(\d+)$/);
+            return !!m && m[1] !== '' && m[2] !== '';
+          });
+        } else {
+          const m = trimmed.match(/^(\d+)\^(\d+)$/);
+          return !!m && m[1] !== '' && m[2] !== '';
+        }
+      }
+
+      return true;
+    }
+
+    if (typeof ans === 'number' || typeof ans === 'boolean') return true;
+
+    if (typeof ans === 'object') {
+      return Object.values(ans).some(x => {
+        if (x === true || x === false) return true;
+        if (typeof x === 'string') return x.trim() !== '';
+        if (typeof x === 'number') return true;
+        return false;
+      });
+    }
+
+    return false;
+  };
+
+  const markPaletteAnswered = (qId) => {
+    const btn = document.getElementById(`pal-btn-${qId}`);
+    if (btn) btn.classList.add('answered');
+    const btnMobile = document.getElementById(`mobile-pal-btn-${qId}`);
+    if (btnMobile) btnMobile.classList.add('answered');
+  };
+
+  const unmarkPaletteAnswered = (qId) => {
+    const btn = document.getElementById(`pal-btn-${qId}`);
+    if (btn) btn.classList.remove('answered');
+    const btnMobile = document.getElementById(`mobile-pal-btn-${qId}`);
+    if (btnMobile) btnMobile.classList.remove('answered');
+  };
+
+  const updateProgress = () => {
+    const total = examData?.questions?.length || 0;
+    let answered = 0;
+    if (examData && examData.questions) {
+      answered = examData.questions.filter(q => isQuestionAnswered(q.id)).length;
+    } else {
+      answered = Object.keys(userAnswers || {}).filter(k => isQuestionAnswered(k)).length;
+    }
+
+    const progText = document.getElementById('progressText');
+    if (progText) progText.textContent = `Đã làm: ${answered}/${total}`;
+
+    const mProgText = document.getElementById('mobileProgressText');
+    if (mProgText) mProgText.textContent = `Đã làm: ${answered}/${total} câu`;
+
+    const mFloat = document.getElementById('mobileFloatingProgress');
+    if (mFloat) mFloat.textContent = `${answered}/${total} câu`;
+  };
+
+  /**
+   * Cập nhật đồng bộ toàn bộ nút trong bảng câu hỏi (Palette) và thanh tiến trình
+   */
+  const refreshPaletteStatus = () => {
+    if (!examData || !examData.questions) return;
+    examData.questions.forEach(q => {
+      const isAns = isQuestionAnswered(q.id);
+      const btn = document.getElementById(`pal-btn-${q.id}`);
+      if (btn) {
+        if (isAns) btn.classList.add('answered');
+        else btn.classList.remove('answered');
+      }
+      const btnMobile = document.getElementById(`mobile-pal-btn-${q.id}`);
+      if (btnMobile) {
+        if (isAns) btnMobile.classList.add('answered');
+        else btnMobile.classList.remove('answered');
+      }
+    });
+    updateProgress();
+  };
+
+  // ============================================================
   // RENDER BẢNG ĐIỀU HƯỚNG CÂU HỎI (PALETTE)
   // ============================================================
   const renderPalette = () => {
@@ -617,17 +726,25 @@ const ExamRunner = (() => {
     const gridDesktop = document.getElementById('paletteGrid');
     const gridMobile = document.getElementById('paletteGridMobile');
 
-    const html = examData.questions.map((q, idx) => `
-      <button class="palette-item" id="pal-btn-${q.id}" onclick="ExamRunner.scrollToQuestion('${q.id}')">
-        ${idx + 1}
-      </button>
-    `).join('');
+    const html = examData.questions.map((q, idx) => {
+      const isAns = isQuestionAnswered(q.id);
+      const cls = isAns ? 'palette-item answered' : 'palette-item';
+      return `
+        <button class="${cls}" id="pal-btn-${q.id}" onclick="ExamRunner.scrollToQuestion('${q.id}')">
+          ${idx + 1}
+        </button>
+      `;
+    }).join('');
 
-    const htmlMobile = examData.questions.map((q, idx) => `
-      <button class="palette-item" id="mobile-pal-btn-${q.id}" onclick="ExamRunner.scrollToQuestion('${q.id}')">
-        ${idx + 1}
-      </button>
-    `).join('');
+    const htmlMobile = examData.questions.map((q, idx) => {
+      const isAns = isQuestionAnswered(q.id);
+      const cls = isAns ? 'palette-item answered' : 'palette-item';
+      return `
+        <button class="${cls}" id="mobile-pal-btn-${q.id}" onclick="ExamRunner.scrollToQuestion('${q.id}')">
+          ${idx + 1}
+        </button>
+      `;
+    }).join('');
 
     if (gridDesktop) gridDesktop.innerHTML = html;
     if (gridMobile) gridMobile.innerHTML = htmlMobile;
@@ -1044,7 +1161,7 @@ const ExamRunner = (() => {
         markPaletteAnswered(qId);
       }
     }
-    updateProgress();
+    refreshPaletteStatus();
   };
 
   /**
@@ -1155,38 +1272,6 @@ const ExamRunner = (() => {
     content.textContent = val;
   };
 
-  const markPaletteAnswered = (qId) => {
-    const btn = document.getElementById(`pal-btn-${qId}`);
-    if (btn) btn.classList.add('answered');
-    const btnMobile = document.getElementById(`mobile-pal-btn-${qId}`);
-    if (btnMobile) btnMobile.classList.add('answered');
-  };
-
-  const unmarkPaletteAnswered = (qId) => {
-    const btn = document.getElementById(`pal-btn-${qId}`);
-    if (btn) btn.classList.remove('answered');
-    const btnMobile = document.getElementById(`mobile-pal-btn-${qId}`);
-    if (btnMobile) btnMobile.classList.remove('answered');
-  };
-
-  const updateProgress = () => {
-    const total = examData.questions?.length || 0;
-    const answered = Object.keys(userAnswers).filter(k => {
-      const v = userAnswers[k];
-      if (typeof v === 'object' && v !== null) return Object.values(v).some(x => !!x || x === true || x === false);
-      return !!v;
-    }).length;
-
-    const progText = document.getElementById('progressText');
-    if (progText) progText.textContent = `Đã làm: ${answered}/${total}`;
-
-    const mProgText = document.getElementById('mobileProgressText');
-    if (mProgText) mProgText.textContent = `Đã làm: ${answered}/${total} câu`;
-
-    const mFloat = document.getElementById('mobileFloatingProgress');
-    if (mFloat) mFloat.textContent = `${answered}/${total} câu`;
-  };
-
   /**
    * Đồng bộ lại toàn bộ dữ liệu đang nhập trên giao diện trước khi nộp bài
    */
@@ -1230,7 +1315,7 @@ const ExamRunner = (() => {
     if (isSubmitting) return;
 
     if (!isForced) {
-      const answeredCount = Object.keys(userAnswers).length;
+      const answeredCount = examData.questions ? examData.questions.filter(q => isQuestionAnswered(q.id)).length : Object.keys(userAnswers).filter(k => isQuestionAnswered(k)).length;
       const totalCount = examData.questions?.length || 0;
       if (!confirm(`Bạn đã làm ${answeredCount}/${totalCount} câu. Bạn có chắc chắn muốn nộp bài thi không?`)) {
         return;
