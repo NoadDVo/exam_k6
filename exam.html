@@ -362,10 +362,16 @@
     <section id="resultViewSection" class="hidden flex-1 w-full max-w-5xl mx-auto px-3 py-6 sm:px-6 flex flex-col gap-6">
         <!-- SCORE SUMMARY BANNER -->
         <div class="neo-card p-6 sm:p-8 bg-white border-[3px] border-black shadow-[6px_6px_0px_#000] text-center relative overflow-hidden">
+            <!-- Banner thông báo tự động nộp bài khi hết giờ -->
+            <div id="resTimeoutBanner" class="hidden mb-5 p-3.5 bg-rose-50 border-2 border-rose-500 rounded-2xl text-rose-800 font-extrabold text-sm flex items-center justify-center gap-2 shadow-[2px_2px_0px_#e11d48]">
+                <i data-lucide="alarm-clock" class="w-5 h-5 text-rose-600 shrink-0"></i>
+                <span>⏰ ĐÃ HẾT GIỜ LÀM BÀI — Hệ thống đã tự động thu và hoàn tất chấm điểm bài thi của bạn!</span>
+            </div>
+
             <div class="w-16 h-16 bg-[#B7E4C7] rounded-2xl border-2 border-black shadow-[2.5px_2.5px_0px_#000] flex items-center justify-center mx-auto mb-3 text-black">
                 <i data-lucide="check-circle-2" class="w-9 h-9"></i>
             </div>
-            <h2 class="font-typewriter text-2xl sm:text-3xl font-black text-black uppercase">Hoàn Thành Bài Thi!</h2>
+            <h2 class="font-typewriter text-2xl sm:text-3xl font-black text-black uppercase" id="resHeadingTitle">Hoàn Thành Bài Thi!</h2>
             <p class="text-xs sm:text-sm font-bold text-neutral-700 mt-1">
                 Thí sinh: <strong id="resStudentName" class="text-black font-extrabold">...</strong>
                 <span id="resStudentClass" class="ml-2 font-bold text-neutral-600"></span>

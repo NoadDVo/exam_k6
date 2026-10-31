@@ -6,6 +6,7 @@
 const ExamTimer = (() => {
     let totalSeconds = 0;
     let remainingSeconds = 0;
+    let targetEndTime = null;
     let intervalId = null;
     let onTickCallback = null;
     let onFinishCallback = null;
@@ -20,14 +21,28 @@ const ExamTimer = (() => {
      */
     const start = (durationMinutes, onTick, onFinish, initialRemainingSeconds = null) => {
         totalSeconds = Math.max(1, durationMinutes * 60);
-        if (typeof initialRemainingSeconds === 'number' && initialRemainingSeconds > 0 && initialRemainingSeconds <= totalSeconds) {
-            remainingSeconds = Math.floor(initialRemainingSeconds);
+        if (typeof initialRemainingSeconds === 'number') {
+            if (initialRemainingSeconds <= 0) {
+                remainingSeconds = 0;
+                isRunning = false;
+                targetEndTime = null;
+                if (onTick) onTick(0, totalSeconds, 0);
+                if (onFinish) onFinish();
+                return;
+            }
+            if (initialRemainingSeconds <= totalSeconds) {
+                remainingSeconds = Math.floor(initialRemainingSeconds);
+            } else {
+                remainingSeconds = totalSeconds;
+            }
         } else {
             remainingSeconds = totalSeconds;
         }
+
         onTickCallback = onTick;
         onFinishCallback = onFinish;
         isRunning = true;
+        targetEndTime = Date.now() + remainingSeconds * 1000;
 
         if (intervalId) {
             clearInterval(intervalId);
@@ -39,7 +54,15 @@ const ExamTimer = (() => {
 
         intervalId = setInterval(() => {
             if (!isRunning) return;
-            remainingSeconds--;
+
+            // Đồng bộ với đồng hồ hệ thống thực tế (chống trễ do browser tab throttling khi thu nhỏ/đổi tab)
+            if (targetEndTime) {
+                const diffSec = Math.round((targetEndTime - Date.now()) / 1000);
+                remainingSeconds = Math.max(0, diffSec);
+            } else {
+                remainingSeconds--;
+            }
+
             tick();
 
             if (remainingSeconds <= 0) {
@@ -58,14 +81,50 @@ const ExamTimer = (() => {
 
     const stop = () => {
         isRunning = false;
+        targetEndTime = null;
         if (intervalId) {
             clearInterval(intervalId);
             intervalId = null;
         }
     };
 
-    const pause = () => { isRunning = false; };
-    const resume = () => { isRunning = true; };
+    const pause = () => {
+        if (isRunning && targetEndTime) {
+            remainingSeconds = Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
+        }
+        isRunning = false;
+        targetEndTime = null;
+    };
+
+    const resume = () => {
+        if (!isRunning && remainingSeconds > 0) {
+            targetEndTime = Date.now() + remainingSeconds * 1000;
+            isRunning = true;
+        }
+    };
+
+    /**
+     * Kiểm tra tức thì khi quay lại tab (visibilitychange / focus)
+     */
+    const checkNow = () => {
+        if (!isRunning || !targetEndTime) return;
+        const diffSec = Math.round((targetEndTime - Date.now()) / 1000);
+        remainingSeconds = Math.max(0, diffSec);
+        tick();
+        if (remainingSeconds <= 0) {
+            stop();
+            if (onFinishCallback) onFinishCallback();
+        }
+    };
+
+    if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkNow();
+            }
+        });
+        window.addEventListener('focus', checkNow);
+    }
 
     /**
      * Chuyển giây thành chuỗi MM:SS

@@ -15,6 +15,7 @@ const ExamRunner = (() => {
   let activeExamCode = '123456';
 
   const init = () => {
+    isSubmitting = false;
     // 1. Kiểm tra phiên đăng nhập
     session = Storage.StudentSession.get();
 
@@ -140,6 +141,14 @@ const ExamRunner = (() => {
             <span>Còn lại: <b>${remFormatted}</b></span>
           </div>`;
         btnLabel = `Tiếp Tục Bài Làm (${remFormatted})`;
+      } else if (typeof remSec === 'number' && remSec <= 0) {
+        timeText = `
+          <div class="mt-1 text-[11px] text-rose-800 font-extrabold flex items-center gap-1.5 bg-rose-50 py-1 px-2.5 rounded-lg border border-rose-300">
+            <span>⏰ Đã hết thời gian làm bài</span>
+            <span>•</span>
+            <span>Nhấn để xem kết quả & lời giải</span>
+          </div>`;
+        btnLabel = 'Xem Kết Quả (Hết Giờ)';
       }
 
       if (resumeName) {
@@ -295,6 +304,7 @@ const ExamRunner = (() => {
    * Cho phép thí sinh khác vào thi (từ màn hình kết quả)
    */
   const startNewStudent = () => {
+    isSubmitting = false;
     ExamTimer.stop();
     AntiCheat.stop();
     Storage.StudentSession.clear();
@@ -353,9 +363,8 @@ const ExamRunner = (() => {
     // 6. Bắt đầu đếm ngược thời gian
     const durationMinutes = examData.config?.duration || 45;
 
-    // Nếu thời gian bảo lưu đã hết (<= 0), thông báo và nộp bài
+    // Nếu thời gian bảo lưu đã hết (<= 0), tự động nộp bài ngay lập tức
     if (typeof resumeRemaining === 'number' && resumeRemaining <= 0) {
-      alert('Đã hết thời gian làm bài của bạn! Hệ thống đang tự động nộp bài.');
       submitExam(true);
       return;
     }
@@ -379,7 +388,7 @@ const ExamRunner = (() => {
         }
       },
       () => {
-        alert('Đã hết thời gian làm bài! Hệ thống đang tự động nộp bài của bạn.');
+        // HẾT GIỜ: Tự động thu và nộp bài thi ngay lập tức
         submitExam(true);
       },
       resumeRemaining
@@ -1012,10 +1021,48 @@ const ExamRunner = (() => {
     if (mFloat) mFloat.textContent = `${answered}/${total} câu`;
   };
 
+  /**
+   * Đồng bộ lại toàn bộ dữ liệu đang nhập trên giao diện trước khi nộp bài
+   */
+  const syncActiveInputs = () => {
+    try {
+      document.querySelectorAll('.choice-item input[type="radio"]:checked').forEach(r => {
+        const qBlock = r.closest('[data-question-id]');
+        if (qBlock) {
+          const qId = qBlock.getAttribute('data-question-id');
+          const letter = r.closest('.choice-item')?.getAttribute('data-letter');
+          if (qId && letter) userAnswers[qId] = letter;
+        }
+      });
+
+      document.querySelectorAll('.short-answer-input').forEach(inp => {
+        const qBlock = inp.closest('[data-question-id]');
+        if (qBlock && inp.value.trim()) {
+          const qId = qBlock.getAttribute('data-question-id');
+          if (qId) userAnswers[qId] = inp.value.trim();
+        }
+      });
+
+      document.querySelectorAll('.essay-textarea').forEach(ta => {
+        const qBlock = ta.closest('[data-question-id]');
+        if (qBlock && ta.value.trim()) {
+          const qId = qBlock.getAttribute('data-question-id');
+          if (qId) userAnswers[qId] = ta.value.trim();
+        }
+      });
+    } catch (e) {
+      console.warn('Lỗi đồng bộ inputs cuối:', e);
+    }
+  };
+
   // ============================================================
-  // NỘP BÀI THI
+  // NỘP BÀI THI (Hỗ trợ tự động nộp khi hết giờ)
   // ============================================================
+  let isSubmitting = false;
+
   const submitExam = (isForced = false) => {
+    if (isSubmitting) return;
+
     if (!isForced) {
       const answeredCount = Object.keys(userAnswers).length;
       const totalCount = examData.questions?.length || 0;
@@ -1024,17 +1071,22 @@ const ExamRunner = (() => {
       }
     }
 
+    isSubmitting = true;
+
     ExamTimer.stop();
     AntiCheat.stop();
+
+    // Thu thập lại các câu trả lời đang gõ dở
+    syncActiveInputs();
 
     // Chấm điểm
     const result = Storage.Submissions.calculateScore(examData, userAnswers);
 
     const submissionData = {
       examCode: examData.examCode,
-      studentName: session.studentName,
-      studentClass: session.studentClass,
-      studentId: session.studentId,
+      studentName: session?.studentName || 'Học sinh',
+      studentClass: session?.studentClass || '',
+      studentId: session?.studentId || 'HS_ANON',
       score: result.totalScore,
       correctCount: result.correctCount,
       totalCount: result.totalCount,
@@ -1044,14 +1096,16 @@ const ExamRunner = (() => {
       violations: AntiCheat.getViolations(),
       integrity: AntiCheat.getIntegrity(),
       submittedAt: new Date().toISOString(),
+      isTimeOut: isForced
     };
 
     Storage.Submissions.save(submissionData);
 
     // Xóa bản nháp sau khi đã nộp thành công
-    Storage.StudentSession.clearDraft(session.examCode, session.studentId);
-    // Giải phóng phiên thi đang chạy để tránh bị kẹt thông tin học sinh cũ khi tải lại trang
-    Storage.StudentSession.clear();
+    if (session && session.examCode) {
+      Storage.StudentSession.clearDraft(session.examCode, session.studentId);
+      Storage.StudentSession.clear();
+    }
 
     // Hiển thị kết quả & ĐÁP ÁN CHI TIẾT
     showResultModal(submissionData);
@@ -1083,6 +1137,17 @@ const ExamRunner = (() => {
 
     const resSection = document.getElementById('resultViewSection');
     if (resSection) resSection.classList.remove('hidden');
+
+    // Hiển thị banner nếu là nộp tự động do hết giờ
+    const timeoutBanner = document.getElementById('resTimeoutBanner');
+    const headingTitle = document.getElementById('resHeadingTitle');
+    if (data.isTimeOut) {
+      if (timeoutBanner) timeoutBanner.classList.remove('hidden');
+      if (headingTitle) headingTitle.textContent = 'HẾT GIỜ — ĐÃ NỘP BÀI!';
+    } else {
+      if (timeoutBanner) timeoutBanner.classList.add('hidden');
+      if (headingTitle) headingTitle.textContent = 'HOÀN THÀNH BÀI THI!';
+    }
 
     const nameEl = document.getElementById('resStudentName');
     if (nameEl) nameEl.textContent = data.studentName || 'Học sinh';
