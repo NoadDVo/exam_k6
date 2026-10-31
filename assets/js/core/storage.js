@@ -245,13 +245,31 @@ const Storage = (() => {
                 }
             }
 
-            // 3. Fallback đề mẫu mặc định (de1.tex) tích hợp sẵn
-            if (typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
-                const def = window.__DEFAULT_EXAM__;
-                // Nếu mã nhập là '123456' hoặc khớp mã đề gốc hoặc máy chưa có đề nào trong LocalStorage
-                if (codeStr === '123456' || codeStr === String(def.examCode) || Object.keys(exams).length === 0) {
-                    return { ...def, examCode: codeStr || '123456', isActive: true };
-                }
+            // 3. Fallback đề mẫu mặc định (de_ontap.tex) tích hợp sẵn cho tab ẩn danh & thiết bị học sinh
+            const def = (typeof window !== 'undefined') ? (window.__DEFAULT_EXAM__ || window.DEFAULT_EXAM) : null;
+            if (def) {
+                const fallbackExam = {
+                    ...def,
+                    examCode: codeStr || def.meta?.code || def.meta?.examCode || '123456',
+                    isActive: true,
+                    config: {
+                        duration: def.config?.duration || def.meta?.duration || 90,
+                        maxAttempts: 1,
+                        showScore: true,
+                        showAnswers: true,
+                        shuffleQuestions: false,
+                        title: def.config?.title || def.meta?.title || 'ÔN TẬP TOÁN 6 GIỮA HỌC KÌ I',
+                        subject: def.config?.subject || def.meta?.subject || 'Toán',
+                        grade: def.config?.grade || def.meta?.grade || 'Lớp 6',
+                        paperStyle: def.config?.paperStyle || 'grid-oly',
+                        fontClass: def.config?.fontClass || 'font-itim',
+                        paperColor: def.config?.paperColor || '#FDFCF7',
+                        ...(def.config || {})
+                    }
+                };
+                exams[codeStr] = fallbackExam;
+                set(KEYS.EXAMS, exams);
+                return fallbackExam;
             }
 
             return null;
@@ -335,8 +353,8 @@ const Storage = (() => {
             let list = Object.values(exams);
 
             // Nếu chưa có đề nào trong LocalStorage, nạp sẵn đề mẫu 123456
-            if (list.length === 0 && typeof window !== 'undefined' && window.__DEFAULT_EXAM__) {
-                const def = window.__DEFAULT_EXAM__;
+            const def = (typeof window !== 'undefined') ? (window.__DEFAULT_EXAM__ || window.DEFAULT_EXAM) : null;
+            if (list.length === 0 && def) {
                 const defaultExam = {
                     ...def,
                     examCode: '123456',
