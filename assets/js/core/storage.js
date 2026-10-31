@@ -552,8 +552,8 @@ const Storage = (() => {
         get: (key) => {
             if (!key) return null;
             const images = Images.getAll();
-            const clean = String(key).trim().replace(/^images\//, '');
-            return images[key] || images[clean] || images[`images/${clean}`] || null;
+            const clean = String(key).trim().replace(/^(?:images|images_deontap)\//, '');
+            return images[key] || images[clean] || images[`images/${clean}`] || images[`images_deontap/${clean}`] || null;
         },
 
         /**
@@ -562,10 +562,11 @@ const Storage = (() => {
         save: (key, dataUrl) => {
             if (!key || !dataUrl) return false;
             const images = Images.getAll();
-            const clean = String(key).trim().replace(/^images\//, '');
+            const clean = String(key).trim().replace(/^(?:images|images_deontap)\//, '');
             images[key] = dataUrl;
             images[clean] = dataUrl;
             images[`images/${clean}`] = dataUrl;
+            images[`images_deontap/${clean}`] = dataUrl;
             return set(KEYS.IMAGES, images);
         },
 
@@ -574,10 +575,11 @@ const Storage = (() => {
          */
         remove: (key) => {
             const images = Images.getAll();
-            const clean = String(key).trim().replace(/^images\//, '');
+            const clean = String(key).trim().replace(/^(?:images|images_deontap)\//, '');
             delete images[key];
             delete images[clean];
             delete images[`images/${clean}`];
+            delete images[`images_deontap/${clean}`];
             return set(KEYS.IMAGES, images);
         },
 

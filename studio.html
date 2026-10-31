@@ -1180,17 +1180,17 @@
                 setTimeout(updatePreview, 100);
             }
 
-            // Tự động nạp mã nguồn de1.tex vào editor nếu editor chưa có chữ
+            // Tự động nạp mã nguồn de_ontap.tex vào editor nếu editor chưa có chữ
             const editorEl = document.getElementById('latexInput');
             if (editorEl && !editorEl.value.trim()) {
-                fetch('de1.tex')
+                fetch('de_ontap.tex')
                     .then(r => r.ok ? r.text() : '')
                     .then(tex => {
                         if (tex && editorEl && !editorEl.value.trim()) {
                             editorEl.value = tex;
-                            document.getElementById('texFileName').textContent = 'de1.tex (Mặc định)';
+                            document.getElementById('texFileName').textContent = 'de_ontap.tex (Mặc định)';
                             document.getElementById('texDropZone')?.classList.add('success');
-                            showParseStatus('success', '✅ Đề mẫu Toán 6 sẵn sàng!');
+                            showParseStatus('success', '✅ Đề ôn tập Toán 6 sẵn sàng!');
                         }
                     })
                     .catch(() => {});

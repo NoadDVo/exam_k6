@@ -660,7 +660,7 @@ class TexRenderer {
     let src = rawPath;
 
     // 1. Tìm trong options.images hoặc examData.images
-    const cleanKey = rawPath.replace(/^images\//, '');
+    const cleanKey = rawPath.replace(/^(?:images|images_deontap)\//, '');
     const imgs = opts.images || {};
     if (imgs[rawPath]) {
       src = imgs[rawPath];
@@ -668,11 +668,13 @@ class TexRenderer {
       src = imgs[cleanKey];
     } else if (imgs['images/' + cleanKey]) {
       src = imgs['images/' + cleanKey];
+    } else if (imgs['images_deontap/' + cleanKey]) {
+      src = imgs['images_deontap/' + cleanKey];
     }
 
     // 2. Nếu chưa thấy, tìm trong window.__EXAM_IMAGES__
     if (src === rawPath && typeof window !== 'undefined' && window.__EXAM_IMAGES__) {
-      src = window.__EXAM_IMAGES__[rawPath] || window.__EXAM_IMAGES__[cleanKey] || window.__EXAM_IMAGES__['images/' + cleanKey] || src;
+      src = window.__EXAM_IMAGES__[rawPath] || window.__EXAM_IMAGES__[cleanKey] || window.__EXAM_IMAGES__['images/' + cleanKey] || window.__EXAM_IMAGES__['images_deontap/' + cleanKey] || src;
     }
 
     // 3. Nếu chưa thấy, tìm trong Storage.Images

@@ -803,7 +803,7 @@ const ExamRunner = (() => {
       if (q.image) {
         let rawPath = String(q.image).trim();
         let src = rawPath;
-        const cleanKey = rawPath.replace(/^images\//, '');
+        const cleanKey = rawPath.replace(/^(?:images|images_deontap)\//, '');
         const imgs = examData.images || {};
         if (imgs[rawPath]) {
           src = imgs[rawPath];
@@ -811,9 +811,11 @@ const ExamRunner = (() => {
           src = imgs[cleanKey];
         } else if (imgs['images/' + cleanKey]) {
           src = imgs['images/' + cleanKey];
+        } else if (imgs['images_deontap/' + cleanKey]) {
+          src = imgs['images_deontap/' + cleanKey];
         } else if (typeof Storage !== 'undefined' && Storage.Images?.get(rawPath)) {
           src = Storage.Images.get(rawPath);
-        } else if (!src.startsWith('images/') && !src.startsWith('http') && !src.startsWith('/') && !src.startsWith('data:')) {
+        } else if (!src.startsWith('images/') && !src.startsWith('images_deontap/') && !src.startsWith('http') && !src.startsWith('/') && !src.startsWith('data:')) {
           src = `images/${src}`;
         }
         imageHtml = `

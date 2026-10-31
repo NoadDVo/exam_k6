@@ -179,10 +179,13 @@ class TexParser {
     const deMatch = tex.match(/\(ĐỀ\s*(\d+)\)/i);
     if (deMatch) meta.examNumber = deMatch[1];
 
-    // ----- Tiêu đề đề thi (dòng \textbf lớn nhất trong minipage thứ 2 hoặc chứa ĐỀ KIỂM TRA) -----
+    // ----- Tiêu đề đề thi (dòng \textbf lớn nhất trong minipage thứ 2 hoặc chứa ĐỀ KIỂM TRA / ÔN TẬP) -----
     const titleMatch = tex.match(/\\textbf\{(ĐỀ\s+KIỂM\s+TRA[^}]+)\}/i) ||
+                       tex.match(/\{\\Large\\bfseries\s+([^}]+)\}/i) ||
+                       tex.match(/\\textbf\{(ÔN\s+TẬP[^}]+)\}/i) ||
                        tex.match(/\\begin\{minipage\}[^}]*\}[\s\S]*?\\textbf\{(ĐỀ[^}]+)\}/i) ||
-                       tex.match(/\\textbf\{(ĐỀ[^}]+)\}/i);
+                       tex.match(/\\textbf\{(ĐỀ[^}]+)\}/i) ||
+                       tex.match(/(ÔN\s+TẬP\s+TOÁN[^\n\\]+)/i);
     if (titleMatch) {
       meta.title = this._cleanText(titleMatch[1]);
     }
@@ -196,6 +199,10 @@ class TexParser {
     if (monMatch) {
       meta.subject = monMatch[1].trim();
       meta.grade   = `Lớp ${monMatch[2].trim()}`;
+    } else if (meta.title && /TOÁN\s*(\d+)/i.test(meta.title)) {
+      const gMatch = meta.title.match(/TOÁN\s*(\d+)/i);
+      meta.subject = 'Toán';
+      meta.grade   = `Lớp ${gMatch[1]}`;
     }
 
     // ----- Thời gian: số phút -----
@@ -486,7 +493,7 @@ class TexParser {
    * Format: \choice {A} {B} {\True C} {D}
    */
   _parseChoiceOptions(blockContent) {
-    const choiceMatch = blockContent.match(/\\choice(?!TF)\b([\s\S]*?)(?=\\loigiai|$)/);
+    const choiceMatch = blockContent.match(/\\choice(?!TF)\b(?:\[[^\]]*\])?([\s\S]*?)(?=\\loigiai|$)/);
     if (!choiceMatch) return [];
 
     const choiceBlock = choiceMatch[1];
@@ -511,7 +518,7 @@ class TexParser {
    * Format: \choiceTF {\True a} {b} {\True c} {d}
    */
   _parseTFItems(blockContent) {
-    const tfMatch = blockContent.match(/\\choiceTF\b([\s\S]*?)(?=\\loigiai|$)/);
+    const tfMatch = blockContent.match(/\\choiceTF\b(?:\[[^\]]*\])?([\s\S]*?)(?=\\loigiai|$)/);
     if (!tfMatch) return [];
 
     const tfBlock = tfMatch[1];
@@ -535,6 +542,12 @@ class TexParser {
    * Parse đáp án ngắn từ \shortans{answer}
    */
   _parseShortAnswer(blockContent) {
+    const idx = blockContent.indexOf('\\shortans{');
+    if (idx !== -1) {
+      const startIdx = idx + '\\shortans{'.length;
+      const ans = this._extractBalancedBrace(blockContent, startIdx - 1);
+      if (ans !== null) return ans.trim();
+    }
     const m = blockContent.match(/\\shortans\{([^}]*)\}/);
     return m ? m[1].trim() : '';
   }
