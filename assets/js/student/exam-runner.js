@@ -1104,8 +1104,10 @@ const ExamRunner = (() => {
       let statusBadge = '';
       if (detail.isCorrect === true) {
         statusBadge = `<span class="bg-emerald-100 text-emerald-800 font-black text-xs px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1 shrink-0">✓ ĐÚNG (+${detail.earnedPoints}đ)</span>`;
+      } else if (q.type === 'truefalse' && detail.earnedPoints > 0) {
+        statusBadge = `<span class="bg-indigo-100 text-indigo-800 font-black text-xs px-3 py-1 rounded-full border border-indigo-200 flex items-center gap-1 shrink-0">ĐÚNG ${detail.numMatched}/${detail.totalItems} Ý (+${detail.earnedPoints}đ)</span>`;
       } else if (detail.isCorrect === false) {
-        const hasAns = detail.studentAnswer !== null && detail.studentAnswer !== undefined && detail.studentAnswer !== '';
+        const hasAns = detail.studentAnswer !== null && detail.studentAnswer !== undefined && detail.studentAnswer !== '' && (typeof detail.studentAnswer !== 'object' || Object.values(detail.studentAnswer).some(x => x === true || x === false));
         if (hasAns) {
           statusBadge = `<span class="bg-rose-100 text-rose-800 font-black text-xs px-3 py-1 rounded-full border border-rose-200 flex items-center gap-1 shrink-0">✗ SAI (${detail.earnedPoints || 0}đ / ${detail.maxPoints}đ)</span>`;
         } else {

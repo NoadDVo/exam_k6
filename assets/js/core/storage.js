@@ -452,10 +452,10 @@ const Storage = (() => {
                         };
                     });
 
-                    // Thang điểm Bộ GD&ĐT cho câu Đúng/Sai (1.0 điểm):
-                    // Đúng 1 ý = 0.1 đ, 2 ý = 0.25 đ, 3 ý = 0.5 đ, 4 ý = 1.0 đ
-                    const correctTable = { 0: 0, 1: 0.1, 2: 0.25, 3: 0.5, 4: 1.0 };
-                    earnedPoints = (correctTable[numMatched] !== undefined ? correctTable[numMatched] : (numMatched / (tfItems.length || 4))) * maxPoints;
+                    // Thang điểm câu Đúng/Sai: Mỗi ý đúng được 0.25 điểm (sai 1 ý trừ 0.25 điểm)
+                    // 1 ý = 0.25 đ, 2 ý = 0.50 đ, 3 ý = 0.75 đ, 4 ý = 1.0 đ
+                    const itemPoints = (q.points && tfItems.length) ? (q.points / tfItems.length) : 0.25;
+                    earnedPoints = Math.round(numMatched * itemPoints * 100) / 100;
                     totalScore += earnedPoints;
                     isCorrect = (numMatched === tfItems.length && tfItems.length > 0);
                     if (isCorrect) correctCount++;
