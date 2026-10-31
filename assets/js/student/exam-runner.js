@@ -35,6 +35,28 @@ const ExamRunner = (() => {
 
     // 3. Luôn hiển thị Modal Xác Nhận Vào Phòng Thi để học sinh xác nhận, kiểm tra hoặc đổi thí sinh
     showStudentEntryModal(activeCode);
+
+    // 4. Lắng nghe sự kiện để tự động lưu bài làm khi thoát, đóng tab, hoặc ẩn trình duyệt
+    setupAutoSaveListeners();
+  };
+
+  /**
+   * Thiết lập tự động lưu bài làm và thời gian khi thoát, đóng tab, hoặc ẩn trình duyệt
+   */
+  const setupAutoSaveListeners = () => {
+    const doAutoSave = () => {
+      if (session && session.examCode && typeof ExamTimer !== 'undefined' && ExamTimer.isRunning()) {
+        saveDraft();
+      }
+    };
+
+    window.addEventListener('beforeunload', doAutoSave);
+    window.addEventListener('pagehide', doAutoSave);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        doAutoSave();
+      }
+    });
   };
 
   /**
@@ -87,12 +109,43 @@ const ExamRunner = (() => {
                                prevSession.studentName.trim() !== '' && 
                                prevSession.studentName.trim().toLowerCase() !== 'học sinh';
 
+    // Lấy thông tin bản nháp (nếu có) để tính thời gian đã làm / còn lại
+    const savedDraft = prevSession ? Storage.StudentSession.getDraft(activeExamCode, prevSession.studentId) : null;
+
     if (hasExistingSession) {
       if (nameInput) nameInput.value = prevSession.studentName;
       if (classInput) classInput.value = prevSession.studentClass || '';
       if (resumeNotice) resumeNotice.classList.remove('hidden');
-      if (resumeName) resumeName.textContent = `${prevSession.studentName} (${prevSession.studentClass || 'Chưa rõ lớp'})`;
-      if (btnText) btnText.textContent = 'Tiếp Tục Bài Làm';
+
+      // Tính thời gian đã làm & còn lại
+      const totalDurMin = examData.config?.duration || examData.meta?.duration || 90;
+      const totalSec = totalDurMin * 60;
+      let remSec = null;
+      if (savedDraft && typeof savedDraft.remainingSeconds === 'number') {
+        remSec = savedDraft.remainingSeconds;
+      } else if (typeof prevSession.remainingSeconds === 'number') {
+        remSec = prevSession.remainingSeconds;
+      }
+
+      let timeText = '';
+      let btnLabel = 'Tiếp Tục Bài Làm';
+      if (typeof remSec === 'number' && remSec > 0 && remSec <= totalSec) {
+        const elapsedSec = totalSec - remSec;
+        const elapsedMin = Math.max(1, Math.round(elapsedSec / 60));
+        const remFormatted = typeof ExamTimer !== 'undefined' ? ExamTimer.format(remSec) : `${Math.ceil(remSec / 60)} phút`;
+        timeText = `
+          <div class="mt-1 text-[11px] text-emerald-800 font-extrabold flex items-center gap-1.5 bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-300">
+            <span>⏱️ Đã làm: <b>${elapsedMin} phút</b></span>
+            <span>•</span>
+            <span>Còn lại: <b>${remFormatted}</b></span>
+          </div>`;
+        btnLabel = `Tiếp Tục Bài Làm (${remFormatted})`;
+      }
+
+      if (resumeName) {
+        resumeName.innerHTML = `<span class="font-bold text-black text-sm">${prevSession.studentName} (${prevSession.studentClass || 'Chưa rõ lớp'})</span>${timeText}`;
+      }
+      if (btnText) btnText.textContent = btnLabel;
     } else {
       if (forceClear || !prevSession) {
         if (nameInput) nameInput.value = '';
@@ -119,22 +172,27 @@ const ExamRunner = (() => {
    * Xóa thông tin thí sinh cũ trên form và giải phóng phiên thi để thí sinh mới bắt đầu
    */
   const clearStudentEntryForm = () => {
-    const nameInput = document.getElementById('entryStudentName');
-    const classInput = document.getElementById('entryStudentClass');
-    const resumeNotice = document.getElementById('entryResumeNotice');
-    const btnText = document.getElementById('entrySubmitBtnText');
+    if (confirm('Bạn có chắc muốn xóa bài làm dở dang này để bắt đầu lại từ đầu hoặc cho thí sinh khác thi?')) {
+      const nameInput = document.getElementById('entryStudentName');
+      const classInput = document.getElementById('entryStudentClass');
+      const resumeNotice = document.getElementById('entryResumeNotice');
+      const btnText = document.getElementById('entrySubmitBtnText');
 
-    if (nameInput) nameInput.value = '';
-    if (classInput) classInput.value = '';
-    if (resumeNotice) resumeNotice.classList.add('hidden');
-    if (btnText) btnText.textContent = 'Bắt Đầu Làm Bài';
+      if (nameInput) nameInput.value = '';
+      if (classInput) classInput.value = '';
+      if (resumeNotice) resumeNotice.classList.add('hidden');
+      if (btnText) btnText.textContent = 'Bắt Đầu Làm Bài';
 
-    // Xóa session cũ trong storage
-    Storage.StudentSession.clear();
-    session = null;
-    userAnswers = {};
+      const prev = Storage.StudentSession.get();
+      if (prev && prev.studentId) {
+        Storage.StudentSession.clearDraft(activeExamCode, prev.studentId);
+      }
+      Storage.StudentSession.clear();
+      session = null;
+      userAnswers = {};
 
-    if (nameInput) nameInput.focus();
+      if (nameInput) nameInput.focus();
+    }
   };
 
   /**
@@ -162,8 +220,21 @@ const ExamRunner = (() => {
     // Kiểm tra xem thí sinh có trùng với phiên trước không
     const prev = Storage.StudentSession.get();
     let sId;
-    if (prev && prev.studentName === name && prev.studentClass === cls && prev.studentId) {
+    let savedRemaining = null;
+
+    const isSameStudent = prev && 
+                          prev.studentName?.toLowerCase().trim() === name.toLowerCase().trim() && 
+                          (!prev.studentClass || prev.studentClass.toLowerCase().trim() === cls.toLowerCase().trim()) && 
+                          prev.studentId;
+
+    if (isSameStudent) {
       sId = prev.studentId;
+      const draft = Storage.StudentSession.getDraft(examData.examCode, sId);
+      if (draft && typeof draft.remainingSeconds === 'number') {
+        savedRemaining = draft.remainingSeconds;
+      } else if (typeof prev.remainingSeconds === 'number') {
+        savedRemaining = prev.remainingSeconds;
+      }
     } else {
       sId = `HS_${Date.now().toString().slice(-4)}`;
       // Nếu là thí sinh mới thì xóa câu trả lời nháp của thí sinh trước
@@ -176,7 +247,8 @@ const ExamRunner = (() => {
       studentName: name,
       studentClass: cls,
       studentId: sId,
-      startTime: (prev && prev.studentName === name) ? (prev.startTime || new Date().toISOString()) : new Date().toISOString()
+      startTime: isSameStudent ? (prev.startTime || new Date().toISOString()) : new Date().toISOString(),
+      remainingSeconds: savedRemaining
     };
     Storage.StudentSession.save(session);
 
@@ -195,7 +267,9 @@ const ExamRunner = (() => {
    * Đổi thông tin thí sinh hoặc mở lại modal xác nhận
    */
   const changeStudentInfo = () => {
-    if (confirm('Bạn có muốn đổi thông tin thí sinh hoặc vào lại từ đầu? Bài làm hiện tại của bạn sẽ được tạm dừng.')) {
+    saveDraft();
+    const remText = typeof ExamTimer !== 'undefined' ? ExamTimer.format(ExamTimer.getRemaining()) : '';
+    if (confirm(`Bạn có muốn tạm dừng bài thi để kiểm tra hoặc đổi thông tin thí sinh?\n\n• Toàn bộ bài làm và thời gian còn lại (${remText}) sẽ được lưu tự động.`)) {
       ExamTimer.stop();
       AntiCheat.stop();
       showStudentEntryModal(activeExamCode);
@@ -203,13 +277,16 @@ const ExamRunner = (() => {
   };
 
   /**
-   * Thoát phòng thi và quay về trang chủ
+   * Tạm dừng và thoát phòng thi, bảo lưu toàn bộ bài làm và thời gian để học sinh tiếp tục sau
    */
   const exitExam = () => {
-    if (confirm('Bạn có chắc muốn thoát phòng thi? Thông tin phiên thi sẽ được xóa để sẵn sàng cho lần thi sau.')) {
+    saveDraft();
+    const remText = typeof ExamTimer !== 'undefined' ? ExamTimer.format(ExamTimer.getRemaining()) : '';
+    const remMsg = remText ? `\n• Thời gian còn lại: ${remText} (sẽ được tính tiếp tục khi bạn vào lại).` : '';
+
+    if (confirm(`Bạn có muốn tạm dừng và thoát phòng thi không?\n\n• Tiến trình bài làm của bạn đã được tự động lưu lại.${remMsg}\n• Bạn có thể mở lại link thi bất cứ lúc nào để tiếp tục làm bài.`)) {
       ExamTimer.stop();
       AntiCheat.stop();
-      Storage.StudentSession.clear();
       window.location.href = 'index.html';
     }
   };
@@ -237,10 +314,21 @@ const ExamRunner = (() => {
     const floatBtn = document.getElementById('mobilePaletteToggleBtn');
     if (floatBtn) floatBtn.classList.remove('hidden');
 
-    // 1. Khôi phục bài làm dang dở (nếu học sinh lỡ tải lại trang)
+    // 1. Khôi phục bài làm dang dở (nếu học sinh lỡ tải lại trang hoặc tiếp tục bài làm)
     const savedDraft = Storage.StudentSession.getDraft(session.examCode, session.studentId);
+    let resumeRemaining = null;
     if (savedDraft) {
-      userAnswers = savedDraft;
+      if (savedDraft.answers && typeof savedDraft.answers === 'object') {
+        userAnswers = savedDraft.answers;
+        if (typeof savedDraft.remainingSeconds === 'number') {
+          resumeRemaining = savedDraft.remainingSeconds;
+        }
+      } else if (typeof savedDraft === 'object') {
+        userAnswers = savedDraft;
+      }
+    }
+    if (resumeRemaining === null && typeof session.remainingSeconds === 'number') {
+      resumeRemaining = session.remainingSeconds;
     }
 
     // 2. Cập nhật thông tin giao diện
@@ -264,6 +352,14 @@ const ExamRunner = (() => {
 
     // 6. Bắt đầu đếm ngược thời gian
     const durationMinutes = examData.config?.duration || 45;
+
+    // Nếu thời gian bảo lưu đã hết (<= 0), thông báo và nộp bài
+    if (typeof resumeRemaining === 'number' && resumeRemaining <= 0) {
+      alert('Đã hết thời gian làm bài của bạn! Hệ thống đang tự động nộp bài.');
+      submitExam(true);
+      return;
+    }
+
     ExamTimer.start(
       durationMinutes,
       (remaining, total, percent) => {
@@ -276,11 +372,17 @@ const ExamRunner = (() => {
           pill.classList.remove('warning', 'danger');
           if (state !== 'normal') pill.classList.add(state);
         }
+
+        // Tự động lưu tiến trình và số giây còn lại định kỳ mỗi 5 giây
+        if (remaining % 5 === 0) {
+          saveDraft();
+        }
       },
       () => {
         alert('Đã hết thời gian làm bài! Hệ thống đang tự động nộp bài của bạn.');
         submitExam(true);
-      }
+      },
+      resumeRemaining
     );
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -646,11 +748,36 @@ const ExamRunner = (() => {
   };
 
   /**
-   * Lưu bản nháp vào LocalStorage tránh mất bài khi F5
+   * Lưu bản nháp và thời gian làm bài vào LocalStorage tránh mất bài khi F5 hoặc thoát
    */
   const saveDraft = () => {
     if (session && session.examCode) {
-      Storage.StudentSession.saveDraft(session.examCode, session.studentId, userAnswers);
+      let remainingSeconds = null;
+      let elapsedSeconds = null;
+      if (typeof ExamTimer !== 'undefined' && ExamTimer.isRunning()) {
+        remainingSeconds = ExamTimer.getRemaining();
+        elapsedSeconds = ExamTimer.getElapsed();
+      } else if (typeof session.remainingSeconds === 'number') {
+        remainingSeconds = session.remainingSeconds;
+      }
+
+      const draftData = {
+        answers: userAnswers || {},
+        remainingSeconds: remainingSeconds,
+        elapsedSeconds: elapsedSeconds,
+        studentName: session.studentName,
+        studentClass: session.studentClass,
+        studentId: session.studentId,
+        examCode: session.examCode,
+        updatedAt: new Date().toISOString()
+      };
+
+      Storage.StudentSession.saveDraft(session.examCode, session.studentId, draftData);
+
+      if (typeof remainingSeconds === 'number') {
+        session.remainingSeconds = remainingSeconds;
+        Storage.StudentSession.save(session);
+      }
     }
   };
 

@@ -607,13 +607,24 @@ const Storage = (() => {
         get: () => get(KEYS.CURRENT_SESSION, null),
         clear: () => remove(KEYS.CURRENT_SESSION),
         saveDraft: (examCode, studentId, draft) => {
-            set(`draft_${examCode}_${studentId || 'default'}`, draft);
+            const key = `draft_${examCode}_${studentId || 'default'}`;
+            set(key, draft);
+            if (examCode) {
+                set(`latest_draft_${examCode}`, { studentId, draft, updatedAt: Date.now() });
+            }
         },
         getDraft: (examCode, studentId) => {
-            return get(`draft_${examCode}_${studentId || 'default'}`, null);
+            const specific = get(`draft_${examCode}_${studentId || 'default'}`, null);
+            if (specific) return specific;
+            const latest = get(`latest_draft_${examCode}`, null);
+            if (latest) {
+                return latest.draft || latest;
+            }
+            return null;
         },
         clearDraft: (examCode, studentId) => {
             remove(`draft_${examCode}_${studentId || 'default'}`);
+            remove(`latest_draft_${examCode}`);
         }
     };
 

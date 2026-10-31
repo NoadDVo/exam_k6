@@ -12,17 +12,27 @@ const ExamTimer = (() => {
     let isRunning = false;
 
     /**
-     * Bắt đầu đồng hồ
+     * Bắt đầu đồng hồ đếm ngược
      * @param {number} durationMinutes - Thời gian thi (phút)
      * @param {Function} onTick - Callback mỗi giây: (remaining, total, percent)
      * @param {Function} onFinish - Callback khi hết giờ
+     * @param {number|null} [initialRemainingSeconds] - Số giây còn lại nếu tiếp tục bài làm dở dang
      */
-    const start = (durationMinutes, onTick, onFinish) => {
-        totalSeconds = durationMinutes * 60;
-        remainingSeconds = totalSeconds;
+    const start = (durationMinutes, onTick, onFinish, initialRemainingSeconds = null) => {
+        totalSeconds = Math.max(1, durationMinutes * 60);
+        if (typeof initialRemainingSeconds === 'number' && initialRemainingSeconds > 0 && initialRemainingSeconds <= totalSeconds) {
+            remainingSeconds = Math.floor(initialRemainingSeconds);
+        } else {
+            remainingSeconds = totalSeconds;
+        }
         onTickCallback = onTick;
         onFinishCallback = onFinish;
         isRunning = true;
+
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
 
         // Gọi ngay lần đầu
         tick();
@@ -81,6 +91,8 @@ const ExamTimer = (() => {
         format,
         getState,
         getRemaining: () => remainingSeconds,
+        getTotal: () => totalSeconds,
+        getElapsed: () => Math.max(0, totalSeconds - remainingSeconds),
         getPercent: () => totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0,
         isRunning: () => isRunning,
     };
