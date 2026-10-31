@@ -311,23 +311,50 @@ class TexRenderer {
    * @returns {string} HTML string
    */
   renderShortAnswerQuestion(question, opts) {
-    // Chế độ exam: ô nhập liệu
+    // Chế độ exam: ô nhập liệu kèm thanh công cụ phím nhanh Toán & xem trước công thức
     const answerInputHtml = (opts.mode === 'exam')
       ? `<div class="short-answer-input-wrap">
-          <span class="short-answer-label">Đáp số:</span>
-          <input type="text"
-                 class="short-answer-input"
-                 data-question-id="${question.id}"
-                 placeholder="Nhập đáp án..."
-                 autocomplete="off">
+          <div class="short-answer-input-row">
+            <span class="short-answer-label">Đáp số:</span>
+            <input type="text"
+                   class="short-answer-input"
+                   data-question-id="${question.id}"
+                   placeholder="Nhập kết quả (hoặc bấm phím nhanh)..."
+                   autocomplete="off">
+          </div>
+          <div class="math-quick-bar">
+            <span class="math-quick-title">Phím nhanh:</span>
+            <button type="button" class="math-btn" data-insert="/" title="Phân số (dấu gạch chéo)">a/b</button>
+            <button type="button" class="math-btn" data-insert="^2" title="Mũ 2 (bình phương)">x²</button>
+            <button type="button" class="math-btn" data-insert="^" title="Số mũ / Lũy thừa">xⁿ</button>
+            <button type="button" class="math-btn" data-insert=" · " title="Dấu nhân (chấm)">·</button>
+            <button type="button" class="math-btn font-bold text-indigo-600" data-insert="; " title="Dấu chấm phẩy ngăn cách">;</button>
+            <button type="button" class="math-btn" data-insert="cm" title="Đơn vị cm">cm</button>
+            <button type="button" class="math-btn" data-insert="m²" title="Đơn vị mét vuông">m²</button>
+            <button type="button" class="math-btn" data-insert="cm²" title="Đơn vị cm vuông">cm²</button>
+            <button type="button" class="math-btn" data-insert="()" data-cursor="-1" title="Dấu ngoặc đơn">( )</button>
+            <button type="button" class="math-btn math-btn-clear" data-action="clear" title="Xóa nhập lại">✕ Xóa</button>
+          </div>
+          <div class="short-answer-live-preview" data-preview-for="${question.id}">
+            <span class="preview-badge hidden">Hiển thị:</span>
+            <span class="preview-content"></span>
+          </div>
         </div>`
       : '';
+
+    // Format hiển thị đáp án đẹp cho câu trả lời ngắn (tự bọc $ nếu chứa công thức để KaTeX render chuẩn)
+    let formattedAnswer = String(question.shortAnswer || '').trim();
+    if (formattedAnswer) {
+      if (!formattedAnswer.startsWith('$') && (/(\\[a-zA-Z]+|[\\^_{}]|m\^2|cm\^2|\/)/.test(formattedAnswer))) {
+        formattedAnswer = `$${formattedAnswer}$`;
+      }
+    }
 
     // Hiện đáp án
     const answerDisplayHtml = (opts.showAnswers && question.shortAnswer)
       ? `<div class="short-answer-display">
           <span class="answer-label">Đáp án:</span>
-          <span class="answer-value">${this._escape(question.shortAnswer)}</span>
+          <span class="answer-value">${formattedAnswer}</span>
         </div>`
       : (!opts.showAnswers && opts.mode !== 'exam')
         ? `<div class="short-answer-blank" style="margin-top: 10px; font-weight: 700; font-size: 13px; color: #64748b;">Đáp số: ............................................................................</div>`

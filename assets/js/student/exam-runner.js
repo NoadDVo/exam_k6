@@ -460,6 +460,38 @@ const ExamRunner = (() => {
           unmarkPaletteAnswered(qId);
         }
         updateProgress();
+        updateShortAnswerPreview(input);
+      });
+    });
+
+    // 3.1 Nút trợ giúp công thức nhanh Toán học cho học sinh (Math Quick Toolbar)
+    document.querySelectorAll('.math-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const wrap = btn.closest('.short-answer-input-wrap');
+        if (!wrap) return;
+        const input = wrap.querySelector('.short-answer-input');
+        if (!input) return;
+
+        const action = btn.getAttribute('data-action');
+        if (action === 'clear') {
+          input.value = '';
+          input.focus();
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          return;
+        }
+
+        const insertText = btn.getAttribute('data-insert') || '';
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        const currentVal = input.value;
+
+        input.value = currentVal.substring(0, start) + insertText + currentVal.substring(end);
+        const cursorOffset = parseInt(btn.getAttribute('data-cursor') || '0', 10);
+        const newPos = start + insertText.length + cursorOffset;
+        input.setSelectionRange(newPos, newPos);
+        input.focus();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
       });
     });
 
@@ -518,6 +550,7 @@ const ExamRunner = (() => {
         if (input) {
           input.value = ans;
           markPaletteAnswered(qId);
+          updateShortAnswerPreview(input);
         }
       } else if (typeof ans === 'object' && ans !== null) {
         // True/False
@@ -534,6 +567,49 @@ const ExamRunner = (() => {
       }
     }
     updateProgress();
+  };
+
+  /**
+   * Cập nhật khung xem trước công thức trực tiếp cho câu trả lời ngắn
+   */
+  const updateShortAnswerPreview = (input) => {
+    if (!input) return;
+    const qId = input.getAttribute('data-question-id');
+    const wrap = input.closest('.short-answer-input-wrap');
+    if (!wrap) return;
+    const previewBox = wrap.querySelector(`.short-answer-live-preview`);
+    if (!previewBox) return;
+
+    const badge = previewBox.querySelector('.preview-badge');
+    const content = previewBox.querySelector('.preview-content');
+    const val = input.value.trim();
+
+    if (!val) {
+      if (badge) badge.classList.add('hidden');
+      if (content) content.innerHTML = '';
+      return;
+    }
+
+    if (badge) badge.classList.remove('hidden');
+
+    // Chuyển đổi ký tự viết nhanh thành biểu thức LaTeX chuẩn để hiển thị cho học sinh
+    if (/[\/\^\*·_;]/.test(val) || /cm|m²/.test(val)) {
+      let mathExpr = val
+        .replace(/([0-9a-zA-Z]+)\s*\/\s*([0-9a-zA-Z]+)/g, '\\frac{$1}{$2}')
+        .replace(/\*/g, ' \\cdot ')
+        .replace(/·/g, ' \\cdot ')
+        .replace(/m²|m\^2/g, '\\text{ m}^2')
+        .replace(/cm²|cm\^2/g, '\\text{ cm}^2')
+        .replace(/cm\b/g, '\\text{ cm}')
+        .replace(/;/g, ';\\;');
+      if (typeof katex !== 'undefined') {
+        try {
+          content.innerHTML = katex.renderToString(mathExpr, { throwOnError: false });
+          return;
+        } catch (e) {}
+      }
+    }
+    content.textContent = val;
   };
 
   const markPaletteAnswered = (qId) => {
@@ -902,6 +978,16 @@ const ExamRunner = (() => {
         const correctAns = String(detail.correctAnswer || q.shortAnswer || '').trim();
         const isCorrect = detail.isCorrect;
 
+        let displayCorrect = correctAns;
+        if (displayCorrect && !displayCorrect.startsWith('$') && (/(\\[a-zA-Z]+|[\\^_{}]|m\^2|cm\^2|\/)/.test(displayCorrect))) {
+          displayCorrect = `$${displayCorrect}$`;
+        }
+
+        let displayStudent = studentAns;
+        if (displayStudent && !displayStudent.startsWith('$') && (/(\\[a-zA-Z]+|[\\^_{}]|m\^2|cm\^2|\/)/.test(displayStudent))) {
+          displayStudent = `$${displayStudent}$`;
+        }
+
         comparisonHtml = `
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-3">
             <div class="p-4 rounded-2xl border ${isCorrect ? 'border-emerald-300 bg-emerald-50/70' : 'border-rose-300 bg-rose-50/70'}">
@@ -909,7 +995,7 @@ const ExamRunner = (() => {
                 ${isCorrect ? '✓ Câu trả lời của bạn (Chính xác)' : '✗ Câu trả lời của bạn'}
               </span>
               <div class="text-lg font-black font-mono ${isCorrect ? 'text-emerald-900' : 'text-rose-900'}">
-                ${studentAns ? studentAns : '<span class="text-slate-400 italic font-normal text-sm">(Chưa điền đáp án)</span>'}
+                ${displayStudent ? displayStudent : '<span class="text-slate-400 italic font-normal text-sm">(Chưa điền đáp án)</span>'}
               </div>
             </div>
             <div class="p-4 rounded-2xl border border-emerald-300 bg-emerald-50/70">
@@ -917,7 +1003,7 @@ const ExamRunner = (() => {
                 ✓ Đáp án chính xác
               </span>
               <div class="text-lg font-black font-mono text-emerald-900">
-                ${correctAns}
+                ${displayCorrect}
               </div>
             </div>
           </div>

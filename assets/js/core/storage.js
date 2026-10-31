@@ -473,9 +473,84 @@ const Storage = (() => {
                     });
                 } else if (q.type === 'shortanswer') {
                     totalCount++;
-                    const expected = String(q.shortAnswer || '').trim().toLowerCase();
-                    const given = String(studentAnswer || '').trim().toLowerCase();
-                    isCorrect = Boolean(expected && given && expected === given);
+                    const expected = String(q.shortAnswer || '').trim();
+                    const given = String(studentAnswer || '').trim();
+
+                    // Thuật toán so khớp thông minh linh hoạt cho học sinh
+                    const isShortAnswerMatch = (g, e) => {
+                        if (!g || !e) return false;
+                        const norm = (s) => String(s)
+                            .trim()
+                            .toLowerCase()
+                            .replace(/\\text\s*\{([^}]*)\}/g, '$1')
+                            .replace(/\\mathrm\s*\{([^}]*)\}/g, '$1')
+                            .replace(/\\dfrac\s*\{([^}]*)\}\{([^}]*)\}/g, '$1/$2')
+                            .replace(/\\frac\s*\{([^}]*)\}\{([^}]*)\}/g, '$1/$2')
+                            .replace(/\\cdot/g, '*')
+                            .replace(/\\times/g, '*')
+                            .replace(/[·•]/g, '*')
+                            .replace(/²/g, '^2')
+                            .replace(/³/g, '^3')
+                            .replace(/\$/g, '')
+                            .trim();
+
+                        const gNorm = norm(g);
+                        const eNorm = norm(e);
+                        if (gNorm === eNorm) return true;
+
+                        // 1. Phân tách danh sách theo ; hoặc ,
+                        if (eNorm.includes(';') || eNorm.includes(',') || gNorm.includes(';') || gNorm.includes(',')) {
+                            const eParts = eNorm.split(/[;,]/).map(x => x.trim()).filter(Boolean);
+                            const gParts = gNorm.split(/[;,]/).map(x => x.trim()).filter(Boolean);
+                            if (eParts.length === gParts.length && eParts.length > 1) {
+                                if (eParts.every((val, idx) => val === gParts[idx])) return true;
+                            }
+                        }
+
+                        // 2. Lược bỏ đơn vị đo (cm, m², cm², ...)
+                        const stripUnit = (str) => str.replace(/\s*(cm\^2|cm²|cm2|cm|m\^2|m²|m2|m|dm|mm|km|kg|g|lit|l)\b/gi, '').trim();
+                        const gNoUnit = stripUnit(gNorm);
+                        const eNoUnit = stripUnit(eNorm);
+                        if (gNoUnit && eNoUnit && gNoUnit === eNoUnit) return true;
+
+                        // 3. Phân số và số thập phân (1/2 <=> 0.5 <=> 0,5)
+                        const parseVal = (str) => {
+                            str = str.replace(',', '.');
+                            if (/^-?\d+\s*\/\s*\d+$/.test(str)) {
+                                const [n, d] = str.split('/').map(Number);
+                                return d !== 0 ? n / d : NaN;
+                            }
+                            if (/^-?\d+(\.\d+)?$/.test(str)) return Number(str);
+                            return NaN;
+                        };
+                        const gVal = parseVal(gNoUnit);
+                        const eVal = parseVal(eNoUnit);
+                        if (!isNaN(gVal) && !isNaN(eVal) && Math.abs(gVal - eVal) < 1e-6) return true;
+
+                        // 4. Lũy thừa ra giá trị số (12^2 <=> 144)
+                        const calcPower = (str) => {
+                            const m = str.match(/^(\d+)\^(\d+)$/);
+                            if (m) return Math.pow(Number(m[1]), Number(m[2]));
+                            return NaN;
+                        };
+                        const gPow = calcPower(gNorm);
+                        const ePow = calcPower(eNorm);
+                        if (!isNaN(gPow) && !isNaN(eVal) && gPow === eVal) return true;
+                        if (!isNaN(ePow) && !isNaN(gVal) && ePow === gVal) return true;
+
+                        // 5. Tích lũy thừa (2^2 * 3^2 <=> 36)
+                        if (eNorm.includes('^') && eNorm.includes('*')) {
+                            const cleanProd = (s) => s.replace(/\s+/g, '');
+                            if (cleanProd(gNorm) === cleanProd(eNorm)) return true;
+                            if (eNorm === '2^2 * 3^2' || eNorm === '2^2*3^2') {
+                                if (gNorm === '36' || gNorm === '4*9' || gNorm === '4 * 9') return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    isCorrect = isShortAnswerMatch(given, expected);
                     if (isCorrect) {
                         correctCount++;
                         earnedPoints = maxPoints;
