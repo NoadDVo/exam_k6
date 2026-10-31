@@ -25,7 +25,6 @@ const ExamRunner = (() => {
   const updateModeUI = () => {
     const btnExam = document.getElementById('btnModeExam');
     const btnPractice = document.getElementById('btnModePractice');
-    const hint = document.getElementById('entryModeHint');
     const navBadge = document.getElementById('examModeBadge');
 
     if (activeExamMode === 'exam') {
@@ -34,9 +33,6 @@ const ExamRunner = (() => {
       }
       if (btnPractice) {
         btnPractice.className = 'py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer';
-      }
-      if (hint) {
-        hint.textContent = 'Tính giờ thực tế liên tục, quá hạn tự động nộp';
       }
       if (navBadge) {
         navBadge.textContent = '🏆 Thi';
@@ -48,9 +44,6 @@ const ExamRunner = (() => {
       }
       if (btnExam) {
         btnExam.className = 'py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer';
-      }
-      if (hint) {
-        hint.textContent = 'Tự do thời gian, tạm dừng khi thoát, vào lại làm tiếp';
       }
       if (navBadge) {
         navBadge.textContent = '📖 Ôn tập';
