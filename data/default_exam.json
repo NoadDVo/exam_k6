@@ -1,6 +1,7 @@
 {
   "meta": {
     "examCode": "123456",
+    "createdAt": "2026-10-31T08:00:00.000Z",
     "title": "ĐỀ KIỂM TRA GIỮA HỌC KÌ I",
     "subject": "TOÁN",
     "grade": "Lớp 6",
@@ -629,5 +630,5 @@
     "grade": "Lớp 6"
   },
   "isActive": true,
-  "createdAt": "2026-10-30T00:00:00.000Z"
+  "createdAt": "2026-10-31T08:00:00.000Z"
 }

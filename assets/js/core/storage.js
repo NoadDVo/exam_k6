@@ -252,6 +252,7 @@ const Storage = (() => {
                     ...def,
                     examCode: codeStr || def.meta?.code || def.meta?.examCode || '123456',
                     isActive: true,
+                    createdAt: def.createdAt || '2026-10-31T08:00:00.000Z',
                     config: {
                         duration: def.config?.duration || def.meta?.duration || 90,
                         maxAttempts: 1,
@@ -315,7 +316,7 @@ const Storage = (() => {
                     paperStyle: cfg.paperStyle || examData.config?.paperStyle || examData.paperStyle || 'grid-oly',
                     paperColor: cfg.paperColor || examData.config?.paperColor || examData.paperColor || '#FDFCF7',
                 },
-                createdAt: examData.createdAt || new Date().toISOString(),
+                createdAt: examData.createdAt || cfg.createdAt || new Date().toISOString(),
                 createdBy: examData.createdBy || Auth.getCurrentUser()?.email || 'anonymous',
                 isActive: true,
             };
@@ -359,7 +360,7 @@ const Storage = (() => {
                     ...def,
                     examCode: '123456',
                     createdBy: user?.email || 'giaovien@gmail.com',
-                    createdAt: def.createdAt || new Date().toISOString()
+                    createdAt: def.createdAt || '2026-10-31T08:00:00.000Z'
                 };
                 exams['123456'] = defaultExam;
                 set(KEYS.EXAMS, exams);

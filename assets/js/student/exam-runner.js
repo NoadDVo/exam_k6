@@ -15,6 +15,23 @@ const ExamRunner = (() => {
   let activeExamCode = '123456';
   let activeExamMode = 'exam'; // 'exam' (thi chính thức - tính giờ thực tế) | 'practice' (ôn tập - tạm dừng giờ khi thoát)
 
+  const formatExamDateTime = (val) => {
+    if (!val) return '';
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      const day = pad(d.getDate());
+      const month = pad(d.getMonth() + 1);
+      const year = d.getFullYear();
+      const hours = pad(d.getHours());
+      const minutes = pad(d.getMinutes());
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (e) {
+      return '';
+    }
+  };
+
   const setExamMode = (mode) => {
     activeExamMode = mode === 'practice' ? 'practice' : 'exam';
     updateModeUI();
@@ -145,6 +162,35 @@ const ExamRunner = (() => {
 
     const qCountEl = document.getElementById('entryExamTotalQuestions');
     if (qCountEl) qCountEl.innerHTML = `<i data-lucide="list" class="w-3.5 h-3.5 inline mr-1"></i>${examData.questions?.length || 0} câu`;
+
+    const createdAtVal = examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt || null;
+    const formattedCreated = formatExamDateTime(createdAtVal);
+
+    const createdAtEl = document.getElementById('entryExamCreatedAt');
+    if (createdAtEl) {
+      if (formattedCreated) {
+        createdAtEl.innerHTML = `<i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>Tạo lúc: <strong class="text-black">${formattedCreated}</strong>`;
+      } else {
+        createdAtEl.innerHTML = `<i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>Tạo lúc: <span class="text-neutral-500">Mặc định</span>`;
+      }
+    }
+
+    const teacherName = examData.config?.teacher || examData.meta?.teacher || '';
+    const teacherEl = document.getElementById('entryExamTeacher');
+    if (teacherEl) {
+      if (teacherName) {
+        teacherEl.innerHTML = `<i data-lucide="user-check" class="w-3.5 h-3.5 inline mr-1"></i>GV: <b>${teacherName}</b>`;
+        teacherEl.classList.remove('hidden');
+      } else {
+        teacherEl.classList.add('hidden');
+      }
+    }
+
+    const paletteCreatedAtText = document.getElementById('paletteExamCreatedAtText');
+    if (paletteCreatedAtText) paletteCreatedAtText.textContent = formattedCreated || '--:--';
+
+    const mobilePaletteCreatedAtText = document.getElementById('mobilePaletteExamCreatedAtText');
+    if (mobilePaletteCreatedAtText) mobilePaletteCreatedAtText.textContent = formattedCreated || '--:--';
 
     // Cập nhật tiêu đề navbar
     const titleBadge = document.getElementById('examTitleBadge');
@@ -1242,6 +1288,7 @@ const ExamRunner = (() => {
     const submissionData = {
       examCode: examData.examCode,
       examMode: activeExamMode,
+      examCreatedAt: examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt || null,
       studentName: session?.studentName || 'Học sinh',
       studentClass: session?.studentClass || '',
       studentId: session?.studentId || 'HS_ANON',
@@ -1323,6 +1370,12 @@ const ExamRunner = (() => {
 
     const examCodeEl = document.getElementById('resExamCode');
     if (examCodeEl) examCodeEl.textContent = `Mã đề: ${data.examCode || '123456'}`;
+
+    const resCreatedEl = document.getElementById('resExamCreatedAtText');
+    const createdAtVal = data.examCreatedAt || examData?.createdAt || examData?.meta?.createdAt || examData?.config?.createdAt || null;
+    if (resCreatedEl) {
+      resCreatedEl.textContent = formatExamDateTime(createdAtVal) || '--:--';
+    }
 
     const scoreEl = document.getElementById('resScoreDisplay');
     if (scoreEl) scoreEl.textContent = Number(data.score).toFixed(1).replace('.0', '');

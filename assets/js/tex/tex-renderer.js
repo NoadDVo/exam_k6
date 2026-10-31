@@ -60,7 +60,11 @@ class TexRenderer {
 
     // --- Header & Thông tin học sinh (chỉ render nếu showHeader được bật) ---
     if (opts.showHeader) {
-      html += this.renderHeader(examData.meta);
+      const meta = {
+        ...(examData.meta || {}),
+        createdAt: examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt
+      };
+      html += this.renderHeader(meta);
       html += this._renderStudentInfo(opts);
     }
 
@@ -105,6 +109,8 @@ class TexRenderer {
    * @returns {string} HTML string
    */
   renderHeader(meta) {
+    const createdAt = meta && meta.createdAt ? this._formatDateTime(meta.createdAt) : '';
+    const createdHtml = createdAt ? `<div class="exam-created-at" style="font-size: 11px; font-weight: normal; margin-top: 3px;"><em>Ngày tạo: ${createdAt}</em></div>` : '';
     return `
 <div class="exam-header">
   <div class="exam-header-left">
@@ -116,6 +122,7 @@ class TexRenderer {
     <div class="exam-year">NĂM HỌC ${this._escape(meta.year)}</div>
     <div class="exam-subject">Môn: ${this._escape(meta.subject)} — ${this._escape(meta.grade)}</div>
     <div class="exam-duration"><em>Thời gian làm bài: ${meta.duration} phút</em></div>
+    ${createdHtml}
   </div>
 </div>
 <div class="exam-header-separator"></div>
@@ -958,6 +965,21 @@ class TexRenderer {
     }
     // Preview và exam: không cần dòng này (đã có thông tin user)
     return '';
+  }
+
+  /**
+   * Định dạng ngày giờ dạng dd/mm/yyyy hh:mm
+   */
+  _formatDateTime(val) {
+    if (!val) return '';
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch (e) {
+      return '';
+    }
   }
 
   /**

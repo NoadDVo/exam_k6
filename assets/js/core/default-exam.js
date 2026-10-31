@@ -3,8 +3,10 @@
 window.DEFAULT_EXAM = window.__DEFAULT_EXAM__ = {
   "examCode": "123456",
   "isActive": true,
+  "createdAt": "2026-10-31T08:00:00.000Z",
   "meta": {
     "examCode": "123456",
+    "createdAt": "2026-10-31T08:00:00.000Z",
     "title": "ÔN TẬP TOÁN 6 GIỮA HỌC KÌ I",
     "subject": "Toán",
     "grade": "Lớp 6",

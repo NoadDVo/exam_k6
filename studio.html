@@ -1133,6 +1133,9 @@
                 <div class="neo-card-yellow p-5 text-center">
                     <div class="text-[10px] font-mono font-bold uppercase text-neutral-800 tracking-wider">MÃ PHÒNG THI</div>
                     <div class="font-typewriter text-3xl font-black text-black tracking-widest my-1.5" id="newExamCode">EX-XXXXX</div>
+                    <div id="newExamCreatedAtRow" class="text-[11px] font-bold text-neutral-600 flex items-center justify-center gap-1 my-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Tạo lúc: <span id="newExamCreatedAt" class="font-mono text-black font-extrabold">--:--</span>
+                    </div>
                     <button onclick="copyExamCode()" class="neo-btn neo-btn-white neo-btn-sm mt-1">
                         <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao chép mã
                     </button>
@@ -2038,11 +2041,27 @@
             if (result.success) {
                 closeCreateExamModal();
                 document.getElementById('newExamCode').textContent = result.examCode;
+                const newCreatedEl = document.getElementById('newExamCreatedAt');
+                if (newCreatedEl) {
+                    newCreatedEl.textContent = formatDateTimeStudio(result.exam?.createdAt || new Date().toISOString());
+                }
                 document.getElementById('examCodeModal').classList.remove('hidden');
                 lucide.createIcons();
                 showToast(`Đã tạo đề thi: ${result.examCode}`, 'success');
                 loadExamList();
                 loadStatsExamOptions();
+            }
+        }
+
+        function formatDateTimeStudio(val) {
+            if (!val) return '';
+            try {
+                const d = new Date(val);
+                if (isNaN(d.getTime())) return '';
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            } catch (e) {
+                return '';
             }
         }
 
@@ -2116,7 +2135,7 @@
                         <div class="flex items-center gap-3 mt-3 pt-3 border-t-2 border-black/10 text-xs font-bold text-neutral-700">
                             <span><i data-lucide="clock" class="w-3.5 h-3.5 inline"></i> ${cfg.duration || 45} phút</span>
                             <span><i data-lucide="list" class="w-3.5 h-3.5 inline"></i> ${exam.questions?.length || 0} câu</span>
-                            <span class="ml-auto font-mono text-[11px]">${new Date(exam.createdAt || Date.now()).toLocaleDateString('vi-VN')}</span>
+                            <span class="ml-auto font-mono text-[11px] flex items-center gap-1 text-neutral-600" title="Thời gian tạo đề"><i data-lucide="calendar" class="w-3.5 h-3.5 inline"></i> ${formatDateTimeStudio(exam.createdAt || Date.now())}</span>
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t-2 border-black">
