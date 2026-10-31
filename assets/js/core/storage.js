@@ -252,6 +252,7 @@ const Storage = (() => {
                     ...def,
                     examCode: codeStr || def.meta?.code || def.meta?.examCode || '123456',
                     isActive: true,
+                    examMode: def.config?.examMode || def.examMode || 'exam',
                     createdAt: def.createdAt || '2026-10-31T08:00:00.000Z',
                     config: {
                         duration: def.config?.duration || def.meta?.duration || 90,
@@ -265,6 +266,7 @@ const Storage = (() => {
                         paperStyle: def.config?.paperStyle || 'grid-oly',
                         fontClass: def.config?.fontClass || 'font-itim',
                         paperColor: def.config?.paperColor || '#FDFCF7',
+                        examMode: def.config?.examMode || def.examMode || 'exam',
                         ...(def.config || {})
                     }
                 };
@@ -315,7 +317,9 @@ const Storage = (() => {
                     fontClass: cfg.fontClass || examData.config?.fontClass || examData.fontClass || 'font-itim',
                     paperStyle: cfg.paperStyle || examData.config?.paperStyle || examData.paperStyle || 'grid-oly',
                     paperColor: cfg.paperColor || examData.config?.paperColor || examData.paperColor || '#FDFCF7',
+                    examMode: cfg.examMode || examData.config?.examMode || examData.examMode || 'exam',
                 },
+                examMode: cfg.examMode || examData.config?.examMode || examData.examMode || 'exam',
                 createdAt: examData.createdAt || cfg.createdAt || new Date().toISOString(),
                 createdBy: examData.createdBy || Auth.getCurrentUser()?.email || 'anonymous',
                 isActive: true,

@@ -40,32 +40,20 @@ const ExamRunner = (() => {
   };
 
   const updateModeUI = () => {
-    const btnExam = document.getElementById('btnModeExam');
-    const btnPractice = document.getElementById('btnModePractice');
     const navBadge = document.getElementById('examModeBadge');
+    const entryBadge = document.getElementById('entryExamModeBadge');
 
-    if (activeExamMode === 'exam') {
-      if (btnExam) {
-        btnExam.className = 'py-2 px-2.5 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all bg-black text-white shadow-sm cursor-pointer';
-      }
-      if (btnPractice) {
-        btnPractice.className = 'py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer';
-      }
-      if (navBadge) {
-        navBadge.textContent = '🏆 Thi';
-        navBadge.className = 'neo-badge neo-badge-black text-[9px] font-black uppercase px-1.5 py-0.5';
-      }
-    } else {
-      if (btnPractice) {
-        btnPractice.className = 'py-2 px-2.5 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all bg-[#2D6A4F] text-white shadow-sm cursor-pointer';
-      }
-      if (btnExam) {
-        btnExam.className = 'py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer';
-      }
-      if (navBadge) {
-        navBadge.textContent = '📖 Ôn tập';
-        navBadge.className = 'neo-badge neo-badge-mint text-[9px] font-black uppercase px-1.5 py-0.5';
-      }
+    const isExam = activeExamMode === 'exam';
+    const badgeText = isExam ? '🏆 Thi' : '📖 Ôn tập';
+    const badgeClass = isExam ? 'neo-badge neo-badge-black' : 'neo-badge neo-badge-mint';
+
+    if (navBadge) {
+      navBadge.textContent = badgeText;
+      navBadge.className = `${badgeClass} text-[9px] font-black uppercase px-1.5 py-0.5`;
+    }
+    if (entryBadge) {
+      entryBadge.textContent = isExam ? '🏆 Chế độ Thi' : '📖 Chế độ Ôn tập';
+      entryBadge.className = `${badgeClass} text-[10px] font-black uppercase px-2 py-0.5`;
     }
     if (typeof lucide !== 'undefined') lucide.createIcons();
   };
@@ -91,15 +79,16 @@ const ExamRunner = (() => {
       return;
     }
 
-    // Xác định chế độ: Ưu tiên URL param > Phiên trước > Cấu hình đề > Mặc định 'exam'
-    if (modeFromUrl === 'practice' || modeFromUrl === 'ontap') {
+    // Chế độ thi do Giáo viên quyết định trên đề thi (học sinh không tự chọn)
+    const teacherMode = examData?.config?.examMode || examData?.examMode;
+    if (teacherMode === 'practice' || teacherMode === 'exam') {
+      activeExamMode = teacherMode;
+    } else if (modeFromUrl === 'practice' || modeFromUrl === 'ontap') {
       activeExamMode = 'practice';
     } else if (modeFromUrl === 'exam' || modeFromUrl === 'thi') {
       activeExamMode = 'exam';
     } else if (session && session.examMode) {
       activeExamMode = session.examMode;
-    } else if (examData?.config?.examMode) {
-      activeExamMode = examData.config.examMode;
     } else {
       activeExamMode = 'exam';
     }
@@ -163,35 +152,6 @@ const ExamRunner = (() => {
     const qCountEl = document.getElementById('entryExamTotalQuestions');
     if (qCountEl) qCountEl.innerHTML = `<i data-lucide="list" class="w-3.5 h-3.5 inline mr-1"></i>${examData.questions?.length || 0} câu`;
 
-    const createdAtVal = examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt || null;
-    const formattedCreated = formatExamDateTime(createdAtVal);
-
-    const createdAtEl = document.getElementById('entryExamCreatedAt');
-    if (createdAtEl) {
-      if (formattedCreated) {
-        createdAtEl.innerHTML = `<i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>Tạo lúc: <strong class="text-black">${formattedCreated}</strong>`;
-      } else {
-        createdAtEl.innerHTML = `<i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>Tạo lúc: <span class="text-neutral-500">Mặc định</span>`;
-      }
-    }
-
-    const teacherName = examData.config?.teacher || examData.meta?.teacher || '';
-    const teacherEl = document.getElementById('entryExamTeacher');
-    if (teacherEl) {
-      if (teacherName) {
-        teacherEl.innerHTML = `<i data-lucide="user-check" class="w-3.5 h-3.5 inline mr-1"></i>GV: <b>${teacherName}</b>`;
-        teacherEl.classList.remove('hidden');
-      } else {
-        teacherEl.classList.add('hidden');
-      }
-    }
-
-    const paletteCreatedAtText = document.getElementById('paletteExamCreatedAtText');
-    if (paletteCreatedAtText) paletteCreatedAtText.textContent = formattedCreated || '--:--';
-
-    const mobilePaletteCreatedAtText = document.getElementById('mobilePaletteExamCreatedAtText');
-    if (mobilePaletteCreatedAtText) mobilePaletteCreatedAtText.textContent = formattedCreated || '--:--';
-
     // Cập nhật tiêu đề navbar
     const titleBadge = document.getElementById('examTitleBadge');
     if (titleBadge) titleBadge.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
@@ -209,8 +169,11 @@ const ExamRunner = (() => {
                                prevSession.studentName.trim() !== '' && 
                                prevSession.studentName.trim().toLowerCase() !== 'học sinh';
 
-    // Cập nhật chế độ theo phiên trước (nếu có)
-    if (hasExistingSession && prevSession.examMode) {
+    // Chế độ làm bài do Giáo viên thiết lập trên đề thi
+    const teacherMode = examData.config?.examMode || examData.examMode;
+    if (teacherMode === 'practice' || teacherMode === 'exam') {
+      activeExamMode = teacherMode;
+    } else if (hasExistingSession && prevSession.examMode) {
       activeExamMode = prevSession.examMode;
     }
     updateModeUI();
@@ -1370,12 +1333,6 @@ const ExamRunner = (() => {
 
     const examCodeEl = document.getElementById('resExamCode');
     if (examCodeEl) examCodeEl.textContent = `Mã đề: ${data.examCode || '123456'}`;
-
-    const resCreatedEl = document.getElementById('resExamCreatedAtText');
-    const createdAtVal = data.examCreatedAt || examData?.createdAt || examData?.meta?.createdAt || examData?.config?.createdAt || null;
-    if (resCreatedEl) {
-      resCreatedEl.textContent = formatExamDateTime(createdAtVal) || '--:--';
-    }
 
     const scoreEl = document.getElementById('resScoreDisplay');
     if (scoreEl) scoreEl.textContent = Number(data.score).toFixed(1).replace('.0', '');

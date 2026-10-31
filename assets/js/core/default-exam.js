@@ -3,6 +3,7 @@
 window.DEFAULT_EXAM = window.__DEFAULT_EXAM__ = {
   "examCode": "123456",
   "isActive": true,
+  "examMode": "exam",
   "createdAt": "2026-10-31T08:00:00.000Z",
   "meta": {
     "examCode": "123456",
@@ -28,7 +29,8 @@ window.DEFAULT_EXAM = window.__DEFAULT_EXAM__ = {
     "shuffleQuestions": false,
     "paperStyle": "grid-oly",
     "fontClass": "font-itim",
-    "paperColor": "#FDFCF7"
+    "paperColor": "#FDFCF7",
+    "examMode": "exam"
   },
   "sections": [
     {

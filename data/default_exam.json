@@ -627,8 +627,10 @@
     "showAnswers": true,
     "shuffleQuestions": false,
     "subject": "Toán",
-    "grade": "Lớp 6"
+    "grade": "Lớp 6",
+    "examMode": "exam"
   },
+  "examMode": "exam",
   "isActive": true,
   "createdAt": "2026-10-31T08:00:00.000Z"
 }

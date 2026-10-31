@@ -62,7 +62,7 @@ class TexRenderer {
     if (opts.showHeader) {
       const meta = {
         ...(examData.meta || {}),
-        createdAt: examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt
+        createdAt: (opts.mode !== 'exam') ? (examData.createdAt || examData.meta?.createdAt || examData.config?.createdAt) : ''
       };
       html += this.renderHeader(meta);
       html += this._renderStudentInfo(opts);

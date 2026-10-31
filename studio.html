@@ -1032,8 +1032,8 @@
                         <div>
                             <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Chế độ phòng thi</label>
                             <select id="cfgExamMode" class="neo-select">
-                                <option value="exam">🏆 Chế độ Thi</option>
-                                <option value="practice">📖 Chế độ Ôn tập</option>
+                                <option value="exam">🏆 Chế độ Thi (Tính giờ thực tế, tự nộp khi hết giờ)</option>
+                                <option value="practice">📖 Chế độ Ôn tập (Tự do thời gian, vào lại làm tiếp)</option>
                             </select>
                         </div>
                     </div>
@@ -1133,6 +1133,9 @@
                 <div class="neo-card-yellow p-5 text-center">
                     <div class="text-[10px] font-mono font-bold uppercase text-neutral-800 tracking-wider">MÃ PHÒNG THI</div>
                     <div class="font-typewriter text-3xl font-black text-black tracking-widest my-1.5" id="newExamCode">EX-XXXXX</div>
+                    <div class="flex items-center justify-center gap-2 my-1.5">
+                        <span id="newExamModeBadge" class="neo-badge neo-badge-black text-[10px] font-black uppercase">🏆 Chế độ Thi</span>
+                    </div>
                     <div id="newExamCreatedAtRow" class="text-[11px] font-bold text-neutral-600 flex items-center justify-center gap-1 my-1">
                         <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Tạo lúc: <span id="newExamCreatedAt" class="font-mono text-black font-extrabold">--:--</span>
                     </div>
@@ -2041,6 +2044,12 @@
             if (result.success) {
                 closeCreateExamModal();
                 document.getElementById('newExamCode').textContent = result.examCode;
+                const newModeEl = document.getElementById('newExamModeBadge');
+                if (newModeEl) {
+                    const isPract = (result.exam.examMode === 'practice' || result.exam.config?.examMode === 'practice');
+                    newModeEl.textContent = isPract ? '📖 Chế độ Ôn tập' : '🏆 Chế độ Thi';
+                    newModeEl.className = isPract ? 'neo-badge neo-badge-mint text-[10px] font-black uppercase' : 'neo-badge neo-badge-black text-[10px] font-black uppercase';
+                }
                 const newCreatedEl = document.getElementById('newExamCreatedAt');
                 if (newCreatedEl) {
                     newCreatedEl.textContent = formatDateTimeStudio(result.exam?.createdAt || new Date().toISOString());
@@ -2110,15 +2119,20 @@
                 const cfg = exam.config || {};
                 const fontLabel = fontNames[cfg.fontClass] || 'Itim';
                 const paperLabel = paperNames[cfg.paperStyle] || 'Ô ly';
+                const isPractice = (exam.examMode === 'practice' || cfg.examMode === 'practice');
+                const modeBadge = isPractice
+                    ? `<button type="button" onclick="toggleExamMode('${exam.examCode}')" class="neo-badge neo-badge-mint text-[11px] font-black cursor-pointer hover:opacity-85 shadow-[1.5px_1.5px_0px_#000] transition-all" title="Nhấp để chuyển sang Chế độ Thi">📖 Ôn tập</button>`
+                    : `<button type="button" onclick="toggleExamMode('${exam.examCode}')" class="neo-badge neo-badge-black text-[11px] font-black cursor-pointer hover:opacity-85 shadow-[1.5px_1.5px_0px_#000] transition-all" title="Nhấp để chuyển sang Chế độ Ôn tập">🏆 Thi</button>`;
 
                 return `
                 <div class="neo-card neo-card-hover p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="neo-badge neo-badge-black font-typewriter">
                                     ${exam.examCode}
                                 </span>
+                                ${modeBadge}
                                 <span class="neo-badge neo-badge-yellow text-[11px]" title="Font & Kiểu giấy">
                                     ${fontLabel} • ${paperLabel}
                                 </span>
@@ -2135,7 +2149,7 @@
                         <div class="flex items-center gap-3 mt-3 pt-3 border-t-2 border-black/10 text-xs font-bold text-neutral-700">
                             <span><i data-lucide="clock" class="w-3.5 h-3.5 inline"></i> ${cfg.duration || 45} phút</span>
                             <span><i data-lucide="list" class="w-3.5 h-3.5 inline"></i> ${exam.questions?.length || 0} câu</span>
-                            <span class="ml-auto font-mono text-[11px] flex items-center gap-1 text-neutral-600" title="Thời gian tạo đề"><i data-lucide="calendar" class="w-3.5 h-3.5 inline"></i> ${formatDateTimeStudio(exam.createdAt || Date.now())}</span>
+                            <span class="ml-auto font-mono text-[11px] flex items-center gap-1 text-neutral-600 font-bold" title="Thời gian tạo đề (Dành cho Giáo viên)"><i data-lucide="calendar" class="w-3.5 h-3.5 inline text-neutral-500"></i> ${formatDateTimeStudio(exam.createdAt || Date.now())}</span>
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t-2 border-black">
@@ -2155,6 +2169,20 @@
                 </div>
             `}).join('');
             lucide.createIcons();
+        }
+
+        function toggleExamMode(examCode) {
+            const exam = Storage.Exams.get(examCode);
+            if (!exam) return;
+            const currentMode = exam.examMode || exam.config?.examMode || 'exam';
+            const newMode = (currentMode === 'practice') ? 'exam' : 'practice';
+            const updatedConfig = { ...(exam.config || {}), examMode: newMode };
+            Storage.Exams.update(examCode, {
+                examMode: newMode,
+                config: updatedConfig
+            });
+            showToast(`Đã chuyển đề [${examCode}] sang: ${newMode === 'exam' ? '🏆 Chế độ Thi' : '📖 Chế độ Ôn tập'}`, 'success');
+            loadExamList();
         }
 
         function printSavedExam(code) {

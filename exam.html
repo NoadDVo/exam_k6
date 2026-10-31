@@ -252,17 +252,16 @@
             <div class="neo-card-yellow p-4 border-2 border-black space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-black uppercase text-black">Mã phòng thi:</span>
-                    <span class="neo-badge neo-badge-black font-typewriter text-xs font-black" id="entryExamCodeBadge">------</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="neo-badge neo-badge-black font-typewriter text-xs font-black" id="entryExamCodeBadge">------</span>
+                        <span id="entryExamModeBadge" class="neo-badge neo-badge-black text-[10px] font-black uppercase px-2 py-0.5">🏆 Thi</span>
+                    </div>
                 </div>
                 <h3 class="font-extrabold text-sm sm:text-base text-black line-clamp-2" id="entryExamTitle">Đang nạp đề thi...</h3>
                 <div class="flex items-center justify-between text-xs font-bold text-neutral-800 pt-2 border-t border-black/20">
                     <span id="entryExamSubjectGrade">Môn: Toán</span>
                     <span id="entryExamDuration"><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1"></i>45 phút</span>
                     <span id="entryExamTotalQuestions"><i data-lucide="list" class="w-3.5 h-3.5 inline mr-1"></i>0 câu</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] font-bold text-neutral-700 pt-2 border-t border-black/10" id="entryExamMetaRow">
-                    <span id="entryExamCreatedAt"><i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1"></i>Tạo lúc: --/--/---- --:--</span>
-                    <span id="entryExamTeacher" class="hidden text-neutral-800"><i data-lucide="user-check" class="w-3.5 h-3.5 inline mr-1"></i>GV: ...</span>
                 </div>
             </div>
 
@@ -275,25 +274,6 @@
                 <button type="button" onclick="ExamRunner.clearStudentEntryForm()" class="neo-btn neo-btn-white text-[10px] py-1 px-2 font-black text-rose-700 hover:bg-rose-50" title="Xóa thông tin để thí sinh khác nhập">
                     <i data-lucide="user-x" class="w-3 h-3 inline mr-0.5"></i> Đổi thí sinh
                 </button>
-            </div>
-
-            <!-- Mode Selector (Chế độ Thi vs Chế độ Ôn tập) -->
-            <div id="entryModeContainer" class="space-y-1.5">
-                <div>
-                    <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Chế độ làm bài:</label>
-                </div>
-                <div class="grid grid-cols-2 gap-2 bg-[#F1F5F9] p-1.5 rounded-xl border-2 border-black">
-                    <button type="button" id="btnModeExam" onclick="ExamRunner.setExamMode('exam')"
-                        class="py-2 px-2.5 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all bg-black text-white shadow-sm cursor-pointer">
-                        <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
-                        <span>Chế Độ Thi</span>
-                    </button>
-                    <button type="button" id="btnModePractice" onclick="ExamRunner.setExamMode('practice')"
-                        class="py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-                        <span>Chế Độ Ôn Tập</span>
-                    </button>
-                </div>
             </div>
 
             <!-- Form Inputs -->
@@ -349,12 +329,8 @@
             <div class="palette-grid flex-1 overflow-y-auto" id="paletteGrid">
                 <!-- Nút số câu render ở đây -->
             </div>
-            <div class="mt-4 pt-3 border-t-2 border-black/10 text-[11px] font-bold text-neutral-500 space-y-1.5">
-                <div>💡 Nhấp vào số câu để chuyển nhanh tới câu hỏi tương ứng.</div>
-                <div id="paletteExamCreatedAt" class="text-[10px] text-neutral-600 font-bold flex items-center gap-1 pt-1.5 border-t border-black/10">
-                    <i data-lucide="calendar" class="w-3 h-3 text-neutral-500"></i>
-                    <span>Tạo lúc: <b id="paletteExamCreatedAtText" class="text-neutral-800">--:--</b></span>
-                </div>
+            <div class="mt-4 pt-3 border-t-2 border-black/10 text-[11px] font-bold text-neutral-500">
+                💡 Nhấp vào số câu để chuyển nhanh tới câu hỏi tương ứng.
             </div>
         </aside>
     </main>
@@ -382,11 +358,8 @@
                 <!-- Nút số câu mobile render ở đây -->
             </div>
             
-            <div class="pt-2 text-[11px] text-neutral-500 text-center font-bold space-y-1">
-                <div>💡 Chạm vào số câu để cuộn ngay đến câu hỏi tương ứng</div>
-                <div id="mobilePaletteExamCreatedAt" class="text-[10px] text-neutral-600 font-bold">
-                    <span>Tạo lúc: <b id="mobilePaletteExamCreatedAtText" class="text-neutral-800">--:--</b></span>
-                </div>
+            <div class="pt-2 text-[11px] text-neutral-500 text-center font-bold">
+                💡 Chạm vào số câu để cuộn ngay đến câu hỏi tương ứng
             </div>
         </div>
     </div>
@@ -405,14 +378,10 @@
                 <i data-lucide="check-circle-2" class="w-9 h-9"></i>
             </div>
             <h2 class="font-typewriter text-2xl sm:text-3xl font-black text-black uppercase" id="resHeadingTitle">Hoàn Thành Bài Thi!</h2>
-            <p class="text-xs sm:text-sm font-bold text-neutral-700 mt-1 flex flex-wrap items-center justify-center gap-2">
-                <span>Thí sinh: <strong id="resStudentName" class="text-black font-extrabold">...</strong></span>
-                <span id="resStudentClass" class="font-bold text-neutral-600"></span>
-                <span id="resExamCode" class="neo-badge neo-badge-black font-typewriter text-xs"></span>
-                <span id="resExamCreatedAt" class="neo-badge neo-badge-yellow font-typewriter text-xs flex items-center gap-1">
-                    <i data-lucide="calendar" class="w-3 h-3"></i>
-                    <span>Tạo lúc: <b id="resExamCreatedAtText">--:--</b></span>
-                </span>
+            <p class="text-xs sm:text-sm font-bold text-neutral-700 mt-1">
+                Thí sinh: <strong id="resStudentName" class="text-black font-extrabold">...</strong>
+                <span id="resStudentClass" class="ml-2 font-bold text-neutral-600"></span>
+                <span id="resExamCode" class="ml-2 neo-badge neo-badge-black font-typewriter text-xs"></span>
             </p>
 
             <!-- Grid 4 stats -->
