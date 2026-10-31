@@ -614,6 +614,198 @@
   color: #3730A3;
 }
 
+/* ==============================================================
+   CUSTOM SHORT ANSWER WIDGETS (PHÂN SỐ, LŨY THỪA, ĐƠN VỊ DIỆN TÍCH)
+   ============================================================== */
+
+/* 1. Fraction Widget (Tử số / Mẫu số 2 tầng) */
+.fraction-box-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.fraction-box-group:focus-within {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  background: #FFFFFF;
+}
+
+.fraction-input {
+  width: 90px;
+  height: 36px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1E293B;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.fraction-input:focus {
+  border-color: #4F46E5;
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+.fraction-input::placeholder {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+}
+
+.fraction-bar-line {
+  width: 100%;
+  height: 2.5px;
+  background: #334155;
+  border-radius: 2px;
+  margin: 4px 0;
+}
+
+/* 2. Power Widgets (Single & Product) */
+.power-product-group,
+.power-single-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.power-product-group:focus-within,
+.power-single-group:focus-within {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  background: #FFFFFF;
+}
+
+.power-item {
+  display: inline-flex;
+  align-items: flex-start;
+  position: relative;
+  gap: 4px;
+}
+
+.power-input {
+  text-align: center;
+  font-weight: 800;
+  outline: none;
+  transition: all 0.15s ease;
+  background: #FFFFFF;
+}
+
+.power-base {
+  width: 72px;
+  height: 40px;
+  font-size: 17px;
+  color: #1E293B;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.power-base:focus {
+  border-color: #4F46E5;
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+.power-base::placeholder {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+}
+
+.power-exp {
+  width: 50px;
+  height: 30px;
+  font-size: 14px;
+  color: #4338CA;
+  border: 1.5px solid #818CF8;
+  border-radius: 6px;
+  background: #EEF2FF;
+  margin-bottom: 16px;
+}
+
+.power-exp:focus {
+  border-color: #4338CA;
+  background: #E0E7FF;
+  box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.2);
+}
+
+.power-exp::placeholder {
+  font-size: 12px;
+  font-weight: 700;
+  color: #818CF8;
+}
+
+.power-multi-dot {
+  font-size: 24px;
+  font-weight: 900;
+  color: #475569;
+  line-height: 1;
+  margin-top: 8px;
+  user-select: none;
+}
+
+/* 3. Unit Addon Group (Diện tích & Độ dài) */
+.unit-addon-group {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  max-width: 300px;
+  width: 100%;
+}
+
+.unit-addon-input {
+  flex: 1;
+  border: 1.5px solid #CBD5E1 !important;
+  border-right: none !important;
+  border-top-left-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+  background: #FFFFFF;
+}
+
+.unit-addon-input:focus {
+  border-color: #4F46E5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.unit-addon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  background: #EEF2FF;
+  color: #4338CA;
+  font-weight: 900;
+  font-size: 15px;
+  border: 1.5px solid #CBD5E1;
+  border-left: 1px dashed #A5B4FC;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  user-select: none;
+}
+
 .short-answer-display {
   margin-top: 12px;
   display: inline-flex;

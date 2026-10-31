@@ -302,6 +302,51 @@ class TexRenderer {
   }
 
   // ==============================================================
+  // XÁC ĐỊNH LOẠI WIDGET NHẬP LIỆU CHO CÂU TRẢ LỜI NGẮN
+  // ==============================================================
+  _getShortAnswerType(question) {
+    const raw = String(question.shortAnswer || '').trim();
+    const content = String(question.content || '').toLowerCase();
+
+    // 1. Tích lũy thừa: e.g. "2^2 \cdot 3^2", "2^2 * 3^2", "2^3 · 5^2"
+    if (/\d+\^\d+\s*(?:\\cdot|\\times|\*|·)\s*\d+\^\d+/.test(raw)) {
+      return { type: 'power_product' };
+    }
+
+    // 2. Lũy thừa đơn: e.g. "12^2", "2^5"
+    if (/^\d+\^\d+$/.test(raw)) {
+      return { type: 'power_single' };
+    }
+
+    // 3. Phân số: e.g. "1/2", "\frac{1}{2}", "\dfrac{1}{2}"
+    if (/^-?\d+\s*\/\s*\d+$/.test(raw) || /\\(?:d?frac)\s*\{\d+\}\s*\{\d+\}/.test(raw) || (content.includes('phân số') && raw.includes('/'))) {
+      return { type: 'fraction' };
+    }
+
+    // 4. Có sẵn đơn vị diện tích / độ dài: e.g. "200\text{ m}^2", "81\text{ cm}^2", "6\text{ cm}"
+    if (/(?:\\text\s*\{\s*)?m\^2|(?:\\text\s*\{\s*)?m²|\\text\{\s*m\s*\}\^2/i.test(raw)) {
+      return { type: 'unit_number', unit: 'm²' };
+    }
+    if (/(?:\\text\s*\{\s*)?cm\^2|(?:\\text\s*\{\s*)?cm²|\\text\{\s*cm\s*\}\^2/i.test(raw)) {
+      return { type: 'unit_number', unit: 'cm²' };
+    }
+    if (/(?:\\text\s*\{\s*)?cm\b/i.test(raw)) {
+      return { type: 'unit_number', unit: 'cm' };
+    }
+    if (/(?:\\text\s*\{\s*)?dm\b/i.test(raw)) {
+      return { type: 'unit_number', unit: 'dm' };
+    }
+    if (/(?:\\text\s*\{\s*)?mm\b/i.test(raw)) {
+      return { type: 'unit_number', unit: 'mm' };
+    }
+    if (/(?:\\text\s*\{\s*)?km\b/i.test(raw)) {
+      return { type: 'unit_number', unit: 'km' };
+    }
+
+    return { type: 'text' };
+  }
+
+  // ==============================================================
   // RENDER CÂU TRẢ LỜI NGẮN (PHẦN III)
   // ==============================================================
   /**
@@ -311,36 +356,171 @@ class TexRenderer {
    * @returns {string} HTML string
    */
   renderShortAnswerQuestion(question, opts) {
-    // Chế độ exam: ô nhập liệu kèm thanh công cụ phím nhanh Toán & xem trước công thức
-    const answerInputHtml = (opts.mode === 'exam')
-      ? `<div class="short-answer-input-wrap">
-          <div class="short-answer-input-row">
-            <span class="short-answer-label">Đáp số:</span>
-            <input type="text"
-                   class="short-answer-input"
-                   data-question-id="${question.id}"
-                   placeholder="Nhập kết quả (hoặc bấm phím nhanh)..."
-                   autocomplete="off">
-          </div>
-          <div class="math-quick-bar">
-            <span class="math-quick-title">Phím nhanh:</span>
-            <button type="button" class="math-btn" data-insert="/" title="Phân số (dấu gạch chéo)">a/b</button>
-            <button type="button" class="math-btn" data-insert="^2" title="Mũ 2 (bình phương)">x²</button>
-            <button type="button" class="math-btn" data-insert="^" title="Số mũ / Lũy thừa">xⁿ</button>
-            <button type="button" class="math-btn" data-insert=" · " title="Dấu nhân (chấm)">·</button>
-            <button type="button" class="math-btn font-bold text-indigo-600" data-insert="; " title="Dấu chấm phẩy ngăn cách">;</button>
-            <button type="button" class="math-btn" data-insert="cm" title="Đơn vị cm">cm</button>
-            <button type="button" class="math-btn" data-insert="m²" title="Đơn vị mét vuông">m²</button>
-            <button type="button" class="math-btn" data-insert="cm²" title="Đơn vị cm vuông">cm²</button>
-            <button type="button" class="math-btn" data-insert="()" data-cursor="-1" title="Dấu ngoặc đơn">( )</button>
-            <button type="button" class="math-btn math-btn-clear" data-action="clear" title="Xóa nhập lại">✕ Xóa</button>
-          </div>
-          <div class="short-answer-live-preview" data-preview-for="${question.id}">
-            <span class="preview-badge hidden">Hiển thị:</span>
-            <span class="preview-content"></span>
-          </div>
-        </div>`
-      : '';
+    // Chế độ exam: ô nhập liệu thông minh theo loại câu (Phân số 2 ô, Lũy thừa, Có sẵn đơn vị, hoặc Phím nhanh)
+    let answerInputHtml = '';
+    if (opts.mode === 'exam') {
+      const widget = this._getShortAnswerType(question);
+
+      if (widget.type === 'fraction') {
+        answerInputHtml = `
+          <div class="short-answer-input-wrap fraction-widget-wrap" data-input-type="fraction" data-question-id="${question.id}">
+            <div class="short-answer-input-row items-center">
+              <span class="short-answer-label">Đáp số:</span>
+              <div class="fraction-box-group">
+                <input type="text"
+                       class="fraction-input fraction-num"
+                       data-q="${question.id}"
+                       placeholder="Tử số"
+                       inputmode="numeric"
+                       autocomplete="off">
+                <div class="fraction-bar-line"></div>
+                <input type="text"
+                       class="fraction-input fraction-den"
+                       data-q="${question.id}"
+                       placeholder="Mẫu số"
+                       inputmode="numeric"
+                       autocomplete="off">
+              </div>
+              <input type="hidden"
+                     class="short-answer-input"
+                     data-question-id="${question.id}"
+                     autocomplete="off">
+              <button type="button" class="math-btn math-btn-clear" data-action="clear-custom" data-target="${question.id}" title="Xóa">✕ Xóa</button>
+            </div>
+            <div class="short-answer-live-preview" data-preview-for="${question.id}">
+              <span class="preview-badge hidden">Hiển thị:</span>
+              <span class="preview-content"></span>
+            </div>
+          </div>`;
+      } else if (widget.type === 'power_product') {
+        answerInputHtml = `
+          <div class="short-answer-input-wrap power-widget-wrap" data-input-type="power_product" data-question-id="${question.id}">
+            <div class="short-answer-input-row items-center">
+              <span class="short-answer-label">Đáp số:</span>
+              <div class="power-product-group">
+                <div class="power-item">
+                  <input type="text"
+                         class="power-input power-base power-b1"
+                         data-q="${question.id}"
+                         placeholder="Cơ số"
+                         inputmode="numeric"
+                         autocomplete="off">
+                  <input type="text"
+                         class="power-input power-exp power-e1"
+                         data-q="${question.id}"
+                         placeholder="Mũ"
+                         inputmode="numeric"
+                         autocomplete="off">
+                </div>
+                <span class="power-multi-dot">·</span>
+                <div class="power-item">
+                  <input type="text"
+                         class="power-input power-base power-b2"
+                         data-q="${question.id}"
+                         placeholder="Cơ số"
+                         inputmode="numeric"
+                         autocomplete="off">
+                  <input type="text"
+                         class="power-input power-exp power-e2"
+                         data-q="${question.id}"
+                         placeholder="Mũ"
+                         inputmode="numeric"
+                         autocomplete="off">
+                </div>
+              </div>
+              <input type="hidden"
+                     class="short-answer-input"
+                     data-question-id="${question.id}"
+                     autocomplete="off">
+              <button type="button" class="math-btn math-btn-clear" data-action="clear-custom" data-target="${question.id}" title="Xóa">✕ Xóa</button>
+            </div>
+            <div class="short-answer-live-preview" data-preview-for="${question.id}">
+              <span class="preview-badge hidden">Hiển thị:</span>
+              <span class="preview-content"></span>
+            </div>
+          </div>`;
+      } else if (widget.type === 'power_single') {
+        answerInputHtml = `
+          <div class="short-answer-input-wrap power-widget-wrap" data-input-type="power_single" data-question-id="${question.id}">
+            <div class="short-answer-input-row items-center">
+              <span class="short-answer-label">Đáp số:</span>
+              <div class="power-single-group">
+                <div class="power-item">
+                  <input type="text"
+                         class="power-input power-base power-b1"
+                         data-q="${question.id}"
+                         placeholder="Cơ số"
+                         inputmode="numeric"
+                         autocomplete="off">
+                  <input type="text"
+                         class="power-input power-exp power-e1"
+                         data-q="${question.id}"
+                         placeholder="Mũ"
+                         inputmode="numeric"
+                         autocomplete="off">
+                </div>
+              </div>
+              <input type="hidden"
+                     class="short-answer-input"
+                     data-question-id="${question.id}"
+                     autocomplete="off">
+              <button type="button" class="math-btn math-btn-clear" data-action="clear-custom" data-target="${question.id}" title="Xóa">✕ Xóa</button>
+            </div>
+            <div class="short-answer-live-preview" data-preview-for="${question.id}">
+              <span class="preview-badge hidden">Hiển thị:</span>
+              <span class="preview-content"></span>
+            </div>
+          </div>`;
+      } else if (widget.type === 'unit_number') {
+        answerInputHtml = `
+          <div class="short-answer-input-wrap unit-widget-wrap" data-input-type="unit_number" data-unit="${widget.unit}" data-question-id="${question.id}">
+            <div class="short-answer-input-row items-center">
+              <span class="short-answer-label">Đáp số:</span>
+              <div class="unit-addon-group">
+                <input type="text"
+                       class="short-answer-input unit-addon-input"
+                       data-question-id="${question.id}"
+                       data-unit="${widget.unit}"
+                       placeholder="Nhập số kết quả..."
+                       inputmode="numeric"
+                       autocomplete="off">
+                <span class="unit-addon-badge">${widget.unit}</span>
+              </div>
+              <button type="button" class="math-btn math-btn-clear" data-action="clear" title="Xóa">✕ Xóa</button>
+            </div>
+            <div class="short-answer-live-preview" data-preview-for="${question.id}">
+              <span class="preview-badge hidden">Hiển thị:</span>
+              <span class="preview-content"></span>
+            </div>
+          </div>`;
+      } else {
+        answerInputHtml = `
+          <div class="short-answer-input-wrap" data-input-type="text" data-question-id="${question.id}">
+            <div class="short-answer-input-row">
+              <span class="short-answer-label">Đáp số:</span>
+              <input type="text"
+                     class="short-answer-input"
+                     data-question-id="${question.id}"
+                     placeholder="Nhập kết quả (hoặc bấm phím nhanh)..."
+                     autocomplete="off">
+            </div>
+            <div class="math-quick-bar">
+              <span class="math-quick-title">Phím nhanh:</span>
+              <button type="button" class="math-btn" data-insert="/" title="Phân số (dấu gạch chéo)">a/b</button>
+              <button type="button" class="math-btn" data-insert="^2" title="Mũ 2 (bình phương)">x²</button>
+              <button type="button" class="math-btn" data-insert="^" title="Số mũ / Lũy thừa">xⁿ</button>
+              <button type="button" class="math-btn" data-insert=" · " title="Dấu nhân (chấm)">·</button>
+              <button type="button" class="math-btn font-bold text-indigo-600" data-insert="; " title="Dấu chấm phẩy ngăn cách">;</button>
+              <button type="button" class="math-btn" data-insert="()" data-cursor="-1" title="Dấu ngoặc đơn">( )</button>
+              <button type="button" class="math-btn math-btn-clear" data-action="clear" title="Xóa nhập lại">✕ Xóa</button>
+            </div>
+            <div class="short-answer-live-preview" data-preview-for="${question.id}">
+              <span class="preview-badge hidden">Hiển thị:</span>
+              <span class="preview-content"></span>
+            </div>
+          </div>`;
+      }
+    }
 
     // Format hiển thị đáp án đẹp cho câu trả lời ngắn (tự bọc $ nếu chứa công thức để KaTeX render chuẩn)
     let formattedAnswer = String(question.shortAnswer || '').trim();

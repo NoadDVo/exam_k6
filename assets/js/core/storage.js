@@ -538,12 +538,14 @@ const Storage = (() => {
                         if (!isNaN(gPow) && !isNaN(eVal) && gPow === eVal) return true;
                         if (!isNaN(ePow) && !isNaN(gVal) && ePow === gVal) return true;
 
-                        // 5. Tích lũy thừa (2^2 * 3^2 <=> 36)
+                        // 5. Tích lũy thừa (2^2 * 3^2 <=> 3^2 * 2^2 <=> 36)
                         if (eNorm.includes('^') && eNorm.includes('*')) {
                             const cleanProd = (s) => s.replace(/\s+/g, '');
                             if (cleanProd(gNorm) === cleanProd(eNorm)) return true;
-                            if (eNorm === '2^2 * 3^2' || eNorm === '2^2*3^2') {
-                                if (gNorm === '36' || gNorm === '4*9' || gNorm === '4 * 9') return true;
+                            const getFactors = (s) => s.split('*').map(x => x.replace(/\s+/g, '')).filter(Boolean).sort().join('*');
+                            if (getFactors(gNorm) === getFactors(eNorm)) return true;
+                            if (eNorm.replace(/\s+/g, '') === '2^2*3^2') {
+                                if (gNorm === '36' || gNorm === '4*9' || gNorm === '9*4' || cleanProd(gNorm) === '4*9' || cleanProd(gNorm) === '9*4') return true;
                             }
                         }
 

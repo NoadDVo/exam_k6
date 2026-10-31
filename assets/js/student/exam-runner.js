@@ -495,6 +495,134 @@ const ExamRunner = (() => {
       });
     });
 
+    // 3.2 Nút xóa nhanh cho widget tùy chỉnh
+    document.querySelectorAll('[data-action="clear-custom"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const wrap = btn.closest('.short-answer-input-wrap');
+        if (!wrap) return;
+        const qId = wrap.getAttribute('data-question-id');
+        wrap.querySelectorAll('input').forEach(inp => inp.value = '');
+        userAnswers[qId] = '';
+        saveDraft();
+        unmarkPaletteAnswered(qId);
+        updateProgress();
+        const previewBox = wrap.querySelector('.short-answer-live-preview');
+        if (previewBox) {
+          previewBox.querySelector('.preview-badge')?.classList.add('hidden');
+          const content = previewBox.querySelector('.preview-content');
+          if (content) content.innerHTML = '';
+        }
+      });
+    });
+
+    // 3.3 Ô nhập Phân số (tử số / mẫu số riêng biệt)
+    document.querySelectorAll('.fraction-input').forEach(fInput => {
+      fInput.addEventListener('input', () => {
+        const wrap = fInput.closest('.fraction-widget-wrap');
+        if (!wrap) return;
+        const qId = wrap.getAttribute('data-question-id');
+        const num = wrap.querySelector('.fraction-num')?.value.trim() || '';
+        const den = wrap.querySelector('.fraction-den')?.value.trim() || '';
+        const hidden = wrap.querySelector('.short-answer-input');
+
+        let val = '';
+        if (num || den) {
+          val = `${num}/${den}`;
+        }
+        if (hidden) hidden.value = val;
+        userAnswers[qId] = val;
+
+        saveDraft();
+        if (num && den) {
+          markPaletteAnswered(qId);
+        } else {
+          unmarkPaletteAnswered(qId);
+        }
+        updateProgress();
+        updateWidgetPreview(wrap, 'fraction', { num, den });
+      });
+
+      fInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === 'ArrowDown') {
+          if (fInput.classList.contains('fraction-num')) {
+            e.preventDefault();
+            const den = fInput.closest('.fraction-widget-wrap')?.querySelector('.fraction-den');
+            if (den) den.focus();
+          }
+        } else if (e.key === 'ArrowUp') {
+          if (fInput.classList.contains('fraction-den')) {
+            e.preventDefault();
+            const num = fInput.closest('.fraction-widget-wrap')?.querySelector('.fraction-num');
+            if (num) num.focus();
+          }
+        }
+      });
+    });
+
+    // 3.4 Ô nhập Lũy thừa (cơ số / số mũ riêng biệt)
+    document.querySelectorAll('.power-input').forEach(pInput => {
+      pInput.addEventListener('input', () => {
+        const wrap = pInput.closest('.power-widget-wrap');
+        if (!wrap) return;
+        const qId = wrap.getAttribute('data-question-id');
+        const inputType = wrap.getAttribute('data-input-type');
+        const hidden = wrap.querySelector('.short-answer-input');
+
+        let val = '';
+        if (inputType === 'power_product') {
+          const b1 = wrap.querySelector('.power-b1')?.value.trim() || '';
+          const e1 = wrap.querySelector('.power-e1')?.value.trim() || '';
+          const b2 = wrap.querySelector('.power-b2')?.value.trim() || '';
+          const e2 = wrap.querySelector('.power-e2')?.value.trim() || '';
+          if (b1 || e1 || b2 || e2) {
+            val = `${b1}^${e1} \\cdot ${b2}^${e2}`;
+          }
+          if (hidden) hidden.value = val;
+          userAnswers[qId] = val;
+          if (b1 && e1 && b2 && e2) markPaletteAnswered(qId);
+          else unmarkPaletteAnswered(qId);
+          updateWidgetPreview(wrap, 'power_product', { b1, e1, b2, e2 });
+        } else if (inputType === 'power_single') {
+          const b1 = wrap.querySelector('.power-b1')?.value.trim() || '';
+          const e1 = wrap.querySelector('.power-e1')?.value.trim() || '';
+          if (b1 || e1) {
+            val = `${b1}^${e1}`;
+          }
+          if (hidden) hidden.value = val;
+          userAnswers[qId] = val;
+          if (b1 && e1) markPaletteAnswered(qId);
+          else unmarkPaletteAnswered(qId);
+          updateWidgetPreview(wrap, 'power_single', { b1, e1 });
+        }
+
+        saveDraft();
+        updateProgress();
+      });
+
+      pInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          const wrap = pInput.closest('.power-widget-wrap');
+          if (!wrap) return;
+          const inputs = Array.from(wrap.querySelectorAll('.power-input'));
+          const idx = inputs.indexOf(pInput);
+          if (idx !== -1 && idx < inputs.length - 1) {
+            e.preventDefault();
+            inputs[idx + 1].focus();
+          }
+        } else if (e.key === 'ArrowLeft') {
+          const wrap = pInput.closest('.power-widget-wrap');
+          if (!wrap) return;
+          const inputs = Array.from(wrap.querySelectorAll('.power-input'));
+          const idx = inputs.indexOf(pInput);
+          if (idx > 0) {
+            e.preventDefault();
+            inputs[idx - 1].focus();
+          }
+        }
+      });
+    });
+
     // 4. Tự luận (Phần IV - Essay)
     document.querySelectorAll('.essay-answer-textarea').forEach(textarea => {
       textarea.addEventListener('input', (e) => {
@@ -545,9 +673,57 @@ const ExamRunner = (() => {
           if (radio) radio.checked = true;
           markPaletteAnswered(qId);
         }
-        // Short Answer
+        // Short Answer (Hỗ trợ khôi phục cả ô nhập chuẩn và widget tùy chỉnh)
+        const wrap = qBlock.querySelector('.short-answer-input-wrap');
         const input = qBlock.querySelector('.short-answer-input');
-        if (input) {
+        if (wrap) {
+          const inputType = wrap.getAttribute('data-input-type');
+          if (inputType === 'fraction') {
+            const parts = String(ans).split('/');
+            const numInp = wrap.querySelector('.fraction-num');
+            const denInp = wrap.querySelector('.fraction-den');
+            if (numInp) numInp.value = parts[0] || '';
+            if (denInp) denInp.value = parts[1] || '';
+            if (input) input.value = ans;
+            updateWidgetPreview(wrap, 'fraction', { num: parts[0], den: parts[1] });
+          } else if (inputType === 'power_product') {
+            const m = String(ans).match(/^(\d+)\^(\d+)\s*(?:\\cdot|\\times|\*|·)\s*(\d+)\^(\d+)$/);
+            if (m) {
+              const b1 = wrap.querySelector('.power-b1');
+              const e1 = wrap.querySelector('.power-e1');
+              const b2 = wrap.querySelector('.power-b2');
+              const e2 = wrap.querySelector('.power-e2');
+              if (b1) b1.value = m[1];
+              if (e1) e1.value = m[2];
+              if (b2) b2.value = m[3];
+              if (e2) e2.value = m[4];
+              updateWidgetPreview(wrap, 'power_product', { b1: m[1], e1: m[2], b2: m[3], e2: m[4] });
+            }
+            if (input) input.value = ans;
+          } else if (inputType === 'power_single') {
+            const m = String(ans).match(/^(\d+)\^(\d+)$/);
+            if (m) {
+              const b1 = wrap.querySelector('.power-b1');
+              const e1 = wrap.querySelector('.power-e1');
+              if (b1) b1.value = m[1];
+              if (e1) e1.value = m[2];
+              updateWidgetPreview(wrap, 'power_single', { b1: m[1], e1: m[2] });
+            }
+            if (input) input.value = ans;
+          } else if (inputType === 'unit_number') {
+            if (input) {
+              input.value = ans;
+              const unit = wrap.getAttribute('data-unit') || '';
+              updateWidgetPreview(wrap, 'unit_number', { val: ans, unit });
+            }
+          } else {
+            if (input) {
+              input.value = ans;
+              updateShortAnswerPreview(input);
+            }
+          }
+          if (ans) markPaletteAnswered(qId);
+        } else if (input) {
           input.value = ans;
           markPaletteAnswered(qId);
           updateShortAnswerPreview(input);
@@ -567,6 +743,58 @@ const ExamRunner = (() => {
       }
     }
     updateProgress();
+  };
+
+  /**
+   * Cập nhật xem trước công thức KaTeX cho widget chuyên biệt (phân số, lũy thừa, đơn vị)
+   */
+  const updateWidgetPreview = (wrap, type, data) => {
+    if (!wrap) return;
+    const previewBox = wrap.querySelector('.short-answer-live-preview');
+    if (!previewBox) return;
+    const badge = previewBox.querySelector('.preview-badge');
+    const content = previewBox.querySelector('.preview-content');
+    if (!content) return;
+
+    let latex = '';
+    if (type === 'fraction') {
+      if (!data.num && !data.den) {
+        if (badge) badge.classList.add('hidden');
+        content.innerHTML = '';
+        return;
+      }
+      latex = `\\dfrac{${data.num || '?'}}{${data.den || '?'}}`;
+    } else if (type === 'power_product') {
+      if (!data.b1 && !data.e1 && !data.b2 && !data.e2) {
+        if (badge) badge.classList.add('hidden');
+        content.innerHTML = '';
+        return;
+      }
+      latex = `{${data.b1 || '?'}}^{${data.e1 || '?'}} \\cdot {${data.b2 || '?'}}^{${data.e2 || '?'}}`;
+    } else if (type === 'power_single') {
+      if (!data.b1 && !data.e1) {
+        if (badge) badge.classList.add('hidden');
+        content.innerHTML = '';
+        return;
+      }
+      latex = `{${data.b1 || '?'}}^{${data.e1 || '?'}}`;
+    } else if (type === 'unit_number') {
+      if (!data.val) {
+        if (badge) badge.classList.add('hidden');
+        content.innerHTML = '';
+        return;
+      }
+      latex = `${data.val}\\text{ ${data.unit}}`;
+    }
+
+    if (badge) badge.classList.remove('hidden');
+    if (typeof katex !== 'undefined' && latex) {
+      try {
+        content.innerHTML = katex.renderToString(latex, { throwOnError: false });
+        return;
+      } catch (err) {}
+    }
+    content.textContent = latex;
   };
 
   /**
@@ -591,6 +819,19 @@ const ExamRunner = (() => {
     }
 
     if (badge) badge.classList.remove('hidden');
+
+    // Nếu ô nhập có gắn đơn vị (unit_number)
+    const unit = input.getAttribute('data-unit');
+    if (unit) {
+      if (typeof katex !== 'undefined') {
+        try {
+          content.innerHTML = katex.renderToString(`${val}\\text{ ${unit}}`, { throwOnError: false });
+          return;
+        } catch (e) {}
+      }
+      content.textContent = `${val} ${unit}`;
+      return;
+    }
 
     // Chuyển đổi ký tự viết nhanh thành biểu thức LaTeX chuẩn để hiển thị cho học sinh
     if (/[\/\^\*·_;]/.test(val) || /cm|m²/.test(val)) {
@@ -984,8 +1225,16 @@ const ExamRunner = (() => {
         }
 
         let displayStudent = studentAns;
-        if (displayStudent && !displayStudent.startsWith('$') && (/(\\[a-zA-Z]+|[\\^_{}]|m\^2|cm\^2|\/)/.test(displayStudent))) {
-          displayStudent = `$${displayStudent}$`;
+        if (displayStudent) {
+          const unitM = String(correctAns).match(/(?:\\text\s*\{\s*)?(m\^2|cm\^2|cm|m)\b(?:\s*\})?/i);
+          if (unitM && /^\d+(\.\d+)?$/.test(displayStudent.trim())) {
+            let u = unitM[1];
+            if (u.toLowerCase() === 'm^2') u = 'm²';
+            if (u.toLowerCase() === 'cm^2') u = 'cm²';
+            displayStudent = `$${displayStudent.trim()}\\text{ ${u}}$`;
+          } else if (!displayStudent.startsWith('$') && (/(\\[a-zA-Z]+|[\\^_{}]|m\^2|cm\^2|\/)/.test(displayStudent))) {
+            displayStudent = `$${displayStudent}$`;
+          }
         }
 
         comparisonHtml = `
