@@ -1020,7 +1020,7 @@
                                 placeholder="Tên giáo viên phụ trách">
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Thời gian (phút)</label>
                             <input type="number" id="cfgDuration" value="90" class="neo-input">
@@ -1028,6 +1028,13 @@
                         <div>
                             <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Số lần thi tối đa</label>
                             <input type="number" id="cfgAttempts" value="1" class="neo-input">
+                        </div>
+                        <div>
+                            <label class="font-typewriter text-xs font-black text-black uppercase block mb-1">Chế độ phòng thi</label>
+                            <select id="cfgExamMode" class="neo-select">
+                                <option value="exam">🏆 Chế độ Thi (Tính giờ thực tế, quá hạn tự nộp)</option>
+                                <option value="practice">📖 Chế độ Ôn tập (Tạm dừng giờ, làm tiếp sau)</option>
+                            </select>
                         </div>
                     </div>
 
@@ -2015,6 +2022,7 @@
                 grade: document.getElementById('cfgGrade').value || 'Lớp 6',
                 teacher: document.getElementById('cfgTeacher')?.value?.trim() || '',
                 duration: parseInt(document.getElementById('cfgDuration').value) || 45,
+                examMode: document.getElementById('cfgExamMode')?.value || 'exam',
                 maxAttempts: parseInt(document.getElementById('cfgAttempts').value) || 1,
                 showScore: document.getElementById('cfgShowScore').checked,
                 showAnswers: document.getElementById('cfgShowAnswers').checked,

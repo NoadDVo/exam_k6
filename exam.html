@@ -189,7 +189,10 @@
             </a>
             <div class="h-5 w-px bg-black/20 mx-1 hidden sm:block"></div>
             <div class="min-w-0">
-                <h1 class="text-xs font-black font-typewriter text-black uppercase tracking-wider truncate" id="examTitleBadge">BÀI THI TRỰC TUYẾN</h1>
+                <div class="flex items-center gap-1.5">
+                    <h1 class="text-xs font-black font-typewriter text-black uppercase tracking-wider truncate" id="examTitleBadge">BÀI THI TRỰC TUYẾN</h1>
+                    <span id="examModeBadge" class="neo-badge neo-badge-black text-[9px] font-black uppercase px-1.5 py-0.5">🏆 Thi</span>
+                </div>
                 <p class="text-[11px] font-bold text-neutral-800 truncate flex items-center gap-1.5">
                     <span><span id="studentNameBadge">Học sinh</span> • <span id="studentClassBadge">Lớp</span></span>
                     <button onclick="ExamRunner.changeStudentInfo()" class="underline text-blue-800 hover:text-black font-bold text-[10px] cursor-pointer" title="Đổi thông tin hoặc thoát phòng thi">
@@ -268,6 +271,26 @@
                 <button type="button" onclick="ExamRunner.clearStudentEntryForm()" class="neo-btn neo-btn-white text-[10px] py-1 px-2 font-black text-rose-700 hover:bg-rose-50" title="Xóa thông tin để thí sinh khác nhập">
                     <i data-lucide="user-x" class="w-3 h-3 inline mr-0.5"></i> Đổi thí sinh
                 </button>
+            </div>
+
+            <!-- Mode Selector (Chế độ Thi vs Chế độ Ôn tập) -->
+            <div id="entryModeContainer" class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                    <label class="font-typewriter text-xs font-black text-black uppercase">Chế độ làm bài:</label>
+                    <span id="entryModeHint" class="text-[10px] font-bold text-neutral-600">Tính giờ thực tế, quá hạn tự động nộp</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 bg-[#F1F5F9] p-1.5 rounded-xl border-2 border-black">
+                    <button type="button" id="btnModeExam" onclick="ExamRunner.setExamMode('exam')"
+                        class="py-2 px-2.5 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all bg-black text-white shadow-sm cursor-pointer">
+                        <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                        <span>Chế Độ Thi</span>
+                    </button>
+                    <button type="button" id="btnModePractice" onclick="ExamRunner.setExamMode('practice')"
+                        class="py-2 px-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-neutral-700 hover:bg-neutral-200 cursor-pointer">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                        <span>Chế Độ Ôn Tập</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Form Inputs -->
