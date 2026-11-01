@@ -242,7 +242,7 @@ const ExamRunner = (() => {
         if (activeExamMode === 'exam') {
           timeText = `
             <div class="mt-1 text-[11px] text-amber-900 font-extrabold flex items-center gap-1.5 bg-amber-50 py-1 px-2.5 rounded-lg border border-amber-300">
-              <span>🏆 Chế độ Thi: Đang tính giờ thực tế</span>
+              <span>🏆 Chế độ thi</span>
               <span>•</span>
               <span>Còn lại: <b>${remFormatted}</b></span>
             </div>`;
@@ -250,7 +250,7 @@ const ExamRunner = (() => {
         } else {
           timeText = `
             <div class="mt-1 text-[11px] text-emerald-800 font-extrabold flex items-center gap-1.5 bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-300">
-              <span>📖 Chế độ Ôn Tập: Đã làm ${elapsedMin} phút</span>
+              <span>📖 Chế độ ôn tập</span>
               <span>•</span>
               <span>Còn lại: <b>${remFormatted}</b></span>
             </div>`;
