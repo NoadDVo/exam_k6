@@ -266,6 +266,7 @@ const Storage = (() => {
                         paperStyle: def.config?.paperStyle || 'grid-oly',
                         fontClass: def.config?.fontClass || 'font-itim',
                         paperColor: def.config?.paperColor || '#FDFCF7',
+                        layoutStyle: def.config?.layoutStyle || 'layout-card',
                         examMode: def.config?.examMode || def.examMode || 'exam',
                         ...(def.config || {})
                     }
@@ -317,6 +318,7 @@ const Storage = (() => {
                     fontClass: cfg.fontClass || examData.config?.fontClass || examData.fontClass || 'font-itim',
                     paperStyle: cfg.paperStyle || examData.config?.paperStyle || examData.paperStyle || 'grid-oly',
                     paperColor: cfg.paperColor || examData.config?.paperColor || examData.paperColor || '#FDFCF7',
+                    layoutStyle: cfg.layoutStyle || examData.config?.layoutStyle || examData.layoutStyle || 'layout-card',
                     examMode: cfg.examMode || examData.config?.examMode || examData.examMode || 'exam',
                 },
                 examMode: cfg.examMode || examData.config?.examMode || examData.examMode || 'exam',

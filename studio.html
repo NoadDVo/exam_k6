@@ -14,7 +14,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Itim&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Caveat:wght@400;600;700&family=Comfortaa:wght@400;600;700&family=Dancing+Script:wght@600;700&family=Itim&family=Lora:ital,wght@0,400;0,600;1,400&family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Patrick+Hand&family=Playpen+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&family=Roboto+Slab:wght@400;600;700&family=Space+Grotesk:wght@500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -648,44 +648,128 @@
 
                 <!-- Thẩm mỹ -->
                 <div>
-                    <div class="sidebar-section-title">🎨 Thẩm mỹ giấy thi</div>
+                    <div class="sidebar-section-title flex items-center justify-between">
+                        <span>🎨 Thẩm mỹ giấy thi</span>
+                    </div>
+
+                    <!-- GỢI Ý MẪU ĐẸP (CHỌN NHANH 1 CHẠM) -->
+                    <div class="mb-3.5 pb-3 border-b-2 border-black/10">
+                        <label class="text-[11px] font-black text-black flex items-center gap-1.5 mb-2">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                            Gợi ý mẫu đẹp (Chọn nhanh 1 chạm)
+                        </label>
+                        <div class="grid grid-cols-2 gap-1.5" id="themePresetsSidebar">
+                            <button type="button" onclick="applyThemePreset('oly-student')" data-preset="oly-student" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-emerald-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>🎒</span> Vở Ô Ly
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Học sinh truyền thống</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('pastel-cute')" data-preset="pastel-cute" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-pink-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>🌸</span> Pastel Dễ Thương
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Hồng tím kẹo ngọt</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('academic-gov')" data-preset="academic-gov" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>🏛️</span> Chuẩn Bộ GD
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Thi cử & in ấn A4</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('math-caro')" data-preset="math-caro" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-blue-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>📐</span> Toán Học Caro
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Xanh da trời mát mắt</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('neo-brutal')" data-preset="neo-brutal" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-yellow-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>⚡</span> Neo Năng Động
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Viền 3D nổi bật</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('vintage-retro')" data-preset="vintage-retro" class="theme-preset-btn text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-amber-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1 font-black text-xs text-black">
+                                    <span>📜</span> Cổ Điển Vintage
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Kẻ lề đỏ & Sepia</div>
+                            </button>
+                            <button type="button" onclick="applyThemePreset('night-slate')" data-preset="night-slate" class="theme-preset-btn col-span-2 text-left p-2 rounded-xl border-2 border-black bg-white hover:bg-teal-50 shadow-[1.5px_1.5px_0px_#000] transition-all">
+                                <div class="flex items-center gap-1.5 font-black text-xs text-black">
+                                    <span>🌙</span> Chế Độ Dịu Mắt (Bảo Vệ Mắt Học Sinh)
+                                </div>
+                                <div class="text-[10px] text-neutral-500 font-bold truncate">Tối giản thanh thoát, không mỏi mắt khi làm bài lâu</div>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="space-y-2.5">
+                        <div>
+                            <label class="text-[11px] font-black text-black block mb-1">Kiểu trình bày câu &amp; phần</label>
+                            <select class="neo-select" id="layoutStyleSelect" onchange="updatePreview()">
+                                <option value="layout-card">Thẻ bo góc hiện đại (Thanh lịch)</option>
+                                <option value="layout-cute">Học trò đáng yêu (Ribbon Pastel &amp; Sticker)</option>
+                                <option value="layout-notebook">Vở bài tập học sinh (Bút dạ quang &amp; Mực đỏ)</option>
+                                <option value="layout-academic">Đề thi Chuẩn Quốc gia (Bộ GD&amp;ĐT)</option>
+                                <option value="layout-neo">Neo-Brutalism (Khối hộp 3D, viền đen đậm)</option>
+                                <option value="layout-minimal">Tối giản thanh lịch (Thoáng đãng, tinh tế)</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="text-[11px] font-black text-black block mb-1">Font chữ</label>
                             <select class="neo-select" id="fontSelect" onchange="updatePreview()">
                                 <option value="font-itim">Itim (Chữ viết tay học trò)</option>
+                                <option value="font-quicksand">Quicksand (Tròn trịa, hiện đại, dễ đọc)</option>
+                                <option value="font-nunito">Nunito (Thân thiện, chuẩn SGK mới)</option>
+                                <option value="font-baloo">Baloo 2 (Đậm nét, tròn trĩnh tuổi thơ)</option>
                                 <option value="font-mali">Mali (Nét tròn thanh thoát)</option>
                                 <option value="font-playpen">Playpen Sans (Tập viết THCS)</option>
-                                <option value="font-patrick">Patrick Hand (Bút dạ gọn)</option>
-                                <option value="font-caveat">Caveat (Bút máy phóng khoáng)</option>
-                                <option value="font-bevietnam">Be Vietnam Pro (Chuẩn tiếng Việt)</option>
+                                <option value="font-comfortaa">Comfortaa (Nét tròn mềm mại)</option>
+                                <option value="font-patrick">Patrick Hand (Bút dạ gọn gàng)</option>
+                                <option value="font-bevietnam">Be Vietnam Pro (Chuẩn tiếng Việt quốc gia)</option>
                                 <option value="font-sans">Plus Jakarta (Chữ in hiện đại)</option>
-                                <option value="font-serif">Roboto Slab (Chữ in có chân)</option>
-                                <option value="font-comfortaa">Comfortaa (Nét tròn mềm)</option>
+                                <option value="font-montserrat">Montserrat (Khỏe khoắn, chuẩn quốc tế)</option>
+                                <option value="font-serif">Roboto Slab (Chữ in có chân học thuật)</option>
+                                <option value="font-lora">Lora (Trang trọng, chuẩn văn học)</option>
+                                <option value="font-caveat">Caveat (Bút máy phóng khoáng)</option>
+                                <option value="font-dancing">Dancing Script (Chữ viết tay nghệ thuật)</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[11px] font-black text-black block mb-1">Kiểu giấy</label>
                             <select class="neo-select" id="paperStyleSelect" onchange="updatePreview()">
-                                <option value="grid-oly">Ô ly học sinh (vở 5 ô)</option>
-                                <option value="grid-squared">Caro toán học (ô vuông)</option>
-                                <option value="grid-dot">Chấm Dot Grid</option>
-                                <option value="grid-lined">Kẻ ngang (vở ghi chép)</option>
-                                <option value="grid-milimet">Kẻ mili / Tọa độ (hình học)</option>
-                                <option value="grid-double">Kẻ đôi (vở ô đôi)</option>
-                                <option value="grid-blank">Trơn (giấy trắng thi cử)</option>
+                                <option value="grid-oly">Ô ly học sinh (vở 5 ô tiểu học &amp; THCS)</option>
+                                <option value="grid-margin-lined">Kẻ ngang có lề đỏ (Vở tập truyền thống)</option>
+                                <option value="grid-slanted">Ô ly nghiêng (Vở luyện chữ đẹp)</option>
+                                <option value="grid-squared">Caro toán học (Ô vuông vẽ đồ thị)</option>
+                                <option value="grid-dot">Chấm Dot Grid (Sổ tay hiện đại)</option>
+                                <option value="grid-lined">Dòng kẻ ngang (Vở ghi chép)</option>
+                                <option value="grid-milimet">Kẻ mili / Tọa độ (Hình học chính xác)</option>
+                                <option value="grid-double">Kẻ đôi (Vở ô đôi luyện chữ)</option>
+                                <option value="grid-isometric">Lưới tam giác 3D (STEM &amp; Không gian)</option>
+                                <option value="grid-vintage-border">Viền hoa văn cổ điển (Khung nghệ thuật)</option>
+                                <option value="grid-graph-cyan">Lưới kỹ thuật Cyan (Bản vẽ số)</option>
+                                <option value="grid-blank">Trơn sạch (Giấy trắng thi cử)</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[11px] font-black text-black block mb-1">Màu giấy</label>
                             <select class="neo-select" id="paperColorSelect" onchange="updatePreview()">
                                 <option value="#FDFCF7">Trắng ngà (dịu mắt, mặc định)</option>
-                                <option value="#F4ECD8">Sepia ấm (cổ điển)</option>
-                                <option value="#FFFFFF">Trắng tinh khôi</option>
-                                <option value="#F0FDF4">Xanh bạc hà pastel</option>
-                                <option value="#EFF6FF">Xanh da trời pastel</option>
-                                <option value="#FEF9C3">Vàng kem pastel</option>
-                                <option value="#FDF2F8">Hồng phấn pastel</option>
+                                <option value="#FFFFFF">Trắng tinh khôi (chuẩn in ấn)</option>
+                                <option value="#F0FDF4">Xanh bạc hà pastel (thanh mát)</option>
+                                <option value="#EFF6FF">Xanh da trời pastel (mát mẻ)</option>
+                                <option value="#FEF9C3">Vàng kem pastel (ấm áp)</option>
+                                <option value="#FDF2F8">Hồng phấn pastel (ngọt ngào)</option>
+                                <option value="#F5F3FF">Tím hoa cà pastel (Lavender)</option>
+                                <option value="#FFF7ED">Cam sữa / Trà đào (Peach)</option>
+                                <option value="#F7FEE7">Xanh cốm non (Matcha thanh khiết)</option>
+                                <option value="#F1F5F9">Xám ngọc trai (Cool Slate)</option>
+                                <option value="#FFFBEB">Vàng nắng mai (Warm Butter)</option>
+                                <option value="#E0F2FE">Xanh băng tuyết (Ice Blue)</option>
+                                <option value="#F4ECD8">Sepia ấm (cổ điển hoài niệm)</option>
+                                <option value="#1E293B">Chế độ tối dịu mắt (Dark Slate Night)</option>
                             </select>
                         </div>
                     </div>
@@ -1038,18 +1122,67 @@
                         </div>
                     </div>
 
-                    <!-- Cấu hình thẩm mỹ (Font, Kiểu giấy, Màu giấy) -->
+                    <!-- Cấu hình thẩm mỹ (Font, Kiểu giấy, Màu giấy, Layout) -->
                     <div class="border-t-2 border-black/10 pt-3">
                         <label class="font-typewriter text-xs font-black text-black uppercase block mb-2">Định dạng hiển thị & In ấn</label>
-                        <div class="grid grid-cols-3 gap-3">
+
+                        <!-- Gợi ý mẫu đẹp chọn nhanh trong modal -->
+                        <div class="mb-3 p-2.5 rounded-xl border-2 border-black bg-amber-50">
+                            <label class="text-[11px] font-black text-black flex items-center gap-1.5 mb-1.5">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                                Gợi ý mẫu đẹp (Chọn nhanh 1 chạm):
+                            </label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                <button type="button" onclick="applyThemePreset('oly-student')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-emerald-50 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    🎒 Vở Ô Ly
+                                </button>
+                                <button type="button" onclick="applyThemePreset('pastel-cute')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-pink-50 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    🌸 Pastel Cute
+                                </button>
+                                <button type="button" onclick="applyThemePreset('academic-gov')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-slate-100 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    🏛️ Bộ GD&ĐT
+                                </button>
+                                <button type="button" onclick="applyThemePreset('math-caro')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-blue-50 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    📐 Toán Caro
+                                </button>
+                                <button type="button" onclick="applyThemePreset('neo-brutal')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-yellow-50 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    ⚡ Neo 3D
+                                </button>
+                                <button type="button" onclick="applyThemePreset('vintage-retro')" class="theme-preset-btn text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-amber-100 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    📜 Vintage
+                                </button>
+                                <button type="button" onclick="applyThemePreset('night-slate')" class="theme-preset-btn col-span-2 text-left p-1.5 rounded-lg border-2 border-black bg-white hover:bg-teal-50 text-[11px] font-black shadow-[1px_1px_0px_#000]">
+                                    🌙 Chế Độ Dịu Mắt Học Sinh
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                            <div>
+                                <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Kiểu trình bày</label>
+                                <select id="cfgLayoutStyle" class="neo-select">
+                                    <option value="layout-card">Thẻ bo góc hiện đại</option>
+                                    <option value="layout-cute">Học trò đáng yêu (Ribbon)</option>
+                                    <option value="layout-notebook">Vở bài tập (Mực đỏ)</option>
+                                    <option value="layout-academic">Đề Chuẩn Bộ GD&ĐT</option>
+                                    <option value="layout-neo">Neo-Brutalism (Khối 3D)</option>
+                                    <option value="layout-minimal">Tối giản thanh lịch</option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Font chữ</label>
                                 <select id="cfgFont" class="neo-select">
                                     <option value="font-itim">Itim (Viết tay)</option>
+                                    <option value="font-quicksand">Quicksand (Tròn trịa)</option>
+                                    <option value="font-nunito">Nunito (Thân thiện)</option>
+                                    <option value="font-baloo">Baloo 2 (Dễ thương)</option>
+                                    <option value="font-montserrat">Montserrat (Hiện đại)</option>
                                     <option value="font-mali">Mali (Vui nhộn)</option>
                                     <option value="font-playpen">Playpen (Mềm mại)</option>
                                     <option value="font-patrick">Patrick (Phấn)</option>
                                     <option value="font-caveat">Caveat (Bút mực)</option>
+                                    <option value="font-lora">Lora (Serif cổ điển)</option>
+                                    <option value="font-dancing">Dancing Script (Nghệ thuật)</option>
                                     <option value="font-bevietnam">Be Vietnam</option>
                                     <option value="font-sans">Modern Sans</option>
                                     <option value="font-serif">Roboto Slab</option>
@@ -1060,10 +1193,15 @@
                                 <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Kiểu giấy</label>
                                 <select id="cfgPaperStyle" class="neo-select">
                                     <option value="grid-oly">Ô ly tiểu học</option>
+                                    <option value="grid-margin-lined">Kẻ ngang có lề đỏ</option>
+                                    <option value="grid-slanted">Ô ly nghiêng</option>
                                     <option value="grid-squared">Kẻ ô vuông</option>
-                                    <option value="grid-dot">Chấm (Dot)</option>
+                                    <option value="grid-dot">Chấm (Dot Grid)</option>
                                     <option value="grid-lined">Dòng kẻ ngang</option>
                                     <option value="grid-milimet">Giấy Milimet</option>
+                                    <option value="grid-isometric">Lưới 3D Isometric</option>
+                                    <option value="grid-vintage-border">Khung hoa văn cổ điển</option>
+                                    <option value="grid-graph-cyan">Giấy đồ thị Cyan</option>
                                     <option value="grid-double">Dòng kẻ đôi</option>
                                     <option value="grid-blank">Trơn sạch</option>
                                 </select>
@@ -1072,12 +1210,19 @@
                                 <label class="text-[11px] font-bold text-neutral-600 uppercase block mb-1">Màu giấy</label>
                                 <select id="cfgPaperColor" class="neo-select">
                                     <option value="#FDFCF7">Trắng ngà</option>
-                                    <option value="#F4ECD8">Sepia ấm</option>
                                     <option value="#FFFFFF">Trắng tinh</option>
+                                    <option value="#F4ECD8">Sepia ấm</option>
                                     <option value="#F0FDF4">Xanh bạc hà</option>
                                     <option value="#EFF6FF">Xanh da trời</option>
                                     <option value="#FEF9C3">Vàng kem</option>
                                     <option value="#FDF2F8">Hồng phấn</option>
+                                    <option value="#F5F3FF">Tím Lavender</option>
+                                    <option value="#FFF7ED">Cam đào ấm</option>
+                                    <option value="#ECFDF5">Matcha dịu</option>
+                                    <option value="#F1F5F9">Xám Slate mát</option>
+                                    <option value="#FEFCE8">Bơ ấm (Butter)</option>
+                                    <option value="#F0F9FF">Băng tuyết (Ice Blue)</option>
+                                    <option value="#1E293B">Slate tối (Dịu mắt)</option>
                                 </select>
                             </div>
                         </div>
@@ -1435,6 +1580,95 @@
             updatePreview();
         }
 
+        // ============================================================
+        // THEME PRESETS (GỢI Ý MẪU ĐẸP CHỌN NHANH)
+        // ============================================================
+        const THEME_PRESETS = {
+            'oly-student': {
+                layoutStyle: 'layout-notebook',
+                fontClass: 'font-itim',
+                paperStyle: 'grid-oly',
+                paperColor: '#FDFCF7'
+            },
+            'pastel-cute': {
+                layoutStyle: 'layout-cute',
+                fontClass: 'font-quicksand',
+                paperStyle: 'grid-dot',
+                paperColor: '#FDF2F8'
+            },
+            'academic-gov': {
+                layoutStyle: 'layout-academic',
+                fontClass: 'font-serif',
+                paperStyle: 'grid-blank',
+                paperColor: '#FFFFFF'
+            },
+            'math-caro': {
+                layoutStyle: 'layout-card',
+                fontClass: 'font-nunito',
+                paperStyle: 'grid-squared',
+                paperColor: '#EFF6FF'
+            },
+            'neo-brutal': {
+                layoutStyle: 'layout-neo',
+                fontClass: 'font-baloo',
+                paperStyle: 'grid-dot',
+                paperColor: '#FEF9C3'
+            },
+            'vintage-retro': {
+                layoutStyle: 'layout-notebook',
+                fontClass: 'font-lora',
+                paperStyle: 'grid-margin-lined',
+                paperColor: '#F4ECD8'
+            },
+            'night-slate': {
+                layoutStyle: 'layout-minimal',
+                fontClass: 'font-bevietnam',
+                paperStyle: 'grid-graph-cyan',
+                paperColor: '#1E293B'
+            }
+        };
+
+        function applyThemePreset(presetId) {
+            const preset = THEME_PRESETS[presetId];
+            if (!preset) return;
+
+            // Cập nhật controls trên sidebar studio
+            const layoutEl = document.getElementById('layoutStyleSelect');
+            const fontEl = document.getElementById('fontSelect');
+            const paperEl = document.getElementById('paperStyleSelect');
+            const colorEl = document.getElementById('paperColorSelect');
+
+            if (layoutEl) layoutEl.value = preset.layoutStyle;
+            if (fontEl) fontEl.value = preset.fontClass;
+            if (paperEl) paperEl.value = preset.paperStyle;
+            if (colorEl) colorEl.value = preset.paperColor;
+
+            // Cập nhật controls trong modal tạo đề nếu đang mở
+            const cfgLayoutEl = document.getElementById('cfgLayoutStyle');
+            const cfgFontEl = document.getElementById('cfgFont');
+            const cfgPaperEl = document.getElementById('cfgPaperStyle');
+            const cfgColorEl = document.getElementById('cfgPaperColor');
+
+            if (cfgLayoutEl) cfgLayoutEl.value = preset.layoutStyle;
+            if (cfgFontEl) cfgFontEl.value = preset.fontClass;
+            if (cfgPaperEl) cfgPaperEl.value = preset.paperStyle;
+            if (cfgColorEl) cfgColorEl.value = preset.paperColor;
+
+            // Highlight button preset được chọn
+            document.querySelectorAll('.theme-preset-btn').forEach(btn => {
+                if (btn.getAttribute('data-preset') === presetId) {
+                    btn.classList.add('ring-2', 'ring-black', 'bg-amber-100');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-black', 'bg-amber-100');
+                }
+            });
+
+            updatePreview();
+            if (typeof showToast === 'function') {
+                showToast('Đã áp dụng mẫu giao diện nhanh!', 'success');
+            }
+        }
+
         let previewDebounce;
         function debouncePreview() {
             clearTimeout(previewDebounce);
@@ -1495,6 +1729,7 @@
                     const fontClass = document.getElementById('fontSelect')?.value || 'font-itim';
                     const paperStyle = document.getElementById('paperStyleSelect')?.value || 'grid-oly';
                     const paperColor = document.getElementById('paperColorSelect')?.value || '#FDFCF7';
+                    const layoutStyle = document.getElementById('layoutStyleSelect')?.value || 'layout-card';
 
                     const renderer = new TexRenderer();
                     const html = renderer.renderExam(examData, {
@@ -1504,6 +1739,7 @@
                         fontClass,
                         paperStyle,
                         paperColor,
+                        layoutStyle,
                         imageBasePath: 'images',
                         images: bundledImages
                     });
@@ -1919,10 +2155,12 @@
                 teacherInput.value = currentParsedExam?.config?.teacher || currentParsedExam?.meta?.teacher || currentUser?.name || '';
             }
 
-            // Sync giá trị font, kiểu giấy, màu giấy từ sidebar hoặc từ config của đề hiện tại
+            // Sync giá trị layout, font, kiểu giấy, màu giấy từ sidebar hoặc từ config của đề hiện tại
+            const curLayout = currentParsedExam?.config?.layoutStyle || document.getElementById('layoutStyleSelect')?.value || 'layout-card';
             const curFont = currentParsedExam?.config?.fontClass || document.getElementById('fontSelect')?.value || 'font-itim';
             const curPaperStyle = currentParsedExam?.config?.paperStyle || document.getElementById('paperStyleSelect')?.value || 'grid-oly';
             const curPaperColor = currentParsedExam?.config?.paperColor || document.getElementById('paperColorSelect')?.value || '#FDFCF7';
+            if (document.getElementById('cfgLayoutStyle')) document.getElementById('cfgLayoutStyle').value = curLayout;
             if (document.getElementById('cfgFont')) document.getElementById('cfgFont').value = curFont;
             if (document.getElementById('cfgPaperStyle')) document.getElementById('cfgPaperStyle').value = curPaperStyle;
             if (document.getElementById('cfgPaperColor')) document.getElementById('cfgPaperColor').value = curPaperColor;
@@ -2034,6 +2272,7 @@
                 showAnswers: document.getElementById('cfgShowAnswers').checked,
                 shuffleQuestions: document.getElementById('cfgShuffle').checked,
                 examCode: customCode || Storage.generateExamCode(),
+                layoutStyle: document.getElementById('cfgLayoutStyle')?.value || document.getElementById('layoutStyleSelect')?.value || 'layout-card',
                 fontClass: document.getElementById('cfgFont')?.value || document.getElementById('fontSelect')?.value || 'font-itim',
                 paperStyle: document.getElementById('cfgPaperStyle')?.value || document.getElementById('paperStyleSelect')?.value || 'grid-oly',
                 paperColor: document.getElementById('cfgPaperColor')?.value || document.getElementById('paperColorSelect')?.value || '#FDFCF7',
@@ -2093,12 +2332,27 @@
                 return;
             }
 
+            const layoutNames = {
+                'layout-card': 'Thẻ hiện đại',
+                'layout-cute': 'Học trò cute',
+                'layout-notebook': 'Vở bài tập',
+                'layout-academic': 'Bộ GD&ĐT',
+                'layout-neo': 'Neo 3D',
+                'layout-minimal': 'Tối giản'
+            };
+
             const fontNames = {
                 'font-itim': 'Itim',
+                'font-quicksand': 'Quicksand',
+                'font-nunito': 'Nunito',
+                'font-baloo': 'Baloo 2',
+                'font-montserrat': 'Montserrat',
                 'font-mali': 'Mali',
                 'font-playpen': 'Playpen',
                 'font-patrick': 'Patrick Hand',
                 'font-caveat': 'Caveat',
+                'font-lora': 'Lora',
+                'font-dancing': 'Dancing Script',
                 'font-bevietnam': 'Be Vietnam',
                 'font-sans': 'Modern Sans',
                 'font-serif': 'Roboto Slab',
@@ -2107,16 +2361,22 @@
 
             const paperNames = {
                 'grid-oly': 'Ô ly',
+                'grid-margin-lined': 'Kẻ lề đỏ',
+                'grid-slanted': 'Ô ly nghiêng',
                 'grid-squared': 'Ô vuông',
                 'grid-dot': 'Chấm',
                 'grid-lined': 'Kẻ ngang',
                 'grid-milimet': 'Mili',
+                'grid-isometric': '3D Isometric',
+                'grid-vintage-border': 'Khung cổ điển',
+                'grid-graph-cyan': 'Cyan Graph',
                 'grid-double': 'Kẻ đôi',
                 'grid-blank': 'Trơn'
             };
 
             grid.innerHTML = exams.map(exam => {
                 const cfg = exam.config || {};
+                const layoutLabel = layoutNames[cfg.layoutStyle] || layoutNames[exam.layoutStyle] || 'Thẻ hiện đại';
                 const fontLabel = fontNames[cfg.fontClass] || 'Itim';
                 const paperLabel = paperNames[cfg.paperStyle] || 'Ô ly';
                 const isPractice = (exam.examMode === 'practice' || cfg.examMode === 'practice');
@@ -2133,8 +2393,8 @@
                                     ${exam.examCode}
                                 </span>
                                 ${modeBadge}
-                                <span class="neo-badge neo-badge-yellow text-[11px]" title="Font & Kiểu giấy">
-                                    ${fontLabel} • ${paperLabel}
+                                <span class="neo-badge neo-badge-yellow text-[11px]" title="Định dạng: Trình bày • Font • Giấy">
+                                    ${layoutLabel} • ${fontLabel} • ${paperLabel}
                                 </span>
                             </div>
                             <button onclick="deleteExam('${exam.examCode}')" class="w-8 h-8 rounded-lg border-2 border-black bg-rose-100 hover:bg-rose-200 flex items-center justify-center text-rose-700 shadow-[1.5px_1.5px_0px_#000] transition-transform active:translate-x-0.5 active:translate-y-0.5" title="Xóa đề">
@@ -2204,6 +2464,7 @@
                 fontClass: config.fontClass || 'font-itim',
                 paperStyle: config.paperStyle || 'grid-oly',
                 paperColor: config.paperColor || '#FDFCF7',
+                layoutStyle: config.layoutStyle || exam.layoutStyle || 'layout-card',
                 images: config.images || exam.images || {}
             });
 

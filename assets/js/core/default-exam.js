@@ -30,6 +30,7 @@ window.DEFAULT_EXAM = window.__DEFAULT_EXAM__ = {
     "paperStyle": "grid-oly",
     "fontClass": "font-itim",
     "paperColor": "#FDFCF7",
+    "layoutStyle": "layout-card",
     "examMode": "exam"
   },
   "sections": [

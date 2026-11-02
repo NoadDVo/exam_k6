@@ -23,6 +23,7 @@ class TexRenderer {
       paperStyle:    'grid-oly',// Kiểu giấy (dùng trong paper.css)
       fontClass:     'font-itim',// Font chữ
       paperColor:    '#FDFCF7',  // Màu giấy nền
+      layoutStyle:   'layout-card', // Kiểu trình bày câu hỏi và các phần
       imageBasePath: '',        // Đường dẫn gốc cho hình ảnh
     };
 
@@ -44,9 +45,10 @@ class TexRenderer {
     const cfg = examData?.config || {};
     const opts = {
       ...this._defaultOptions,
-      paperStyle: cfg.paperStyle || this._defaultOptions.paperStyle,
-      fontClass:  cfg.fontClass  || this._defaultOptions.fontClass,
-      paperColor: cfg.paperColor || this._defaultOptions.paperColor,
+      layoutStyle: options.layoutStyle || cfg.layoutStyle || examData.layoutStyle || this._defaultOptions.layoutStyle,
+      paperStyle:  options.paperStyle  || cfg.paperStyle  || examData.paperStyle  || this._defaultOptions.paperStyle,
+      fontClass:   options.fontClass   || cfg.fontClass   || examData.fontClass   || this._defaultOptions.fontClass,
+      paperColor:  options.paperColor  || cfg.paperColor  || examData.paperColor  || this._defaultOptions.paperColor,
       images: { ...(examData?.images || {}), ...(cfg.images || {}), ...(options.images || {}) },
       ...options
     };
@@ -56,7 +58,7 @@ class TexRenderer {
 
     const bgStyle = opts.paperColor ? `style="background-color: ${opts.paperColor};"` : '';
     const examCode = examData?.meta?.examCode || examData?.examCode || '';
-    let html = `<div class="exam-paper ${opts.paperStyle} ${opts.fontClass}" ${bgStyle} data-exam-code="${examCode}">`;
+    let html = `<div class="exam-paper ${opts.paperStyle} ${opts.fontClass} ${opts.layoutStyle}" ${bgStyle} data-exam-code="${examCode}">`;
 
     // --- Header & Thông tin học sinh (chỉ render nếu showHeader được bật) ---
     if (opts.showHeader) {
@@ -142,9 +144,25 @@ class TexRenderer {
       ? `<div class="section-instruction">${this._escape(section.instruction)}</div>`
       : '';
 
+    let iconPrefix = '';
+    const sTitle = (section.title || '').trim();
+    const sType = (section.type || '').toLowerCase();
+    const sTitleLower = sTitle.toLowerCase();
+    if (!/[\u{1F300}-\u{1F9FF}]/u.test(sTitle)) {
+      if (sType === 'choice' || sTitleLower.includes('trắc nghiệm') || sTitleLower.includes('phần i')) {
+        iconPrefix = '<span class="section-icon">🎯</span> ';
+      } else if (sType === 'true_false' || sTitleLower.includes('đúng sai') || sTitleLower.includes('phần ii')) {
+        iconPrefix = '<span class="section-icon">⚖️</span> ';
+      } else if (sType === 'short_answer' || sTitleLower.includes('ngắn') || sTitleLower.includes('phần iii')) {
+        iconPrefix = '<span class="section-icon">✍️</span> ';
+      } else if (sType === 'essay' || sTitleLower.includes('tự luận') || sTitleLower.includes('phần iv')) {
+        iconPrefix = '<span class="section-icon">📝</span> ';
+      }
+    }
+
     return `
 <div class="section-header" data-section-id="${section.id}" data-section-type="${section.type}">
-  <div class="section-title">${this._escape(section.title)}</div>
+  <div class="section-title">${iconPrefix}${this._escape(section.title)}</div>
   ${instrHtml}
 </div>
 `;

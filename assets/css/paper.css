@@ -87,6 +87,49 @@
   background-position: 0 var(--grid-offset-y);
 }
 
+.grid-margin-lined {
+  background-image: 
+    linear-gradient(to right, transparent 58px, rgba(239, 68, 68, 0.45) 59px, rgba(239, 68, 68, 0.45) 60px, transparent 61px),
+    linear-gradient(to bottom, transparent calc(var(--grid-line-height) - 1px), var(--grid-color) calc(var(--grid-line-height) - 1px));
+  background-size: 100% 100%, 100% var(--grid-line-height);
+  background-position: 0 0, 0 var(--grid-offset-y);
+}
+
+.grid-slanted {
+  background-image:
+    linear-gradient(75deg, rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px);
+  background-size: 38px 38px, 38px 38px, 38px 38px;
+  background-position: 0 0, 0 var(--grid-offset-y), 0 0;
+}
+
+.grid-isometric {
+  background-image: 
+    linear-gradient(30deg, var(--grid-sub-color) 1px, transparent 1px),
+    linear-gradient(150deg, var(--grid-sub-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-sub-color) 1px, transparent 1px);
+  background-size: 32px 55px;
+  background-position: 0 0;
+}
+
+.grid-vintage-border {
+  border: 4px double #78350F !important;
+  outline: 1.5px solid #D97706 !important;
+  outline-offset: -10px !important;
+  box-shadow: 0 8px 24px rgba(120, 53, 15, 0.12) !important;
+}
+
+.grid-graph-cyan {
+  background-image: 
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.3) 1px, transparent 1px),
+    linear-gradient(to right, rgba(6, 182, 212, 0.3) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.08) 1px, transparent 1px),
+    linear-gradient(to right, rgba(6, 182, 212, 0.08) 1px, transparent 1px);
+  background-size: 25px 25px, 25px 25px, 5px 5px, 5px 5px;
+  background-position: 0 0;
+}
+
 .grid-blank {
   background-image: none !important;
 }
@@ -101,6 +144,12 @@
 .font-sans, .font-sans *:not(.katex):not(.katex *) { font-family: 'Plus Jakarta Sans', sans-serif !important; }
 .font-serif, .font-serif *:not(.katex):not(.katex *) { font-family: 'Roboto Slab', serif !important; }
 .font-comfortaa, .font-comfortaa *:not(.katex):not(.katex *) { font-family: 'Comfortaa', cursive !important; }
+.font-quicksand, .font-quicksand *:not(.katex):not(.katex *) { font-family: 'Quicksand', sans-serif !important; }
+.font-nunito, .font-nunito *:not(.katex):not(.katex *) { font-family: 'Nunito', sans-serif !important; }
+.font-baloo, .font-baloo *:not(.katex):not(.katex *) { font-family: 'Baloo 2', cursive !important; }
+.font-montserrat, .font-montserrat *:not(.katex):not(.katex *) { font-family: 'Montserrat', sans-serif !important; }
+.font-lora, .font-lora *:not(.katex):not(.katex *) { font-family: 'Lora', serif !important; }
+.font-dancing, .font-dancing *:not(.katex):not(.katex *) { font-family: 'Dancing Script', cursive !important; }
 
 /* Exam Header */
 .paper-header,
@@ -1177,6 +1226,357 @@
     page-break-inside: avoid;
     break-inside: avoid;
   }
+}
+
+/* ==========================================================================
+   LAYOUT STYLES (CÁC KIỂU TRÌNH BÀY CÂU HỎI & CÁC PHẦN)
+   ========================================================================== */
+
+/* 1. MẪU MẶC ĐỊNH: Thẻ hiện đại bo góc (layout-card) */
+.layout-card .section-title {
+  color: #4338CA;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.layout-card .section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: #4F46E5;
+  border-radius: 99px;
+}
+.layout-card .question-block {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+/* 2. MẪU HỌC TRÒ ĐÁNG YÊU (layout-cute): Ribbon Pastel & Sticker kẹo ngọt */
+.layout-cute .section-header {
+  margin-top: 28px;
+  margin-bottom: 18px;
+}
+.layout-cute .section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #6366F1, #EC4899);
+  color: #FFFFFF !important;
+  padding: 8px 18px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.28);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+}
+.layout-cute .section-title::before {
+  display: none !important;
+}
+.layout-cute .section-instruction {
+  margin-left: 6px;
+  margin-top: 8px;
+  color: #64748B;
+  font-weight: 600;
+}
+.layout-cute .question-block {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #E0E7FF;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.08);
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  transition: all 0.2s ease;
+}
+.layout-cute .question-block:hover {
+  border-color: #C7D2FE;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+}
+.layout-cute .question-number {
+  background: #EEF2FF;
+  color: #4F46E5;
+  padding: 3.5px 12px;
+  border-radius: 99px;
+  border: 1.5px solid #C7D2FE;
+  font-size: 13.5px;
+}
+.layout-cute .question-points {
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1.5px solid #FDE68A;
+  border-radius: 99px;
+  padding: 2.5px 10px;
+}
+.layout-cute .choice-item {
+  border-radius: 14px;
+  border: 1.5px solid #E0E7FF;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.layout-cute .choice-item:hover {
+  border-color: #EC4899;
+  background: #FDF2F8;
+  transform: translateY(-1.5px);
+}
+.layout-cute .choice-item.selected {
+  border-color: #EC4899 !important;
+  background: #FDF2F8 !important;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2) !important;
+}
+.layout-cute .choice-item.selected .choice-letter {
+  background: #EC4899 !important;
+  color: #FFFFFF !important;
+}
+.layout-cute .choice-letter {
+  border-radius: 10px;
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+/* 3. MẪU TRANG VỞ HỌC SINH (layout-notebook): Nét bút dạ quang & mực đỏ chấm bài */
+.layout-notebook .section-title {
+  color: #1E293B;
+  font-size: 15px;
+  font-weight: 900;
+  background: linear-gradient(180deg, transparent 55%, rgba(253, 224, 71, 0.75) 55%);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.layout-notebook .section-title::before {
+  display: none !important;
+}
+.layout-notebook .question-block {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px dashed #94A3B8;
+  padding: 16px 20px;
+  box-shadow: none;
+}
+.layout-notebook .question-block:hover {
+  border-color: #64748B;
+  background: rgba(255, 255, 255, 0.95);
+}
+.layout-notebook .question-number {
+  color: #E11D48; /* Bút đỏ chấm bài */
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: underline wavy #FDA4AF 1.5px;
+}
+.layout-notebook .question-points {
+  background: #F3E8FF; /* Mực tím học sinh */
+  color: #7E22CE;
+  border: 1px solid #D8B4FE;
+  font-weight: 800;
+}
+.layout-notebook .choice-item {
+  border-radius: 8px;
+  border: 1.5px solid #CBD5E1;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* 4. MẪU CHUẨN BỘ GIÁO DỤC (layout-academic): Trang trọng, chuẩn in ấn quốc gia */
+.layout-academic .section-header {
+  border-top: 2px solid #0F172A;
+  border-bottom: 2px solid #0F172A;
+  padding: 8px 0;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+.layout-academic .section-title {
+  color: #0F172A;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.layout-academic .section-title::before {
+  display: none !important;
+}
+.layout-academic .section-icon {
+  display: none !important;
+}
+.layout-academic .section-instruction {
+  margin-left: 0;
+  margin-top: 4px;
+  color: #475569;
+}
+.layout-academic .question-block {
+  border: none;
+  background: transparent !important;
+  border-bottom: 1px dotted #94A3B8;
+  border-radius: 0;
+  padding: 14px 4px;
+  margin-bottom: 12px;
+  box-shadow: none !important;
+}
+.layout-academic .question-number {
+  color: #000000;
+  font-size: 14px;
+  font-weight: 800;
+}
+.layout-academic .question-points {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-style: italic;
+  font-weight: 700;
+  padding: 0;
+}
+.layout-academic .choice-item {
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.layout-academic .choice-item.selected {
+  border-color: #0F172A !important;
+  background: #F1F5F9 !important;
+}
+.layout-academic .choice-item.selected .choice-letter {
+  background: #0F172A !important;
+  color: #FFF !important;
+}
+
+/* 5. MẪU NEO-BRUTALISM (layout-neo): Khối hộp 3D, viền đen 2.5px, đổ bóng cứng */
+.layout-neo .section-header {
+  margin-top: 28px;
+  margin-bottom: 18px;
+}
+.layout-neo .section-title {
+  display: inline-block;
+  background: #FFC83B;
+  color: #000000;
+  border: 2.5px solid #000000;
+  box-shadow: 3px 3px 0px #000000;
+  padding: 6px 16px;
+  border-radius: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.layout-neo .section-title::before {
+  display: none !important;
+}
+.layout-neo .question-block {
+  border: 2.5px solid #000000;
+  box-shadow: 3.5px 3.5px 0px #000000;
+  border-radius: 12px;
+  background: #FFFFFF;
+  margin-bottom: 22px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.layout-neo .question-block:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 5px 5px 0px #000000;
+}
+.layout-neo .question-number {
+  color: #000000;
+  font-weight: 900;
+  font-size: 14.5px;
+}
+.layout-neo .question-points {
+  background: #B7E4C7;
+  color: #000000;
+  border: 1.5px solid #000000;
+  box-shadow: 1px 1px 0px #000000;
+  font-weight: 900;
+  border-radius: 6px;
+}
+.layout-neo .choice-item {
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+.layout-neo .choice-item:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 3.5px 3.5px 0px #000000;
+  background: #FFFDF7;
+}
+.layout-neo .choice-item.selected {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  border-color: #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+.layout-neo .choice-item.selected .choice-text,
+.layout-neo .choice-item.selected .choice-text * {
+  color: #FFFFFF !important;
+}
+.layout-neo .choice-item.selected .choice-letter {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+/* 6. MẪU TỐI GIẢN (layout-minimal): Phẳng, thanh lịch, nhẹ nhàng */
+.layout-minimal .section-title {
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 6px;
+}
+.layout-minimal .section-title::before {
+  display: none !important;
+}
+.layout-minimal .question-block {
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 14px 6px;
+}
+.layout-minimal .question-number {
+  color: #3B82F6;
+  font-weight: 800;
+}
+.layout-minimal .question-points {
+  background: #F1F5F9;
+  color: #64748B;
+  border: none;
+  font-weight: 700;
+}
+.layout-minimal .choice-item {
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+.layout-minimal .choice-item.selected {
+  border-color: #3B82F6 !important;
+  background: #EFF6FF !important;
+}
+.layout-minimal .choice-item.selected .choice-letter {
+  background: #3B82F6 !important;
+  color: #FFF !important;
+}
+
+/* ĐIỀU CHỈNH CHẾ ĐỘ BAN ĐÊM (DARK SLATE NIGHT - #1E293B) */
+.exam-paper[style*="background-color: #1E293B"],
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] {
+  color: #F8FAFC !important;
+}
+.exam-paper[style*="background-color: #1E293B"] .question-content,
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] .question-content,
+.exam-paper[style*="background-color: #1E293B"] .exam-title,
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] .exam-title {
+  color: #F8FAFC !important;
+}
+.exam-paper[style*="background-color: #1E293B"] .question-block,
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] .question-block {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border-color: #334155 !important;
+}
+.exam-paper[style*="background-color: #1E293B"] .choice-item,
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] .choice-item {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+.exam-paper[style*="background-color: #1E293B"] .choice-text,
+.exam-paper[style*="background-color: rgb(30, 41, 59)"] .choice-text {
+  color: #F8FAFC !important;
 }
 
 

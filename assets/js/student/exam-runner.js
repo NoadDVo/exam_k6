@@ -576,6 +576,7 @@ const ExamRunner = (() => {
       mode: 'exam',
       showAnswers: false,
       showSolutions: false,
+      layoutStyle: cfg.layoutStyle || examData.layoutStyle || 'layout-card',
       fontClass: cfg.fontClass || examData.fontClass || 'font-itim',
       paperStyle: cfg.paperStyle || examData.paperStyle || 'grid-oly',
       paperColor: cfg.paperColor || examData.paperColor || '#FDFCF7',
