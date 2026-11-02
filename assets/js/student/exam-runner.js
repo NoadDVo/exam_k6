@@ -569,6 +569,11 @@ const ExamRunner = (() => {
     const floatBtn = document.getElementById('mobilePaletteToggleBtn');
     if (floatBtn) floatBtn.classList.remove('hidden');
 
+    const bottomBar = document.getElementById('bottomSubmitBar');
+    if (bottomBar) bottomBar.classList.remove('hidden');
+
+    document.querySelectorAll('button[onclick*="submitExam"]').forEach(btn => btn.classList.remove('hidden'));
+
     // Cập nhật huy hiệu chế độ thi trên navbar
     updateModeUI();
 
@@ -797,6 +802,9 @@ const ExamRunner = (() => {
 
     const mFloat = document.getElementById('mobileFloatingProgress');
     if (mFloat) mFloat.textContent = `${answered}/${total} câu`;
+
+    const bProgText = document.getElementById('bottomSubmitProgress');
+    if (bProgText) bProgText.textContent = `Đã làm: ${answered}/${total} câu`;
   };
 
   /**
@@ -1481,12 +1489,13 @@ const ExamRunner = (() => {
     const floatBtn = document.getElementById('mobilePaletteToggleBtn');
     if (floatBtn) floatBtn.classList.add('hidden');
 
-    // Ẩn các nút điều khiển nộp bài & timer trên header
+    // Ẩn các nút điều khiển nộp bài & timer trên header và cuối trang
     const timerPill = document.getElementById('timerPill');
     if (timerPill) timerPill.classList.add('hidden');
 
-    const submitBtn = document.querySelector('button[onclick*="submitExam"]');
-    if (submitBtn) submitBtn.classList.add('hidden');
+    document.querySelectorAll('button[onclick*="submitExam"]').forEach(btn => btn.classList.add('hidden'));
+    const bottomBar = document.getElementById('bottomSubmitBar');
+    if (bottomBar) bottomBar.classList.add('hidden');
 
     const titleBadge = document.getElementById('examTitleBadge');
     if (titleBadge) titleBadge.textContent = 'KẾT QUẢ & XEM LẠI BÀI THI';

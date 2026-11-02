@@ -356,9 +356,33 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-2 py-3 sm:px-4 sm:py-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 min-w-0" id="examViewSection">
         
         <!-- Paper Container (Chiếm 100% trên điện thoại, không bao giờ bị cắt xén) -->
-        <div class="flex-1 w-full min-w-0">
+        <div class="flex-1 w-full min-w-0 flex flex-col gap-4">
             <div id="examPaperContainer" class="w-full relative">
                 <!-- Nội dung đề thi render động ở đây -->
+            </div>
+
+            <!-- Khung nộp bài ở cuối đề (rất tiện khi làm xong trên điện thoại) -->
+            <div id="bottomSubmitBar" class="neo-card p-4 sm:p-6 bg-white border-[2.5px] border-black shadow-[4px_4px_0px_#000] text-center space-y-3 mb-16 lg:mb-6">
+                <div class="flex items-center justify-center gap-2 text-black font-typewriter font-black text-sm uppercase">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                    <span>HẾT NỘI DUNG ĐỀ THI</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-xs font-bold text-neutral-700">
+                    <span class="neo-badge neo-badge-yellow text-xs py-1 px-3" id="bottomSubmitProgress">Đã làm: 0/0 câu</span>
+                </div>
+                <p class="text-xs font-bold text-neutral-600 max-w-md mx-auto">
+                    Bạn đã cuộn đến câu hỏi cuối cùng. Hãy kiểm tra lại các câu chưa làm trước khi hoàn tất nộp bài thi.
+                </p>
+                <div class="flex items-center justify-center gap-3 pt-1 flex-wrap">
+                    <button type="button" onclick="ExamRunner.toggleMobilePalette(true)" class="lg:hidden neo-btn neo-btn-white text-xs font-black py-2.5 px-4 shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
+                        <i data-lucide="list-checks" class="w-4 h-4"></i>
+                        <span>Kiểm tra câu chưa làm</span>
+                    </button>
+                    <button type="button" onclick="ExamRunner.submitExam()" class="neo-btn neo-btn-yellow text-sm font-black py-3 px-8 shadow-[3px_3px_0px_#000] uppercase tracking-wider flex items-center gap-2 hover:translate-x-0.5 hover:translate-y-0.5 transition-transform cursor-pointer">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Nộp Bài Thi</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -417,8 +441,14 @@
                 <!-- Nút số câu mobile render ở đây -->
             </div>
             
-            <div class="pt-2 text-[11px] text-neutral-500 text-center font-bold">
-                💡 Chạm vào số câu để cuộn ngay đến câu hỏi tương ứng
+            <div class="pt-2.5 pb-1 border-t-2 border-black/10 flex items-center justify-between gap-2">
+                <span class="text-[11px] text-neutral-500 font-bold">
+                    💡 Chạm số câu để chuyển
+                </span>
+                <button type="button" onclick="ExamRunner.submitExam()" class="neo-btn neo-btn-yellow neo-btn-sm font-black uppercase flex items-center gap-1.5 shadow-[2px_2px_0px_#000]">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>Nộp Bài</span>
+                </button>
             </div>
         </div>
     </div>
