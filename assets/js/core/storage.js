@@ -311,6 +311,7 @@ const Storage = (() => {
                     showScore: cfg.showScore !== false,
                     showAnswers: cfg.showAnswers !== false,
                     shuffleQuestions: cfg.shuffleQuestions || false,
+                    shuffleSections: cfg.shuffleSections || examData.config?.shuffleSections || [],
                     title: cfg.title || examData.meta?.title || 'Đề thi',
                     subject: cfg.subject || examData.meta?.subject || 'Toán',
                     grade: cfg.grade || examData.meta?.grade || '',

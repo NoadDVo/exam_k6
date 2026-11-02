@@ -240,7 +240,7 @@ class TexRenderer {
     return `
 <div class="question-block" data-question-id="${question.id}" data-type="choice">
   <div class="question-header">
-    <span class="question-number">Câu ${question.id}.</span>
+    <span class="question-number">Câu ${question.displayNumber || question.id}.</span>
     ${opts.showAnswers ? `<span class="question-points">[${question.points} điểm]</span>` : ''}
   </div>
   <div class="question-body${imageHtml ? ' question-has-image' : ''}">
@@ -311,7 +311,7 @@ class TexRenderer {
     return `
 <div class="question-block" data-question-id="${question.id}" data-type="truefalse">
   <div class="question-header">
-    <span class="question-number">Câu ${question.id}.</span>
+    <span class="question-number">Câu ${question.displayNumber || question.id}.</span>
     ${opts.showAnswers ? `<span class="question-points">[${question.points} điểm]</span>` : ''}
   </div>
   <div class="question-body${imageHtml ? ' question-has-image' : ''}">
@@ -573,7 +573,7 @@ class TexRenderer {
     return `
 <div class="question-block" data-question-id="${question.id}" data-type="shortanswer">
   <div class="question-header">
-    <span class="question-number">Câu ${question.id}.</span>
+    <span class="question-number">Câu ${question.displayNumber || question.id}.</span>
     ${opts.showAnswers ? `<span class="question-points">[${question.points} điểm]</span>` : ''}
   </div>
   <div class="question-body${imageHtml ? ' question-has-image' : ''}">
@@ -640,7 +640,7 @@ class TexRenderer {
     return `
 <div class="question-block" data-question-id="${question.id}" data-type="essay">
   <div class="question-header">
-    <span class="question-number">Câu ${question.id}.</span>
+    <span class="question-number">Câu ${question.displayNumber || question.id}.</span>
     <span class="question-points">(${question.points} điểm)</span>
   </div>
   ${(contentHtml || imageHtml) ? `

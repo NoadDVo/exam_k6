@@ -1230,10 +1230,30 @@
                         <input type="checkbox" id="cfgShowAnswers" checked class="w-4 h-4 accent-black rounded">
                         <span class="text-xs font-bold text-black">Cho học sinh xem đáp án và lời giải chi tiết</span>
                     </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="cfgShuffle" class="w-4 h-4 accent-black rounded">
-                        <span class="text-xs font-bold text-black">Trộn thứ tự câu hỏi ngẫu nhiên</span>
-                    </label>
+                    <div>
+                        <label class="flex items-center gap-3 cursor-pointer select-none">
+                            <input type="checkbox" id="cfgShuffle" class="w-4 h-4 accent-black rounded" onchange="toggleShuffleSectionsUI()">
+                            <span class="text-xs font-bold text-black">Trộn thứ tự câu hỏi ngẫu nhiên</span>
+                        </label>
+
+                        <!-- Khung chọn phần được phép trộn câu hỏi -->
+                        <div id="cfgShuffleSectionsContainer" class="hidden mt-2.5 ml-7 p-3 bg-amber-50/80 rounded-xl border-2 border-black/20 text-xs">
+                            <div class="font-black text-black text-[11px] uppercase mb-1.5 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5"><i data-lucide="shuffle" class="w-3.5 h-3.5 text-indigo-600"></i> Chọn các phần cho phép trộn câu:</span>
+                                <div class="space-x-2 font-normal text-[10px] normal-case">
+                                    <button type="button" onclick="selectAllShuffleSections(true)" class="text-blue-700 hover:underline font-bold">Chọn hết</button>
+                                    <span class="text-neutral-300">|</span>
+                                    <button type="button" onclick="selectAllShuffleSections(false)" class="text-neutral-500 hover:underline font-bold">Bỏ chọn</button>
+                                </div>
+                            </div>
+                            <div id="cfgShuffleSectionsList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 py-1">
+                                <!-- Danh sách checkbox các phần được render tự động từ đề thi -->
+                            </div>
+                            <div class="text-[10px] text-neutral-600 font-medium mt-1.5 italic border-t border-black/10 pt-1.5">
+                                💡 Câu hỏi chỉ đảo vị trí trong nội bộ từng phần được chọn, tuyệt đối không bị trộn lẫn giữa các phần.
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Cảnh báo nếu chưa có dữ liệu parse -->
@@ -2150,9 +2170,85 @@
             if (document.getElementById('cfgPaperStyle')) document.getElementById('cfgPaperStyle').value = curPaperStyle;
             if (document.getElementById('cfgPaperColor')) document.getElementById('cfgPaperColor').value = curPaperColor;
 
+            // Đồng bộ trạng thái Trộn câu hỏi và danh sách các phần cho phép trộn
+            const isShuffle = Boolean(currentParsedExam?.config?.shuffleQuestions);
+            const shuffleCb = document.getElementById('cfgShuffle');
+            if (shuffleCb) shuffleCb.checked = isShuffle;
+            populateShuffleSectionsList();
+            toggleShuffleSectionsUI();
+
             // Kiểm tra có data không
             const hasData = currentParsedExam && currentParsedExam.questions?.length > 0;
             document.getElementById('noDataWarning').classList.toggle('hidden', hasData);
+        }
+
+        // ============================================================
+        // ĐIỀU KHIỂN CHỌN PHẦN ĐƯỢC PHÉP TRỘN CÂU HỎI
+        // ============================================================
+        function toggleShuffleSectionsUI() {
+            const isShuffle = document.getElementById('cfgShuffle')?.checked;
+            const container = document.getElementById('cfgShuffleSectionsContainer');
+            if (container) {
+                container.classList.toggle('hidden', !isShuffle);
+            }
+        }
+
+        function populateShuffleSectionsList() {
+            const listEl = document.getElementById('cfgShuffleSectionsList');
+            if (!listEl) return;
+
+            const sections = currentParsedExam?.sections || [];
+            const questions = currentParsedExam?.questions || [];
+
+            // Đếm số câu hỏi của từng phần
+            const countBySection = {};
+            questions.forEach(q => {
+                const sId = q.sectionId || 'default';
+                countBySection[sId] = (countBySection[sId] || 0) + 1;
+            });
+
+            // Lấy danh sách các phần đã lưu trước đó nếu có
+            const savedSections = currentParsedExam?.config?.shuffleSections;
+
+            if (sections.length > 0) {
+                listEl.innerHTML = sections.map((sec, idx) => {
+                    const count = countBySection[sec.id] || 0;
+                    let isChecked = true;
+                    if (Array.isArray(savedSections) && savedSections.length > 0) {
+                        isChecked = savedSections.includes(sec.id);
+                    } else {
+                        // Mặc định chọn phần có từ 2 câu trở lên (như phần trắc nghiệm, đúng/sai)
+                        isChecked = count > 1;
+                    }
+
+                    return `
+                        <label class="flex items-center gap-2.5 p-2 bg-white rounded-lg border border-black/20 hover:border-black cursor-pointer transition-colors shadow-2xs">
+                            <input type="checkbox" name="cfgShuffleSection" value="${sec.id}" ${isChecked ? 'checked' : ''} class="w-4 h-4 accent-black rounded">
+                            <div class="min-w-0 flex-1">
+                                <span class="text-xs font-bold text-black block truncate">${sec.title || `Phần ${idx + 1}`}</span>
+                            </div>
+                            <span class="neo-badge neo-badge-yellow text-[10px] py-0.5 px-1.5 shrink-0">${count} câu</span>
+                        </label>
+                    `;
+                }).join('');
+            } else {
+                const total = questions.length;
+                listEl.innerHTML = `
+                    <label class="flex items-center gap-2.5 p-2 bg-white rounded-lg border border-black/20 hover:border-black cursor-pointer transition-colors">
+                        <input type="checkbox" name="cfgShuffleSection" value="all" checked class="w-4 h-4 accent-black rounded">
+                        <span class="text-xs font-bold text-black flex-1">Toàn bộ câu hỏi trong đề</span>
+                        <span class="neo-badge neo-badge-yellow text-[10px] py-0.5 px-1.5">${total} câu</span>
+                    </label>
+                `;
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function selectAllShuffleSections(select) {
+            document.querySelectorAll('input[name="cfgShuffleSection"]').forEach(cb => {
+                cb.checked = select;
+            });
         }
 
         function closeCreateExamModal() {
@@ -2245,6 +2341,11 @@
             };
             currentParsedExam.images = allImages;
 
+            const isShuffle = document.getElementById('cfgShuffle')?.checked || false;
+            const selectedShuffleSections = isShuffle
+                ? Array.from(document.querySelectorAll('input[name="cfgShuffleSection"]:checked')).map(el => el.value)
+                : [];
+
             const config = {
                 title: document.getElementById('cfgTitle').value || 'Đề kiểm tra giữa học kỳ I - Toán 6',
                 subject: document.getElementById('cfgSubject').value || 'Toán',
@@ -2255,7 +2356,8 @@
                 maxAttempts: parseInt(document.getElementById('cfgAttempts').value) || 1,
                 showScore: document.getElementById('cfgShowScore').checked,
                 showAnswers: document.getElementById('cfgShowAnswers').checked,
-                shuffleQuestions: document.getElementById('cfgShuffle').checked,
+                shuffleQuestions: isShuffle,
+                shuffleSections: selectedShuffleSections,
                 examCode: customCode || Storage.generateExamCode(),
                 layoutStyle: document.getElementById('cfgLayoutStyle')?.value || document.getElementById('layoutStyleSelect')?.value || 'layout-card',
                 fontClass: document.getElementById('cfgFont')?.value || document.getElementById('fontSelect')?.value || 'font-itim',

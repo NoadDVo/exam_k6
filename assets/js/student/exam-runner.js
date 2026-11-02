@@ -460,6 +460,105 @@ const ExamRunner = (() => {
   };
 
   /**
+   * Xử lý trộn thứ tự câu hỏi cho học sinh:
+   * - Chỉ trộn nội bộ các câu hỏi trong từng phần được giáo viên cấu hình cho phép (shuffleSections)
+   * - Tuyệt đối không xáo trộn câu hỏi giữa các phần khác nhau
+   * - Cố định thứ tự cho từng học sinh qua session.questionOrder (F5 tải lại trang không bị đổi vị trí)
+   */
+  const applyQuestionOrderForStudent = () => {
+    if (!examData || !Array.isArray(examData.questions) || examData.questions.length === 0) return;
+
+    const isShuffleEnabled = Boolean(examData.config?.shuffleQuestions);
+    const allowedSections = Array.isArray(examData.config?.shuffleSections) && examData.config.shuffleSections.length > 0
+      ? examData.config.shuffleSections
+      : null;
+
+    // 1. Nếu học sinh đã có thứ tự câu hỏi đã lưu trong session (khi tiếp tục làm bài hoặc F5)
+    if (session && Array.isArray(session.questionOrder) && session.questionOrder.length === examData.questions.length) {
+      const qMap = new Map();
+      examData.questions.forEach(q => qMap.set(String(q.id), q));
+      const restoredQuestions = [];
+      session.questionOrder.forEach((id, idx) => {
+        const q = qMap.get(String(id));
+        if (q) {
+          q.displayNumber = idx + 1;
+          restoredQuestions.push(q);
+        }
+      });
+      if (restoredQuestions.length === examData.questions.length) {
+        examData.questions = restoredQuestions;
+        return;
+      }
+    }
+
+    // Nếu KHÔNG bật trộn: Đánh số thứ tự hiển thị tuần tự 1..N
+    if (!isShuffleEnabled) {
+      examData.questions.forEach((q, idx) => {
+        q.displayNumber = idx + 1;
+      });
+      if (session) {
+        session.questionOrder = examData.questions.map(q => String(q.id));
+        Storage.StudentSession.save(session);
+      }
+      return;
+    }
+
+    // 2. BẬT TRỘN: Nhóm câu hỏi theo từng Section (giữ nguyên cấu trúc các phần)
+    const questionsBySection = {};
+    examData.questions.forEach(q => {
+      const secId = q.sectionId || 'default';
+      if (!questionsBySection[secId]) questionsBySection[secId] = [];
+      questionsBySection[secId].push(q);
+    });
+
+    // 3. Tiến hành trộn nội bộ từng phần được phép
+    Object.keys(questionsBySection).forEach(secId => {
+      const canShuffle = (allowedSections === null || allowedSections.includes(secId) || allowedSections.includes('all'));
+      if (canShuffle && questionsBySection[secId].length > 1) {
+        // Fisher-Yates shuffle
+        const arr = questionsBySection[secId];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+    });
+
+    // 4. Ghép lại danh sách câu hỏi theo đúng trật tự các Phần của đề thi
+    const orderedQuestions = [];
+    const sections = (examData.sections && examData.sections.length > 0) ? examData.sections : [{ id: 'default' }];
+    const processedSections = new Set();
+
+    sections.forEach(sec => {
+      const qs = questionsBySection[sec.id];
+      if (qs && qs.length > 0) {
+        orderedQuestions.push(...qs);
+        processedSections.add(sec.id);
+      }
+    });
+
+    // Bổ sung các câu hỏi chưa thuộc section nào
+    Object.keys(questionsBySection).forEach(secId => {
+      if (!processedSections.has(secId)) {
+        orderedQuestions.push(...questionsBySection[secId]);
+      }
+    });
+
+    // 5. Cập nhật displayNumber hiển thị (1..N) cho học sinh
+    orderedQuestions.forEach((q, idx) => {
+      q.displayNumber = idx + 1;
+    });
+
+    examData.questions = orderedQuestions;
+
+    // 6. Lưu cố định thứ tự này vào session của học sinh
+    if (session) {
+      session.questionOrder = orderedQuestions.map(q => String(q.id));
+      Storage.StudentSession.save(session);
+    }
+  };
+
+  /**
    * Khởi động quá trình làm bài thi (Render, Palette, Chống gian lận, Đếm ngược)
    */
   const startExamRunning = () => {
@@ -521,6 +620,9 @@ const ExamRunner = (() => {
 
     const titleEl = document.getElementById('examTitleBadge');
     if (titleEl) titleEl.textContent = examData.config?.title || examData.meta?.title || 'BÀI THI TRỰC TUYẾN';
+
+    // 2.1 Xử lý thứ tự câu hỏi theo phần được phép trộn
+    applyQuestionOrderForStudent();
 
     // 3. Render bảng câu hỏi (Palette) trước để các nút câu hỏi luôn có sẵn trong DOM
     renderPalette();
@@ -1743,7 +1845,7 @@ const ExamRunner = (() => {
           <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div class="flex items-center gap-2 min-w-0">
               <span class="px-3 py-1 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black text-xs shrink-0 shadow-sm">
-                Câu ${q.id}
+                Câu ${q.displayNumber || q.id}
               </span>
               <span class="text-xs font-bold text-slate-400 truncate">${sectionTitle}</span>
             </div>
